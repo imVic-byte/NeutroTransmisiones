@@ -17,6 +17,18 @@ const router = createRouter({
       name: 'login',
       component: () => import('../views/Sesion/login.vue'),
       meta: { requiresAuth: false }
+    },
+    {
+      path:'/configuracion',
+      name:'configuracion',
+      component: () => import('../views/Panel/config.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path:'/agenda',
+      name:'agenda',
+      component: () => import('../views/Agenda/agendaMain.vue'),
+      meta: { requiresAuth: true }
     }
   ],
 })

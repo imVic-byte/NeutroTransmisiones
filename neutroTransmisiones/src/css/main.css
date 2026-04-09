@@ -3,16 +3,32 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --neutro-background: #CCEBD4
+    --neutro-background: #CCEBD4;
+    --neutro-font: #14331C;
+    --neutro-primary: #335731;
+    --neutro-primary-hover: #4B794A;
+    --neutro-secondary: #B0B8C0;
 }
 
 @layer base {
     .dark {
-        --neutro-background: #14331C
+        --neutro-background: #14331C;
+        --neutro-font: #B0B8C0;
+        --neutro-primary: #4B794A;
+        --neutro-primary-hover: #335731;
+        --neutro-secondary: #B0B8C0;
     }
 }
 
-.neutro-background { background-color: var(--color-neutro-background)}
+.neutro-font { color: var(--neutro-font)}
+.neutro-background { background-color: var(--neutro-background)}
+.neutro-primary { background-color: var(--neutro-primary)}
+.neutro-primary-hover { background-color: var(--neutro-primary-hover)}
+.neutro-secondary { background-color: var(--neutro-secondary)}
+
+.neutro-white-font{ color: #B0B8C0}
+.neutro-dark-font{ color: #14331C}
+
 @media print {    
   .no-print{
       display: none !important;

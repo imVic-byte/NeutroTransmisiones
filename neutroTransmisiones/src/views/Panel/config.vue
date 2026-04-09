@@ -1,0 +1,152 @@
+<script setup>
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { useInterfaz } from '@/stores/interfaz.js'
+import { onMounted } from 'vue'
+import cambiarTema from '@/components/componentes/cambiarTema.vue'
+import navbar from '@/components/componentes/navbar.vue'
+const userStore = useUserStore()
+const router = useRouter()
+const uiStore = useInterfaz()
+
+
+const manejarCierreSesion = async () => {
+  try {
+    await userStore.signOut()
+    router.replace('/login')
+  } catch (error) {
+    alert('Error al cerrar sesión: ' + error.message)
+  }
+}
+
+const menu = [
+  {
+    nombre: 'Mi Perfil',
+    ruta: '/panel/config/perfil',
+    icono: 'user'
+  },
+  {
+    nombre: 'Usuarios',
+    ruta: '/panel/config/usuarios',
+    icono: 'users'
+  }
+]
+
+</script>
+<template>
+  <div class="min-h-screen neutro-background font-sans neutro-font pb-20">
+    <navbar subtitulo="Panel de Control" class="navbar shadow-sm" searchInput="false" />
+
+    <div class="container mx-auto px-6 mt-2 pb-15">
+
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold servi-grey-font">Bienvenido, Jeremy</h2>
+        <p class="servi-grey-font">¿Qué deseas administrar hoy?</p>
+        <cambiarTema />
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div
+          class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-blue-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
+          <div
+            class="bg-cyan-100 text-cyan-600 p-4 rounded-full mb-4 group-hover:bg-cyan-600 group-hover:text-white transition-colors duration-300">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M13 7L11.8845 4.76892C11.5634 4.1268 11.4029 3.80573 11.1634 3.57116C10.9516 3.36373 10.6963 3.20597 10.4161 3.10931C10.0992 3 9.74021 3 9.02229 3H5.2C4.0799 3 3.51984 3 3.09202 3.21799C2.71569 3.40973 2.40973 3.71569 2.21799 4.09202C2 4.51984 2 5.0799 2 6.2V7M2 7H17.2C18.8802 7 19.7202 7 20.362 7.32698C20.9265 7.6146 21.3854 8.07354 21.673 8.63803C22 9.27976 22 10.1198 22 11.8V16.2C22 17.8802 22 18.7202 21.673 19.362C21.3854 19.9265 20.9265 20.3854 20.362 20.673C19.7202 21 18.8802 21 17.2 21H6.8C5.11984 21 4.27976 21 3.63803 20.673C3.07354 20.3854 2.6146 19.9265 2.32698 19.362C2 18.7202 2 17.8802 2 16.2V7ZM15.5 17.5L14 16M15 13.5C15 15.433 13.433 17 11.5 17C9.567 17 8 15.433 8 13.5C8 11.567 9.567 10 11.5 10C13.433 10 15 11.567 15 13.5Z"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold servi-grey-font group-hover:text-blue-100 mb-1">Clientes</h3>
+          <p class="text-sm servi-grey-font">Cartera de clientes</p>
+        </div>
+
+        <div
+          class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-orange-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
+          <div
+            class="bg-orange-100 text-orange-600 p-4 rounded-full mb-4 group-hover:bg-orange-600 group-hover:text-white transition-colors duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-8 h-8">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 15.75h.008v.008H12v-.008ZM12 12.75h.008v.008H12v-.008Z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold group-hover:text-orange-100 mb-1">Deudas y Abonos</h3>
+          <p class="text-sm servi-grey-font">Cuentas por cobrar</p>
+        </div>
+
+        <div
+          class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-green-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
+          <div
+            class="bg-green-100 text-green-600 p-4 rounded-full mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-8 h-8">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold servi-grey-font group-hover:text-green-100 mb-1">Finanzas Diarias</h3>
+          <p class="text-sm servi-grey-font">Ingresos y Egresos</p>
+        </div>
+        <div
+            @click="$router.push('/agenda')"
+          class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-yellow-800 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
+          <div
+            class="bg-yellow-50 text-yellow-600 p-4 rounded-full mb-4 group-hover:bg-yellow-600 group-hover:text-white transition-colors duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold servi-grey-font group-hover:text-yellow-100 mb-1">Agenda</h3>
+          <p class="text-sm servi-grey-font">Citas y recordatorios</p>
+        </div>
+        <div
+          class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-green-800 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
+          <div
+            class="bg-green-100 text-green-600 p-4 rounded-full mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300">
+            <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 7.205c4.418 0 8-1.165 8-2.602C20 3.165 16.418 2 12 2S4 3.165 4 4.603c0 1.437 3.582 2.602 8 2.602ZM12 22c4.963 0 8-1.686 8-2.603v-4.404c-.052.032-.112.06-.165.09a7.75 7.75 0 0 1-.745.387c-.193.088-.394.173-.6.253-.063.024-.124.05-.189.073a18.934 18.934 0 0 1-6.3.998c-2.135.027-4.26-.31-6.3-.998-.065-.024-.126-.05-.189-.073a10.143 10.143 0 0 1-.852-.373 7.75 7.75 0 0 1-.493-.267c-.053-.03-.113-.058-.165-.09v4.404C4 20.315 7.037 22 12 22Zm7.09-13.928a9.91 9.91 0 0 1-.6.253c-.063.025-.124.05-.189.074a18.935 18.935 0 0 1-6.3.998c-2.135.027-4.26-.31-6.3-.998-.065-.024-.126-.05-.189-.074a10.163 10.163 0 0 1-.852-.372 7.816 7.816 0 0 1-.493-.268c-.055-.03-.115-.058-.167-.09V12c0 .917 3.037 2.603 8 2.603s8-1.686 8-2.603V7.596c-.052.031-.112.059-.165.09a7.816 7.816 0 0 1-.745.386Z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold servi-grey-font group-hover:text-green-100 mb-1">NeutroTransmisiones</h3>
+          <p class="text-sm servi-grey-font">Control de Neutro-T</p>
+        </div>
+
+        <div @click="manejarCierreSesion"
+          class="group col-span-2 md:col-span-1 bg-red-50 rounded-2xl p-6 cursor-pointer shadow-sm border-2 border-red-100 hover:border-red-500 hover:bg-red-100 hover:shadow-md transition-all duration-300 ease-in-out flex flex-row md:flex-col items-center justify-center gap-4 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+            class="w-8 h-8 text-red-500 group-hover:scale-110 transition-transform">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+          </svg>
+          <div class="text-left md:text-center">
+            <h3 class="text-lg font-bold text-red-700 mb-0 md:mb-1 leading-tight">Cerrar Sesión</h3>
+            <p class="text-sm text-red-400 hidden md:block">Salir de forma segura</p>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+    <span class="version-label">Versión 1.3</span>
+  </div>
+</template>
+
+<style scoped>
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.version-label {
+  position: fixed;
+  bottom: 90px;
+  right: 16px;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  user-select: none;
+  pointer-events: none;
+}
+</style>
