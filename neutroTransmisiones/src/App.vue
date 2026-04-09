@@ -1,85 +1,53 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { onMounted, watch } from "vue";
+import { RouterView } from "vue-router";
+import GlobalLoader from "@/components/componentes/globalLoader.vue";
+import Footer from "@/components/componentes/footer.vue";
+import { useInterfaz } from "@/stores/interfaz";
+import { useUserStore } from "@/stores/user";
+import {useDark} from '@/stores/useDark'
+const uiStore = useInterfaz();
+const userStore = useUserStore();
+const { isDark } = useDark()
+
+let safetyTimer = null
+watch(
+  () => uiStore.isLoading,
+
+  (newVal) => {
+    if (newVal) {
+      if (safetyTimer) clearTimeout(safetyTimer);
+
+      safetyTimer = setTimeout(() => {
+        console.warn(
+          "⚠️ ALERTA: El loading lleva mucho tiempo. Forzando desbloqueo."
+        );
+
+        uiStore.hideLoading();
+      }, 10000);
+    } else {
+      if (safetyTimer) clearTimeout(safetyTimer);
+    }
+  }
+);
+
+onMounted(() => {
+  userStore.initializeAuth();
+});
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <GlobalLoader />
+  <div class="app-container" :class="{ 'dark': isDark }">
+    <RouterView />
+    <Footer v-if="$route.name !== 'login' && $route.name !== 'crear-contraseña' && $route.name !== 'NotFound'" class="print:hidden no-print" />
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+<style>
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 </style>
