@@ -140,7 +140,7 @@ onUnmounted(() => {
                 <h3>Nueva Cita</h3>
                 <input class="input" v-model="newTitle" type="text" placeholder="Título de la cita" />
                 <div class="modal-actions">
-                    <button class="button-confirm"@click="saveAppointment">Guardar</button>
+                    <button class="button-confirm" @click="saveAppointment">Guardar</button>
                     <button @click="closeModal">Cancelar</button>
                 </div>
             </div>
