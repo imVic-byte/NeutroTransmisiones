@@ -3,11 +3,14 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import VueCal from 'vue-cal'
 import 'vue-cal/dist/vuecal.css'
+import navbar from '@/components/componentes/navbar.vue'
 
 const events = ref([])
 const showModal = ref(false)
+const showEventModal = ref(false)
 const newTitle = ref('')
 const selectedTime = ref(null)
+const selectedEvent = ref(null)
 
 const isMobile = ref(false)
 const currentView = ref('week')
@@ -24,6 +27,7 @@ const loadEvents = async () => {
   
   if (data && !error) {
     events.value = data.map(app => ({
+      id: app.id,
       start: new Date(app.start_time),
       end: new Date(app.end_time),
       title: app.title,
@@ -37,10 +41,21 @@ const handleCellClick = (date) => {
   showModal.value = true
 }
 
+const handleEventClick = (event, e) => {
+  e.stopPropagation()
+  selectedEvent.value = event
+  showEventModal.value = true
+}
+
 const closeModal = () => {
   showModal.value = false
   newTitle.value = ''
   selectedTime.value = null
+}
+
+const closeEventModal = () => {
+  showEventModal.value = false
+  selectedEvent.value = null
 }
 
 const saveAppointment = async () => {
@@ -63,12 +78,27 @@ const saveAppointment = async () => {
 
   if (data && !error) {
     events.value.push({
+      id: data[0].id,
       start: new Date(data[0].start_time),
       end: new Date(data[0].end_time),
       title: data[0].title,
       class: 'neutro-event'
     })
     closeModal()
+  }
+}
+
+const deleteAppointment = async () => {
+  if (!selectedEvent.value || !selectedEvent.value.id) return
+
+  const { error } = await supabase
+    .from('appointments')
+    .delete()
+    .eq('id', selectedEvent.value.id)
+
+  if (!error) {
+    events.value = events.value.filter(e => e.id !== selectedEvent.value.id)
+    closeEventModal()
   }
 }
 
@@ -84,10 +114,12 @@ onUnmounted(() => {
 </script>
 <template>
   <div class="calendar-container">
+    <navbar subtitulo="Agenda" class="navbar" searchInput="false" />
     <vue-cal
       locale="es"
       :events="events"
       @cell-click="handleCellClick"
+      @event-click="handleEventClick"
       :default-view="currentView"
       :active-view="currentView"
       :time-from="8 * 60"
@@ -107,6 +139,17 @@ onUnmounted(() => {
         <div class="modal-actions">
           <button @click="saveAppointment">Guardar</button>
           <button @click="closeModal">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showEventModal" class="modal-overlay">
+      <div class="modal-content neutro-primary text-white">
+        <h3>Detalles de la Cita</h3>
+        <p class="event-title">{{ selectedEvent?.title }}</p>
+        <div class="modal-actions">
+          <button class="btn-danger" @click="deleteAppointment">Eliminar</button>
+          <button @click="closeEventModal">Cerrar</button>
         </div>
       </div>
     </div>
@@ -134,7 +177,6 @@ onUnmounted(() => {
 }
 
 .modal-content {
-  background: white;
   padding: 2rem;
   border-radius: 8px;
   display: flex;
@@ -144,10 +186,29 @@ onUnmounted(() => {
   max-width: 90%;
 }
 
+.event-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
 .modal-actions {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
 }
 
 :deep(.neutro-event) {
@@ -155,6 +216,7 @@ onUnmounted(() => {
   color: white;
   border: 1px solid #35495e;
   border-radius: 4px;
+  cursor: pointer;
 }
 
 @media (max-width: 768px) {

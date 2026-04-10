@@ -42,6 +42,7 @@ const userStore = useUserStore()
   box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.05);
   border-top-right-radius: 20px;
   border-top-left-radius: 20px;
+  z-index: 100;
 }
 
 @media print {
