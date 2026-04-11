@@ -29,6 +29,12 @@ const router = createRouter({
       name:'agenda',
       component: () => import('../views/Agenda/agendaMain.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path:'/inventario',
+      name:'inventario',
+      component: () => import('../views/Inventario/inventarioMain.vue'),
+      meta: {requiresAuth: true}
     }
   ],
 })

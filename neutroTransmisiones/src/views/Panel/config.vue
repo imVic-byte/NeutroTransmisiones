@@ -90,6 +90,18 @@ const menu = [
           <p class="text-sm servi-grey-font">Ingresos y Egresos</p>
         </div>
         <div
+          @click="$router.push('/inventario')"
+          class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-purple-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
+          <div
+            class="bg-purple-100 text-purple-600 p-4 rounded-full mb-4 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold servi-grey-font group-hover:text-purple-100 mb-1">Inventario</h3>
+          <p class="text-sm servi-grey-font">Productos en bodega</p>
+        </div>
+        <div
             @click="$router.push('/agenda')"
           class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-yellow-800 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
           <div
