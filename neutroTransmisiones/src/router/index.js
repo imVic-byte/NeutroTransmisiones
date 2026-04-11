@@ -35,6 +35,12 @@ const router = createRouter({
       name:'inventario',
       component: () => import('../views/Inventario/inventarioMain.vue'),
       meta: {requiresAuth: true}
+    },
+    {
+      path:'/neutro-transmisiones',
+      name:'neutro-transmisiones',
+      component: () => import('../views/Panel/neutroT.vue'),
+      meta: {requiresAuth: true}
     }
   ],
 })

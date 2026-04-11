@@ -114,6 +114,7 @@ const menu = [
           <p class="text-sm servi-grey-font">Citas y recordatorios</p>
         </div>
         <div
+          @click="$router.push('/neutro-transmisiones')"
           class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-green-800 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
           <div
             class="bg-green-100 text-green-600 p-4 rounded-full mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300">

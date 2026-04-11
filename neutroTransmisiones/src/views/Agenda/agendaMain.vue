@@ -64,7 +64,7 @@ const saveAppointment = async () => {
 
     const start = new Date(selectedTime.value)
     const end = new Date(start)
-    end.setHours(start.getHours() + 1)
+    end.setHours(start.getHours() + 2)
 
     const { data, error } = await supabase
         .from('appointments')
@@ -121,6 +121,7 @@ onUnmounted(() => {
         </div>
         <div class="calendar-container pt-5 px-5">
             <vue-cal locale="es" :events="events" @cell-click="handleCellClick" @event-click="handleEventClick"
+            :editable-events="{ title: false, drag: true, resize: true, delete: false, create: false }"
                 :default-view="currentView" :active-view="currentView" :time-from="8 * 60" :time-to="20 * 60"
                 :disable-views="['years', 'year']" :small="isMobile" />
         </div>
@@ -231,7 +232,7 @@ onUnmounted(() => {
 }
 
 :deep(.neutro-event) {
-    background-color: #42b883;
+    background-color: #31644d;
     color: white;
     border: 1px solid #35495e;
     border-radius: 4px;

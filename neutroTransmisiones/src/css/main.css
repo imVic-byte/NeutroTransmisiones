@@ -6,17 +6,17 @@
     --neutro-background: #CCEBD4;
     --neutro-font: #14331C;
     --neutro-primary: #335731;
-    --neutro-primary-hover: #4B794A;
-    --neutro-secondary: #B0B8C0;
+    --neutro-primary-hover: #234723;
+    --neutro-secondary: #467746;
 }
 
 @layer base {
     .dark {
         --neutro-background: #14331C;
         --neutro-font: #B0B8C0;
-        --neutro-primary: #4B794A;
+        --neutro-primary: #234723;
         --neutro-primary-hover: #335731;
-        --neutro-secondary: #B0B8C0;
+        --neutro-secondary: #467746;
     }
 }
 
