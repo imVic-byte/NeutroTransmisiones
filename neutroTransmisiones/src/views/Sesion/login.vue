@@ -40,7 +40,7 @@ const handleLogin = async () => {
     <div class="login-card servi-blue">
       
       <div class="card-header">
-        <img src="../img/Logo2.png" alt="Logo ServiML" class="logo">
+        <img src="/public/logo.png" alt="Logo ServiML" class="logo">
         <h1>Iniciar Sesión</h1>
         <p>App NeutroTransmisiones</p>
       </div>
@@ -86,7 +86,7 @@ const handleLogin = async () => {
   /* Nuevas variables de color basadas en la imagen */
   --servi-green-dark: #0f170f; /* Verde abeto profundo (del relieve más oscuro) */
   --servi-green-medium: #335731; /* Verde bosque medio (de la tarjeta) */
-  --servi-green-light: #a8ca86; /* Verde oliva claro (color de acento) */
+  --servi-green-light: #719938; /* Verde oliva claro (color de acento) */
   --servi-green-hover: #4B794A; /* Verde bosque para hover */
   --text-primary-on-dark: #B0B8C0; /* Gris neutro claro para texto secundario */
   --text-primary-on-light: #234723; /* Verde oscuro para texto sobre acento claro */
@@ -120,10 +120,9 @@ const handleLogin = async () => {
 }
 
 .logo {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   object-fit: contain;
-  margin-bottom: 1rem;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 

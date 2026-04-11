@@ -8,8 +8,8 @@ const { isLoading } = storeToRefs(uiStore)
 </script>
 <template>
   <cargando />
-  <div v-if="isLoading" class="loader-overlay servi-blue">
-    <img src="/GIF.svg" alt="Cargando" class="custom-loader" />
+  <div v-if="isLoading" class="loader-overlay neutro-background">
+    <img src="/GIF.gif" alt="Cargando" class="custom-loader" />
   </div>
 </template>
 
