@@ -28,7 +28,7 @@ const onInput = (event) => {
 </script>
 <template>
 <nav>
-    <header class="navbar header neutro-primary text-white px-5 py-3 pt-13 shadow-lg rounded-b-xl justify-between h-auto">
+    <header class="navbar header neutro-primary text-white px-5 py-3 pt-7 shadow-lg rounded-b-xl justify-between h-auto">
     <div class="flex-center flex justify-between h-auto">
       <div class="user-info">
       <h2 class="welcome">{{ titulo }}</h2>
