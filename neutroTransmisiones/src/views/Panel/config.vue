@@ -90,6 +90,18 @@ const menu = [
           <p class="text-sm servi-grey-font">Ingresos y Egresos</p>
         </div>
         <div
+          @click="$router.push('/inventario')"
+          class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-purple-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
+          <div
+            class="bg-purple-100 text-purple-600 p-4 rounded-full mb-4 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold servi-grey-font group-hover:text-purple-100 mb-1">Inventario</h3>
+          <p class="text-sm servi-grey-font">Productos en bodega</p>
+        </div>
+        <div
             @click="$router.push('/agenda')"
           class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-yellow-800 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
           <div
@@ -102,6 +114,7 @@ const menu = [
           <p class="text-sm servi-grey-font">Citas y recordatorios</p>
         </div>
         <div
+          @click="$router.push('/neutro-transmisiones')"
           class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-green-800 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
           <div
             class="bg-green-100 text-green-600 p-4 rounded-full mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300">
@@ -109,7 +122,7 @@ const menu = [
               <path d="M12 7.205c4.418 0 8-1.165 8-2.602C20 3.165 16.418 2 12 2S4 3.165 4 4.603c0 1.437 3.582 2.602 8 2.602ZM12 22c4.963 0 8-1.686 8-2.603v-4.404c-.052.032-.112.06-.165.09a7.75 7.75 0 0 1-.745.387c-.193.088-.394.173-.6.253-.063.024-.124.05-.189.073a18.934 18.934 0 0 1-6.3.998c-2.135.027-4.26-.31-6.3-.998-.065-.024-.126-.05-.189-.073a10.143 10.143 0 0 1-.852-.373 7.75 7.75 0 0 1-.493-.267c-.053-.03-.113-.058-.165-.09v4.404C4 20.315 7.037 22 12 22Zm7.09-13.928a9.91 9.91 0 0 1-.6.253c-.063.025-.124.05-.189.074a18.935 18.935 0 0 1-6.3.998c-2.135.027-4.26-.31-6.3-.998-.065-.024-.126-.05-.189-.074a10.163 10.163 0 0 1-.852-.372 7.816 7.816 0 0 1-.493-.268c-.055-.03-.115-.058-.167-.09V12c0 .917 3.037 2.603 8 2.603s8-1.686 8-2.603V7.596c-.052.031-.112.059-.165.09a7.816 7.816 0 0 1-.745.386Z"/>
             </svg>
           </div>
-          <h3 class="text-lg font-bold servi-grey-font group-hover:text-green-100 mb-1">NeutroTransmisiones</h3>
+          <h3 class="text-lg font-bold servi-grey-font group-hover:text-green-100 mb-1">Neutro-T</h3>
           <p class="text-sm servi-grey-font">Control de Neutro-T</p>
         </div>
 

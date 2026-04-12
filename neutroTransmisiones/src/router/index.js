@@ -29,6 +29,18 @@ const router = createRouter({
       name:'agenda',
       component: () => import('../views/Agenda/agendaMain.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path:'/inventario',
+      name:'inventario',
+      component: () => import('../views/Inventario/inventarioMain.vue'),
+      meta: {requiresAuth: true}
+    },
+    {
+      path:'/neutro-transmisiones',
+      name:'neutro-transmisiones',
+      component: () => import('../views/Panel/neutroT.vue'),
+      meta: {requiresAuth: true}
     }
   ],
 })
