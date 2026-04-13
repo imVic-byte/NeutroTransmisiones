@@ -8,7 +8,7 @@ const { isLoading } = storeToRefs(uiStore)
 </script>
 <template>
   <cargando />
-  <div v-if="isLoading" class="loader-overlay neutro-background">
+  <div v-if="isLoading" class="loader-overlay neutro-primary">
     <img src="/GIF.gif" alt="Cargando" class="custom-loader" />
   </div>
 </template>
@@ -28,7 +28,7 @@ const { isLoading } = storeToRefs(uiStore)
 }
 
 .custom-loader {
-  width: 150px;
+  width: 250px;
   height: auto;
 }
 

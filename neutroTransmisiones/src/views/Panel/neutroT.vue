@@ -574,7 +574,7 @@ onMounted(async () => {
           </button>
         </div>
 
-        <div class="neutro-primary text-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="neutro-primary text-white rounded-xl shadow-sm border border-gray-700 overflow-hidden">
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-800">
               <thead class="servi-blue servi-yellow-font">
@@ -649,7 +649,7 @@ onMounted(async () => {
           </button>
         </div>
 
-        <div class="neutro-primary text-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="neutro-primary text-white rounded-xl shadow-sm border border-gray-700 overflow-hidden">
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-800 text-sm">
               <thead class="servi-blue servi-yellow-font">

@@ -77,6 +77,7 @@ const menu = [
         </div>
 
         <div
+          @click="$router.push('/finanzas')"
           class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-green-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
           <div
             class="bg-green-100 text-green-600 p-4 rounded-full mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300">

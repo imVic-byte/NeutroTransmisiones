@@ -41,6 +41,30 @@ const router = createRouter({
       name:'neutro-transmisiones',
       component: () => import('../views/Panel/neutroT.vue'),
       meta: {requiresAuth: true}
+    },
+    {
+      path:'/finanzas',
+      name:'finanzas',
+      component: () => import('../views/Finanzas/finanzasMain.vue'),
+      meta: {requiresAuth: true}
+    },
+    {
+      path:'/finanzas/crear',
+      name:'finanzasCrear',
+      component: () => import('../views/Finanzas/finanzasCrear.vue'),
+      meta: {requiresAuth: true}
+    },
+    {
+      path:'/finanzas/editar/:id',
+      name:'finanzasEditar',
+      component: () => import('../views/Finanzas/finanzasEditar.vue'),
+      meta: {requiresAuth: true}
+    },
+    {
+      path:'/finanzas/ver/:id',
+      name:'finanzasVer',
+      component: () => import('../views/Finanzas/finanzasVer.vue'),
+      meta: {requiresAuth: true}
     }
   ],
 })
