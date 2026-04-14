@@ -79,7 +79,7 @@ onMounted(async () => {
       
       <div class="flex items-center gap-2">
         <span class="w-24 h-24 rounded-full overflow-hidden border border-[#e5e7eb]">
-            <img class="w-full h-full object-cover" src="../../img/logo.png" alt="Logo">
+            <img class="w-full h-full object-cover" src="@/img/Logo.jpg" alt="Logo">
         </span>
         <div>
             <h1 class="text-2xl font-black text-[#047857] tracking-tighter italic">NeutroTransmisiones</h1>

@@ -259,7 +259,7 @@ onMounted(async () => {
           <!-- Logo y branding -->
           <div class="mb-8">
             <span class="w-32 h-32 rounded-full overflow-hidden border-2 border-[#1f3d64] mx-auto block">
-              <img class="w-full h-full object-cover" src="../../img/Logo.jpg" alt="Logo">
+              <img class="w-full h-full object-cover" src="@/img/Logo.jpg" alt="Logo">
             </span>
             <h1 class="text-4xl font-black tracking-tighter italic text-[#1f3d64] mt-4">NeutroTransmisiones</h1>
             <p class="font-bold uppercase text-[13px] tracking-[0.3em] text-[#4b5563] mt-1">Servicios Mecánicos</p>
