@@ -13,7 +13,7 @@
 @layer base {
     .dark {
         --neutro-background: #14331C;
-        --neutro-font: #B0B8C0;
+        --neutro-font: #ffffff;
         --neutro-primary: #234723;
         --neutro-primary-hover: #335731;
         --neutro-secondary: #467746;

@@ -1,14 +1,14 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { useUserStore } from '@/stores/user'
+import { useUserStore } from '../../stores/user'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const userStore = useUserStore()
 </script>
 <template>
-  <nav class="bottom-nav no-print">
+  <nav class="bottom-nav neutro-primary neutro-font no-print">
     <RouterLink to="/" class="nav-item primero"><span><svg xmlns="http://www.w3.org/2000/svg" fill="none"
           viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
           <path stroke-linecap="round" stroke-linejoin="round"
@@ -16,6 +16,18 @@ const userStore = useUserStore()
         </svg>
       </span>
       <p>Inicio</p>
+    </RouterLink>
+    <RouterLink to="/ficha-de-trabajo" class="nav-item"><span><svg class="w-6 h-6 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 6H5m2 3H5m2 3H5m2 3H5m2 3H5m11-1a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2M7 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm8 7a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/>
+</svg>
+      </span>
+      <p>Fichas</p>
+    </RouterLink>
+    <RouterLink to="/cotizacion/listado" class="nav-item"><span><svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 4h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3m0 3h6m-3 5h3m-6 0h.01M12 16h3m-6 0h.01M10 3v4h4V3h-4Z"/>
+</svg>
+      </span>
+      <p>Cotización</p>
     </RouterLink>
     <RouterLink to="/configuracion" class="nav-item ultimo"><span><svg
           xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -62,7 +74,7 @@ const userStore = useUserStore()
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color:#467746
+  background-color: #467746
 }
 
 .router-link-active {

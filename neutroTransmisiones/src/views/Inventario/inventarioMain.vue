@@ -429,7 +429,7 @@ onMounted(() => {
                 list="categorias-list"
               />
               <datalist id="categorias-list">
-                <option v-for="cat in categorias.filter(c => c !== 'Todos')" :key="cat" :value="cat" />
+                <option v-for="cat in categorias.filter(c => c !== 'Todos')" :key="cat" :value="cat" ></option>
               </datalist>
             </div>
           </div>
