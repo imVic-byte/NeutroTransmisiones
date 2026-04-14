@@ -53,3 +53,15 @@ export const formatearMesAnio = (fechaString) => {
   const formato = fecha.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' });
   return formato.charAt(0).toUpperCase() + formato.slice(1);
 };
+
+export const formatearMes = (fechaString) => {
+  if (!fechaString) return "---";
+
+  const stringLimpio = fechaString.includes('T') ? fechaString : `${fechaString}T00:00:00`;
+  const fecha = new Date(stringLimpio);
+  
+  if (isNaN(fecha)) return "---";
+  const formato = fecha.toLocaleDateString('es-CL', { month: 'long' });
+  
+  return formato.charAt(0).toUpperCase() + formato.slice(1);
+};
