@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import navbar from '../../components/componentes/navbar.vue';
 import { useInterfaz } from '@/stores/interfaz.js';
 import { supabase } from '../../lib/supabaseClient.js';
-import { formatearRut } from '../../js/validarRut.js';
+import { formatearRut } from './js/validarRut.js';
 
 const router = useRouter();
 const interfaz = useInterfaz();

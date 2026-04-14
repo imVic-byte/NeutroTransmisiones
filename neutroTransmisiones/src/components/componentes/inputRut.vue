@@ -1,6 +1,5 @@
 <script setup>
 import {ref, watch} from 'vue'
-import { validarRut } from '../../js/validarRUT.js'
 
 const props = defineProps({
   modelValue: {
