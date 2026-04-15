@@ -37,10 +37,10 @@ const handleLogin = async () => {
 
 <template>
   <div class="login-wrapper">
-    <div class="login-card servi-blue">
+    <div class="login-card neutro-primary">
       
       <div class="card-header">
-        <img src="/public/logo.png" alt="Logo ServiML" class="logo">
+        <img src="/public/logo.png" alt="Logo NeutroTransmisiones" class="logo">
         <h1>Iniciar Sesión</h1>
         <p>App NeutroTransmisiones</p>
       </div>

@@ -1,0 +1,81 @@
+<script setup>
+import { useRouter } from 'vue-router'
+import { formatearFecha, formatearDinero } from "@/js/formateadores";
+
+const router = useRouter()
+const props = defineProps({
+  servicios: {
+    type: Array,
+    required: true
+  }
+})
+
+const irADetalle = (id) => {
+  router.push({ name: 'ver-presupuesto', params: { id: id } })
+}
+
+
+
+const camelCase = (texto) => {
+  if (!texto) return ''
+  return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase()
+}
+
+const claseEstado = (estado) => {
+  switch (estado) {
+    case 2: return {clase: 'bg-green-100 text-green-800 border-green-200', texto: 'Confirmado'}
+    case 3: return {clase: 'bg-red-100 text-red-800 border-red-200', texto: 'Descartado'}
+    case 1: return {clase: 'bg-yellow-100 text-yellow-800 border-yellow-200', texto: 'En espera'}
+    default: return {clase: 'servi-adapt-bg neutro-font border-gray-100', texto: 'Cerrado'}
+  }
+}
+</script>
+
+<template>
+  <div class="hidden md:block servi-adapt-bg rounded-xl shadow-sm  overflow-hidden">
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="neutro-primary neutro-font text-xs uppercase tracking-wider border-b border-gray-100">
+          <th class="p-4 font-semibold">Ficha</th>
+          <th class="p-4 font-semibold">Cliente</th>
+          <th class="p-4 font-semibold">Comentario</th>
+          <th class="p-4 font-semibold text-center">Emisión</th>
+          <th class="p-4 font-semibold text-right">Monto Total</th>
+          <th class="p-4 font-semibold text-center">Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in servicios" :key="item.ficha_de_trabajo.id" class="hover:opacity-80 transition-colors cursor-pointer">
+          <td class="p-4 font-medium neutro-font">#{{ item.ficha_de_trabajo.id }}</td>
+          <td class="p-4 neutro-font">
+            <div class="font-medium">{{ camelCase(item.ficha_de_trabajo.cliente?.nombre) }} {{ camelCase(item.ficha_de_trabajo.cliente?.apellido) }}</div>
+            <div class="text-xs neutro-font">{{ item.ficha_de_trabajo.cliente?.email }}</div>
+          </td>
+          <td class="p-4 neutro-font">
+            <span class="block max-w-[200px] truncate" :title="item.comentario">{{ camelCase(item.comentario) || 'Sin comentario' }}</span>
+          </td>
+          <td class="p-4 text-center whitespace-nowrap">
+            <span class="neutro-font">{{ formatearFecha(item.created_at) }}</span>
+          </td>
+          <td class="p-4 text-right font-bold neutro-font">
+            {{ formatearDinero(item.total_final) }}
+          </td>
+          <td class="p-4 text-center">
+            <span :class="['px-3 py-1 rounded-full text-xs font-medium border', claseEstado(item.estado).clase]">
+              {{ claseEstado(item.estado).texto }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div v-if="servicios.length === 0" class="servi-adapt-bg rounded-xl p-10 text-center shadow-sm border border-gray-100">
+        <div class="neutro-font mb-2">
+          <p class="neutro-font text-lg">No se encontraron presupuestos</p>
+          <p class="text-sm neutro-font">Intenta cambiar el filtro de búsqueda o crea uno nuevo.</p>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+      </div>
+  </div>
+</template>

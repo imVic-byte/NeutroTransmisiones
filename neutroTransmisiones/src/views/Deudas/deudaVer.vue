@@ -1,0 +1,527 @@
+<script setup>
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { supabase } from '../../lib/supabaseClient.js';
+import navbar from '../../components/componentes/navbar.vue';
+import { formatearFecha } from '@/js/formateadores.js';
+
+const router = useRouter();
+
+const deudas = ref([]);
+const loading = ref(false);
+const showModalCrear = ref(false);
+
+// Formulario Nueva Deuda
+const form = ref({
+  nombre: '',
+});
+
+const filtroEstado = ref('todas');
+const ordenCampo = ref('created_at');
+const ordenAsc = ref(false);
+const tabOcultar = ref(false);
+
+
+
+const estadoUI = (item) => {
+  const esPendiente = (item?.estado || '').toLowerCase() === 'pendiente';
+  return {
+    label: esPendiente ? 'Pendiente' : 'Pagada',
+    bg: esPendiente ? '#EF4444' : '#22C55E',
+    fg: '#FFFFFF',
+  };
+};
+
+const verDetalle = (id) => {
+  router.push({ name: 'ver-deuda', params: { id } });
+};
+
+const cargarDeudas = async () => {
+  loading.value = true;
+
+  const { data, error } = await supabase
+    .from('deudas')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error al cargar deudas:', error);
+    deudas.value = [];
+  } else {
+    deudas.value = data || [];
+  }
+
+  loading.value = false;
+};
+
+const crearDeuda = async () => {
+  if (!form.value.nombre) return;
+
+  const { data, error } = await supabase
+    .from('deudas')
+    .insert({
+      nombre: form.value.nombre,
+      notificar_cada: 0,
+      estado: 'pendiente',
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error al crear deuda:', error);
+    return;
+  }
+
+  if (data) {
+    showModalCrear.value = false;
+    form.value.nombre = '';
+    await cargarDeudas();
+    router.push({ name: 'listado-deudas', params: { id: data.id } });
+  }
+};
+
+const limpiarFiltros = () => {
+  filtroEstado.value = 'todas';
+  ordenCampo.value = 'created_at';
+  ordenAsc.value = false;
+};
+
+const deudasDelTab = computed(() =>
+  deudas.value.filter((d) => (d.ocultar || false) === tabOcultar.value)
+);
+
+const cantidadActivas = computed(() =>
+  deudas.value.filter((d) => !d.ocultar).length
+);
+
+const cantidadOcultas = computed(() =>
+  deudas.value.filter((d) => d.ocultar).length
+);
+
+const cantidadPendientes = computed(() =>
+  deudasDelTab.value.filter((d) => (d.estado || '').toLowerCase() === 'pendiente').length
+);
+
+const cantidadPagadas = computed(() =>
+  deudasDelTab.value.filter((d) => (d.estado || '').toLowerCase() !== 'pendiente').length
+);
+
+const deudasFiltradas = computed(() => {
+  let arr = [...deudasDelTab.value];
+
+  if (filtroEstado.value === 'pendiente') {
+    arr = arr.filter((d) => (d.estado || '').toLowerCase() === 'pendiente');
+  } else if (filtroEstado.value === 'pagada') {
+    arr = arr.filter((d) => (d.estado || '').toLowerCase() !== 'pendiente');
+  }
+
+  const asc = ordenAsc.value;
+  const campo = ordenCampo.value;
+
+  arr.sort((a, b) => {
+    if (campo === 'nombre') {
+      const an = (a.nombre || '').toLowerCase();
+      const bn = (b.nombre || '').toLowerCase();
+      if (an < bn) return asc ? -1 : 1;
+      if (an > bn) return asc ? 1 : -1;
+      return 0;
+    }
+
+    const ad = new Date(a.created_at || 0).getTime();
+    const bd = new Date(b.created_at || 0).getTime();
+    return asc ? ad - bd : bd - ad;
+  });
+
+  return arr;
+});
+
+const toggleOcultar = async (item) => {
+  const nuevoValor = !item.ocultar;
+  const { error } = await supabase
+    .from('deudas')
+    .update({ ocultar: nuevoValor })
+    .eq('id', item.id);
+
+  if (error) {
+    console.error('Error al actualizar ocultar:', error);
+    return;
+  }
+  item.ocultar = nuevoValor;
+};
+
+onMounted(() => {
+  cargarDeudas();
+});
+</script>
+
+<template>
+  <div class="min-h-screen neutro-background pb-12 font-sans neutro-font">
+    <navbar titulo="NeutroTransmisiones" subtitulo="Deudas y Abonos" class="navbar" />
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+
+      <!-- Tabs Ocultar -->
+      <div class="flex gap-1 mb-6 servi-adapt-bg rounded-xl p-1 shadow-sm border border-gray-100 w-fit">
+        <button
+          @click="tabOcultar = false; filtroEstado = 'todas'"
+          class="px-5 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 flex items-center gap-2"
+          :class="!tabOcultar ? 'neutro-primary text-white shadow-sm' : 'neutro-font hover:opacity-70'"
+        >
+          Activas
+          <span class="text-[11px] font-extrabold px-2 py-0.5 rounded-full"
+            :class="!tabOcultar ? 'bg-white/20 text-white' : 'servi-adapt-bg neutro-font'">{{ cantidadActivas }}</span>
+        </button>
+        <button
+          @click="tabOcultar = true; filtroEstado = 'todas'"
+          class="px-5 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 flex items-center gap-2"
+          :class="tabOcultar ? 'neutro-primary text-white shadow-sm' : 'neutro-font hover:opacity-70'"
+        >
+          Ocultas
+          <span class="text-[11px] font-extrabold px-2 py-0.5 rounded-full"
+            :class="tabOcultar ? 'bg-white/20 text-white' : 'servi-adapt-bg neutro-font'">{{ cantidadOcultas }}</span>
+        </button>
+      </div>
+
+      <!-- Header + Toolbar -->
+      <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-6">
+        <div>
+          <h2 class="text-2xl font-bold">{{ tabOcultar ? 'Deudas Ocultas' : 'Deudas' }}</h2>
+          <p class="neutro-font">{{ tabOcultar ? 'Deudas que has marcado como ocultas' : 'Gestiona las deudas agrupadas por cliente' }}</p>
+        </div>
+
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+          <!-- Filtros Estado -->
+          <div
+            class="inline-flex self-start w-fit rounded-xl border border-gray-100 servi-adapt-bg shadow-sm overflow-hidden">
+            <button type="button" @click="filtroEstado = 'todas'" class="px-4 py-2 text-sm font-bold transition-colors"
+              :class="filtroEstado === 'todas' ? 'neutro-primary neutro-font' : 'servi-adapt-bg neutro-font hover:opacity-80'">
+              Todas
+              <span class="ml-2 text-[11px] font-extrabold px-2 py-0.5 rounded-full"
+                :class="filtroEstado === 'todas' ? 'servi-adapt-bg/20 text-white' : 'servi-adapt-bg neutro-font'">
+                {{ deudasDelTab.length }}
+              </span>
+            </button>
+
+            <button type="button" @click="filtroEstado = 'pendiente'"
+              class="px-4 py-2 text-sm font-bold transition-colors border-l border-gray-100"
+              :class="filtroEstado === 'pendiente' ? 'neutro-primary neutro-font' : 'servi-adapt-bg neutro-font hover:opacity-80'">
+              Pendientes
+              <span class="ml-2 text-[11px] font-extrabold px-2 py-0.5 rounded-full"
+                :class="filtroEstado === 'pendiente' ? 'servi-adapt-bg/20 text-white' : 'bg-red-50 text-red-600'">
+                {{ cantidadPendientes }}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              @click="filtroEstado = 'pagada'"
+              class="px-4 py-2 text-sm font-bold transition-colors border-l border-gray-100"
+              :class="filtroEstado === 'pagada' ? 'neutro-primary neutro-font' : 'servi-adapt-bg neutro-font hover:opacity-80'"
+            >
+              Pagadas
+              <span
+                class="ml-2 text-[11px] font-extrabold px-2 py-0.5 rounded-full"
+                :class="filtroEstado === 'pagada' ? 'servi-adapt-bg/20 text-white' : 'bg-green-50 text-green-700'"
+              >
+                {{ cantidadPagadas }}
+              </span>
+            </button>
+          </div>
+
+          <!-- Orden + Acción -->
+          <div class="flex items-center gap-2">
+            <select
+              v-model="ordenCampo"
+              class="neutro-font neutro-font font-bold border border-gray-100 rounded-lg px-3 py-2 shadow-sm outline-none"
+              title="Ordenar por"
+            >
+              <option value="created_at">Fecha</option>
+              <option value="nombre">Nombre</option>
+            </select>
+
+            <button
+              type="button"
+              @click="ordenAsc = !ordenAsc"
+              class="neutro-font neutro-font font-bold border border-gray-100 rounded-lg px-3 py-2 shadow-sm flex items-center gap-2 hover:opacity-90 transition"
+              :title="ordenAsc ? 'Ascendente' : 'Descendente'"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                :class="['h-4 w-4 transition-transform', ordenAsc ? '' : 'rotate-180']"
+              >
+                <path d="M12 5v14" />
+                <path d="m19 12-7-7-7 7" />
+              </svg>
+              <span class="hidden sm:inline">{{ ordenAsc ? 'Asc' : 'Desc' }}</span>
+            </button>
+
+            <button
+              @click="showModalCrear = true"
+              class="neutro-font neutro-secondary px-5 py-2.5 rounded-lg font-bold shadow-sm flex items-center gap-2 hover:opacity-90 transition"
+            >
+              <span class="text-xl leading-none">+</span>
+              Nueva Deuda
+            </button>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div v-if="loading" class="flex justify-center py-10">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-700"></div>
+      </div>
+
+      <template v-else>
+        <!-- Sin cuentas -->
+        <div v-if="deudas.length === 0" class="servi-adapt-bg rounded-xl p-10 text-center shadow-sm border border-gray-100">
+          <div class="neutro-font mb-2">
+            <p class="neutro-font text-lg">No hay deudas creadas</p>
+            <p class="text-sm neutro-font">Crea una deuda para agrupar fichas y registrar abonos.</p>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-12 w-12 mx-auto mt-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+
+          <button
+            @click="showModalCrear = true"
+            class="mt-2 inline-flex items-center gap-2 neutro-font neutro-font px-4 py-2 rounded-lg font-bold shadow-sm hover:opacity-90"
+          >
+            <span class="text-xl leading-none">+</span>
+            Crear la primera
+          </button>
+        </div>
+
+        <!-- Con cuentas, pero filtros sin resultados -->
+        <div
+          v-else-if="deudasFiltradas.length === 0"
+          class="servi-adapt-bg rounded-xl p-10 text-center shadow-sm border border-gray-100"
+        >
+          <p class="neutro-font text-lg font-bold">No hay resultados con esos filtros.</p>
+          <p class="neutro-font">Prueba cambiando el estado o el orden.</p>
+          <button
+            @click="limpiarFiltros"
+            class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg neutro-font neutro-font font-bold shadow-sm hover:opacity-90"
+          >
+            Limpiar filtros
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Listado -->
+        <div v-else>
+          <div class="hidden md:block servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="neutro-primary neutro-font text-xs uppercase tracking-wider border-b border-gray-100">
+                  <th class="p-4 font-semibold">Deuda</th>
+                  <th class="p-4 font-semibold">Estado</th>
+                  <th class="p-4 font-semibold text-center">Notificación</th>
+                  <th class="p-4 font-semibold text-center">Creación</th>
+                  <th class="p-4 font-semibold text-center">Ocultar</th>
+                  <th class="p-4 font-semibold text-center">Acción</th>
+                </tr>
+              </thead>
+
+              <tbody class="divide-y divide-gray-800">
+                <tr
+                  v-for="item in deudasFiltradas"
+                  :key="item.id"
+                  class="hover:opacity-80 cursor-pointer"
+                  @click="verDetalle(item.id)"
+                >
+                  <td class="p-4">
+                    <div class="font-bold">{{ item.nombre }}</div>
+                    <div class="text-xs neutro-font">#{{ item.id }}</div>
+                  </td>
+
+                  <td class="p-4">
+                    <span :style="{ backgroundColor: estadoUI(item).bg, color: estadoUI(item).fg }"
+                      class="px-2 py-1 rounded text-xs font-bold uppercase tracking-wider shadow-sm">
+                      {{ estadoUI(item).label }}
+                    </span>
+                  </td>
+
+                  <td class="p-4 text-center">
+                    <span v-if="(item.estado || '').toLowerCase() === 'pendiente' && item.notificar_cada > 0"
+                      class="text-sm font-semibold">
+                      🔔 Cada {{ item.notificar_cada }} días
+                    </span>
+                    <span v-else class="neutro-font">—</span>
+                  </td>
+
+                  <td class="p-4 text-center text-sm neutro-font">
+                    {{ formatearFecha(item.created_at) }}
+                  </td>
+
+                  <td class="p-4 text-center">
+                    <button
+                      @click.stop="toggleOcultar(item)"
+                      class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-80 shadow-sm"
+                      :class="item.ocultar ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'"
+                      :title="item.ocultar ? 'Mostrar deuda' : 'Ocultar deuda'"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4">
+                        <path v-if="!item.ocultar" stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+                        <path v-else stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178ZM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                      </svg>
+                      {{ item.ocultar ? 'Mostrar' : 'Ocultar' }}
+                    </button>
+                  </td>
+
+                  <td class="p-4 text-center">
+                    <RouterLink
+                      :to="{ name: 'ver-deuda', params: { id: item.id } }"
+                      @click.stop
+                      class="inline-flex servi-adapt-bg neutro-font p-2 rounded-full transition-transform hover:scale-110 shadow-sm"
+                      aria-label="Ver detalle"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="2"
+                        stroke="currentColor"
+                        class="size-5"
+                      >
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                      </svg>
+                    </RouterLink>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="md:hidden">
+            <div
+              v-for="item in deudasFiltradas"
+              :key="item.id"
+              class="servi-adapt-bg mx-2 neutro-font card-shadow p-3 mb-3 flex flex-col gap-2 overflow-hidden transition-all hover:shadow-md"
+              role="button"
+              tabindex="0"
+              @click="verDetalle(item.id)"
+            >
+              <div class="flex justify-between items-start border-b border-gray-100 pb-2">
+                <div class="flex flex-col min-w-0">
+                  <span class="font-bold text-lg truncate">{{ item.nombre }}</span>
+                  <span class="text-xs neutro-font">Creada: {{ formatearFecha(item.created_at) }}</span>
+                </div>
+
+                <span :style="{ backgroundColor: estadoUI(item).bg, color: estadoUI(item).fg }"
+                  class="px-2 py-1 rounded text-xs font-bold uppercase tracking-wider shadow-sm">
+                  {{ estadoUI(item).label }}
+                </span>
+              </div>
+
+              <div class="flex justify-between items-center text-sm">
+                <span class="neutro-font">Notificación:</span>
+                <span
+                  v-if="(item.estado || '').toLowerCase() === 'pendiente' && item.notificar_cada > 0"
+                  class="font-semibold"
+                >
+                  🔔 Cada {{ item.notificar_cada }} días
+                </span>
+                <span v-else class="neutro-font">—</span>
+              </div>
+
+              <div class="flex mt-2 pt-2 border-t border-gray-100 items-center justify-between">
+                <button
+                  @click.stop="toggleOcultar(item)"
+                  class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-80 shadow-sm"
+                  :class="item.ocultar ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4">
+                    <path v-if="!item.ocultar" stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+                    <path v-else stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178ZM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  </svg>
+                  {{ item.ocultar ? 'Mostrar' : 'Ocultar' }}
+                </button>
+                <RouterLink
+                  :to="{ name: 'ver-deuda', params: { id: item.id } }"
+                  @click.stop
+                  class="neutro-primary neutro-font p-2 rounded-full transition-transform hover:scale-110 shadow-sm"
+                  aria-label="Ver detalle"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                    stroke="currentColor"
+                    class="size-5"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                  </svg>
+                </RouterLink>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <div v-if="showModalCrear"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div
+        class="neutro-primary neutro-font rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div class="px-6 py-4 border-b border-white/10">
+          <h2 class="text-lg font-bold neutro-font">Abrir Nueva Deuda</h2>
+          <p class="text-sm text-white/80">Crea una deuda para agrupar fichas y registrar abonos.</p>
+        </div>
+
+        <div class="p-6">
+          <label class="block text-sm font-medium mb-2">Nombre referencia</label>
+          <input
+            v-model="form.nombre"
+            type="text"
+            placeholder="Ej: Juan Pérez, Deuda Pepe, etc."
+            class="w-full rounded-lg px-3 py-2.5 neutro-font neutro-secondary font-bold"
+          />
+        </div>
+
+        <div class="px-6 py-4 flex justify-end gap-3">
+          <button @click="showModalCrear = false" class="px-4 py-2 text-sm font-medium neutro-font neutro-secondary rounded-lg">
+            Cancelar
+          </button>
+
+          <button
+            @click="crearDeuda"
+            :disabled="!form.nombre"
+            class="px-4 py-2 text-sm font-bold neutro-font neutro-secondary rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            Crear
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.card-shadow {
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+</style>

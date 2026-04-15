@@ -41,7 +41,288 @@ const router = createRouter({
       name:'neutro-transmisiones',
       component: () => import('../views/Panel/neutroT.vue'),
       meta: {requiresAuth: true}
+    },
+
+    // weas que no se si funcionen but we ball
+    {
+      path: '/vehiculos-en-taller/:taller',
+      name: 'vehiculos-en-taller',
+      component: () => import('../views/dashboardCosas/vehiculosEnTaller.vue'),
+      meta: { 
+        requiresAuth: true,
+        allowedRoles: ['Administrador', 'Gerente', 'Soporte','Trabajador']
+      }
+    },
+    {
+      path: '/ot-sin-asignar/:taller',
+      name: 'ot-sin-asignar',
+      component: () => import('../views/dashboardCosas/OTsinAsignar.vue'),
+      meta: { 
+        requiresAuth: true,
+        allowedRoles: ['Administrador', 'Gerente', 'Soporte']
+      }
+    },
+    {
+      path: '/ot-por-entregar/:taller',
+      name: 'ot-por-entregar',
+      component: () => import('../views/dashboardCosas/OTporEntregar.vue'),
+      meta: { 
+        requiresAuth: true,
+        allowedRoles: ['Administrador', 'Gerente', 'Soporte','Trabajador']
+      }
+    },
+    {
+      path: '/presupuestos-semana/:taller',
+      name: 'presupuestos-semana',
+      component: () => import('../views/dashboardCosas/presupuestosSemana.vue'),
+      meta: { 
+        requiresAuth: true,
+        allowedRoles: ['Administrador', 'Gerente', 'Soporte']
+      }
+    },
+    {
+      path: '/informe-final/:id',
+      name: 'ver-informe-final',
+      component: () => import('../views/informeFinal.vue'),
+      meta: { 
+        requiresAuth: true,
+        allowedRoles: ['Administrador','Trabajador', 'Gerente', 'Soporte']
+      }
+    },
+    {
+      path: '/deudas',
+      name: 'listado-deudas',
+      component: () => import('../views/Deudas/deudaVer.vue'),
+      meta: { 
+        requiresAuth: true,
+        allowedRoles: ['Gerente', 'Soporte']
+       }
+    },
+    {
+      path: '/deuda/:id',
+      name: 'ver-deuda',
+      component: () => import('../views/Deudas/deudaDetalle.vue'),
+      meta: { 
+        requiresAuth: true,
+        allowedRoles: ['Gerente', 'Soporte']
+       }
+    },
+    {
+      path: '/ordenes-de-trabajo',
+      name: 'ordenes-de-trabajo',
+      component: () => import('../views/OrdenTrabajo/ordenTrabajoListado.vue'),
+      meta: { 
+        requiresAuth: true,
+        allowedRoles: ['Administrador', 'Trabajador', 'Gerente', 'Soporte']
+      }
+    },
+    {
+      path: '/ordenes-de-trabajo/ver/:id',
+      name: 'ver-orden-de-trabajo',
+      component: () => import('../views/OrdenTrabajo/ordenTrabajoVer.vue'),
+      meta: { 
+        requiresAuth: true,
+        allowedRoles: ['Administrador', 'Trabajador', 'Gerente', 'Soporte']
+      }
+    },
+    {
+      path: '/gestion-usuarios',
+      name: 'gestion-usuarios',
+      component: () => import('../views/Gestion/gestionUsuarios.vue'),
+      meta: { 
+        requiresAuth: true,
+        allowedRoles: ['Administrador', 'Gerente', 'Soporte']
+      }
+    },
+    {
+      path: '/invitar-usuarios',
+      name: 'invitar-usuarios',
+      component: () => import('../views/Gestion/invitarUsuarios.vue'),
+      meta: { 
+        requiresAuth: true,
+        allowedRoles: ['Gerente', 'Soporte']
+      }
+    },
+    {
+      path: '/unauthorized',
+      name: 'unauthorized',
+      component: () => import('../views/unauthorized.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/clientes',
+      name: 'listado-clientes',
+      component: () => import('../views/Gestion/clienteListado.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Administrador', 'Gerente', 'Soporte'] }
+    },
+    {
+      path: '/cliente/:id',
+      name: 'ver-cliente',
+      component: () => import('../views/Gestion/clienteVer.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Administrador', 'Gerente', 'Soporte'] }
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: () => import('../views/notFound.vue')
+    },
+    {
+      path:'/cotizacion/crear',
+      name: 'crear-cotizacion',
+      component: () => import('../views/Cotizaciones/cotizacionesForm.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
+      path:'/cotizacion/editar/:id',
+      name: 'editar-cotizacion',
+      component: () => import('../views/Cotizaciones/cotizacionesEditar.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
+      path:'/cotizacion/ver/:id',
+      name: 'ver-cotizacion',
+      component: () => import('../views/Cotizaciones/cotizacionesVer.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
+      path:'/cotizacion/pdf/:id',
+      name: 'pdf-cotizacion',
+      component: () => import('../views/Cotizaciones/cotizacionesPDF.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
+      path:'/cotizacion/listado',
+      name: 'listado-cotizaciones',
+      component: () => import('../views/Cotizaciones/cotizacionesListado.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
+      path:'/cotizacion/crear-presupuesto/:id',
+      name: 'crear-presupuesto-cotizacion',
+      component: () => import('../views/Cotizaciones/crearPresupuesto.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
+      path:'/ficha-de-trabajo/:id',
+      name: 'ficha-de-trabajo',
+      component: () => import('../views/Fichas/fichaDeTrabajo.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
+      path:'/ficha-de-trabajo',
+      name: 'listado-fichas-de-trabajo',
+      component: () => import('../views/Fichas/fichaDeTrabajoListado.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
+      path:'/ficha-de-trabajo/crear',
+      name: 'crear-ficha-de-trabajo',
+      component: () => import('../views/Fichas/fichaDeTrabajoCrear.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
+      path:'/ficha-de-trabajo/:id/crear-cotizacion',
+      name: 'crear-cotizacion-ficha-de-trabajo',
+      component: () => import('../views/Fichas/fichaDeTrabajoCrearCotizacion.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
+      path:'/ficha-de-trabajo/:id/ver-cotizacion/:cotizacion_id',
+      name: 'ver-cotizacion-ficha-de-trabajo',
+      component: () => import('../views/Fichas/fichaDeTrabajoVerCotizacion.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
+      path:'/ficha-de-trabajo/:id/presupuesto',
+      name: 'ver-presupuesto-ficha-de-trabajo',
+      component: () => import('../views/Fichas/presupuestoPDF.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
+      path:'/ficha-de-trabajo/:id/informe',
+      name: 'ver-informe-ficha-de-trabajo',
+      component: () => import('../views/Fichas/informeFinalPDF.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
+      path: '/finanzas',
+      name: 'finanzas',
+      component: () => import('../views/Finanzas/finanzas.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte'] }
+    },
+    {
+      path: '/finanzas/crear',
+      name: 'crear-finanza',
+      component: () => import('../views/Finanzas/finanzasCrear.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte'] }
+    },
+    {
+      path: '/finanzas/ver/:id',
+      name: 'ver-finanza',
+      component: () => import('../views/Finanzas/finanzasVer.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte'] }
+    },
+    {
+      path: '/finanzas/editar/:id',
+      name: 'editar-finanza',
+      component: () => import('../views/Finanzas/finanzasEditar.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte'] }
+    },
+    {
+      path: '/gastos',
+      name: 'gastos',
+      component: () => import('../views/gastosMensuales/gastosMensuales.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte'] }
+    },
+    {
+      path: '/gastos/crear',
+      name: 'crear-gasto',
+      component: () => import('../views/gastosMensuales/gastosMensualesCrear.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte'] }
+    },
+    {
+      path: '/gastos/editar/:id',
+      name: 'editar-gasto',
+      component: () => import('../views/gastosMensuales/gastosMensualesEditar.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte'] }
+    },
+    {
+      path: '/gastos/ver/:id',
+      name: 'ver-gasto',
+      component: () => import('../views/gastosMensuales/gastosMensualesVer.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador','Trabajador'] }
+    },
+    {
+      path: '/chequeos',
+      name: 'chequeos',
+      component: () => import('../views/Chequeos/chequeosListado.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador','Trabajador'] }
+    },
+    {
+      path: '/chequeos/crear',
+      name: 'crear-chequeo',
+      component: () => import('../views/Chequeos/chequeosForm.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador','Trabajador'] }
+    },
+    {
+      path: '/chequeos/editar/:id',
+      name: 'editar-chequeo',
+      component: () => import('../views/Chequeos/chequeosEditar.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador','Trabajador'] }
+    },
+    {
+      path: '/chequeos/ver/:id',
+      name: 'ver-chequeo',
+      component: () => import('../views/Chequeos/chequeosVer.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador','Trabajador'] }
+    },
+    {
+      path: '/chequeos/pdf/:id',
+      name: 'chequeo-pdf',
+      component: () => import('../views/Chequeos/chequeosPDF.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador','Trabajador'] }
     }
+
   ],
 })
 

@@ -1,0 +1,184 @@
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { supabase } from "../../lib/supabaseClient.js";
+import presupuestoCard from "../../components/presupuesto/presupuestoCard.vue";
+import { useInterfaz } from '../../stores/interfaz.js'
+import navbar from "../../components/componentes/navbar.vue";
+import presupuestoList from '../../components/presupuesto/presupuestoList.vue'
+import volver from '../../components/componentes/volver.vue'
+import { formatearDinero } from "@/js/formateadores.js";
+
+const uiStore = useInterfaz()
+const router = useRouter()
+const route = useRoute()
+const showStats = ref(false);
+const cotizaciones = ref([])
+const tallerSeleccionado = computed(() => route.params.taller);
+
+const inicioSemana = computed(() => {
+  const fecha = new Date();
+  const dia = fecha.getDay();
+  const diferencia = dia === 0 ? -6 : 1 - dia;
+  const lunes = new Date(fecha);
+  lunes.setDate(fecha.getDate() + diferencia);
+  lunes.setHours(0, 0, 0, 0);
+  return lunes;
+});
+
+const stats = computed(() => {
+  if (!cotizaciones.value.length) return { total: 0, pendientes: 0, confirmados: 0, dineroPendiente: 0 };
+
+  const total = cotizaciones.value.length;
+  const pendientes = cotizaciones.value.filter(s => s.estado === 1).length;
+  const confirmados = cotizaciones.value.filter(s => s.estado === 2).length;
+  
+  const dineroPendiente = cotizaciones.value
+      .filter(s => s.estado === 2)
+      .reduce((acc, curr) => acc + (curr.total_final || 0), 0);
+
+  return { total, pendientes, confirmados, dineroPendiente };
+});
+
+const handleCotizaciones = async () => {
+  try {
+    const fechaFormateada = new Date(inicioSemana.value).toISOString()
+
+    const { data, error } = await supabase
+      .from('cotizaciones_ficha')
+      .select('*, ficha_de_trabajo!inner(*, cliente(*))')
+      .gte('created_at', fechaFormateada)
+      .eq('ficha_de_trabajo.id_taller', tallerSeleccionado.value)
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    cotizaciones.value = data || []
+  } catch (error) {
+    console.error('Error cargando cotizaciones:', error.message)
+  }
+}
+
+onMounted(async () => {
+  uiStore.showLoading()
+  await handleCotizaciones()
+  uiStore.hideLoading()
+});
+</script>
+<template>
+  <div class="neutro-background min-h-screen pb-15">
+    <navbar
+      titulo="NeutroTransmisiones"
+      subtitulo="Presupuestos / Semana"
+      class="sticky top-0 z-50"
+    />
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <volver />
+      <div class="hidden md:grid md:grid-cols-4 gap-4 mb-8">
+        <div class="servi-adapt-bg p-4 rounded-xl shadow-sm border border-gray-100">
+            <p class="text-xs neutro-font uppercase font-bold">Total Presupuestos / semana</p>
+            <p class="text-2xl font-bold neutro-font">{{ stats.total }}</p>
+        </div>
+        <div class="servi-adapt-bg p-4 rounded-xl shadow-sm border border-gray-100">
+            <p class="text-xs neutro-font uppercase font-bold">Pendientes / semana</p>
+            <p class="text-2xl font-bold text-yellow-600">{{ stats.pendientes }}</p>
+        </div>
+        <div class="servi-adapt-bg p-4 rounded-xl shadow-sm border border-gray-100">
+            <p class="text-xs neutro-font uppercase font-bold">Confirmados / semana</p>
+            <p class="text-2xl font-bold text-green-600">{{ stats.confirmados }}</p>
+        </div>
+        <div class="servi-adapt-bg p-4 rounded-xl shadow-sm border border-gray-100">
+            <p class="text-xs neutro-font uppercase font-bold">Flujo Potencial / semana</p>
+            <p class="text-lg font-bold neutro-font">{{ formatearDinero(stats.dineroPendiente) }}</p>
+        </div>
+      </div>
+      <Transition name="slide-stats">
+        <div v-show="showStats" class="md:hidden grid grid-cols-2 gap-3 mb-6">
+          <div class="servi-adapt-bg p-3 rounded-xl shadow-sm border border-gray-100">
+              <p class="text-xs neutro-font uppercase font-bold">Total / semana</p>
+              <p class="text-xl font-bold neutro-font">{{ stats.total }}</p>
+          </div>
+          <div class="servi-adapt-bg p-3 rounded-xl shadow-sm border border-gray-100">
+              <p class="text-xs neutro-font uppercase font-bold">Pendientes / semana</p>
+              <p class="text-xl font-bold text-yellow-600">{{ stats.pendientes }}</p>
+          </div>
+          <div class="servi-adapt-bg p-3 rounded-xl shadow-sm border border-gray-100">
+              <p class="text-xs neutro-font uppercase font-bold">Confirmados / semana</p>
+              <p class="text-xl font-bold text-green-600">{{ stats.confirmados }}</p>
+          </div>
+          <div class="servi-adapt-bg p-3 rounded-xl shadow-sm border border-gray-100">
+              <p class="text-xs neutro-font uppercase font-bold">Flujo Potencial / semana</p>
+              <p class="text-lg font-bold neutro-font">{{ formatearDinero(stats.dineroPendiente) }}</p>
+          </div>
+        </div>
+      </Transition>
+
+      <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-xl font-bold neutro-font">Listado de Presupuestos</h2>
+            <p class="text-sm neutro-font">Administra y revisa el estado de tus cotizaciones</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button 
+            @click="showStats = !showStats" 
+            class="md:hidden servi-adapt-bg neutro-font font-bold py-2 px-4 rounded-lg shadow-sm transition-all flex items-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              class="h-4 w-4 transition-transform duration-300" 
+              :class="{ 'rotate-180': showStats }"
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <presupuestoList :servicios="cotizaciones"/>
+      <div class="md:hidden grid grid-cols-1">
+        <presupuestoCard
+          v-for="item in cotizaciones"
+          :key="item.id"
+          :data="item"
+        />
+      </div>
+      <div v-if="cotizaciones.length === 0" class="servi-adapt-bg rounded-xl p-10 text-center shadow-sm border border-gray-100 md:hidden">
+        <div class="neutro-font mb-2">
+          <p class="neutro-font text-lg">No se encontraron presupuestos</p>
+          <p class="text-sm neutro-font">Intenta cambiar el filtro de búsqueda o crea uno nuevo.</p>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.slide-stats-enter-active,
+.slide-stats-leave-active {
+  transition: all 0.3s ease-out;
+  overflow: hidden;
+}
+
+.slide-stats-enter-from,
+.slide-stats-leave-to {
+  opacity: 0;
+  max-height: 0;
+  margin-bottom: 0;
+  transform: translateY(-10px);
+}
+
+.slide-stats-enter-to,
+.slide-stats-leave-from {
+  opacity: 1;
+  max-height: 200px;
+  transform: translateY(0);
+}
+</style>
