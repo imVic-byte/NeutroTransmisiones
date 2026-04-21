@@ -72,7 +72,7 @@ onMounted(async () => {
           <p class="text-sm neutro-font">{{ vehiculosEnTaller.length }} vehículo{{ vehiculosEnTaller.length !== 1 ? 's' : '' }} actualmente en taller</p>
         </div>
       </div>
-      <div class="hidden md:block servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-6">
+      <div class="hidden md:block neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-6">
         <vehiculosEnTallerListado :vehiculos="vehiculosEnTaller" :estados="estados" />
       </div>
       <!-- Mobile: cards -->
@@ -80,7 +80,7 @@ onMounted(async () => {
         <div 
           v-for="item in vehiculosEnTaller" 
           :key="item.id"
-          class="servi-adapt-bg rounded-xl shadow-sm overflow-hidden border-t-4 transition-all hover:shadow-md cursor-pointer"
+          class="neutro-secondary rounded-xl shadow-sm overflow-hidden border-t-4 transition-all hover:shadow-md cursor-pointer"
           :style="{ borderTopColor: obtenerEstado(item).color }"
           @click="redirigir(item.id)"
         >
@@ -142,7 +142,7 @@ onMounted(async () => {
           </div>
         </div>
 
-        <div v-if="vehiculosEnTaller.length === 0" class="servi-adapt-bg rounded-xl p-10 text-center shadow-sm border border-gray-100">
+        <div v-if="vehiculosEnTaller.length === 0" class="neutro-secondary rounded-xl p-10 text-center shadow-sm border border-gray-100">
           <p class="neutro-font text-lg font-bold">No hay vehículos en taller actualmente</p>
           <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest font-bold">Todos los vehículos han sido entregados.</p>
         </div>

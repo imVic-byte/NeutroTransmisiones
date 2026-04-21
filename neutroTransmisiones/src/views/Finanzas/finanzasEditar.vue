@@ -188,13 +188,13 @@ onMounted(async () => {
       <div class="flex justify-between">
         <volver></volver>
         <div class="flex gap-2">
-          <button v-if="transaccion.id_ficha_gastos" @click="irAFicha()" class="neutro-font neutro-font p-2 rounded-xl font-bold text-sm">ir a Ficha</button>
-          <button v-if="transaccion.id_deuda" @click="irADeuda()" class="neutro-font neutro-font p-2 rounded-xl font-bold text-sm">ir a Deuda</button>
+          <button v-if="transaccion.id_ficha_gastos" @click="irAFicha()" class="text-white text-white p-2 rounded-xl font-bold text-sm">ir a Ficha</button>
+          <button v-if="transaccion.id_deuda" @click="irADeuda()" class="text-white text-white p-2 rounded-xl font-bold text-sm">ir a Deuda</button>
         </div>
       </div>
 
       <template v-if="transaccion">
-      <div class="servi-adapt-bg rounded-lg shadow-xl pb-10">
+      <div class="neutro-secondary rounded-lg shadow-xl pb-10">
         <div class="flex rounded-t-lg border-b-4 border-yellow-500 flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 p-6 neutro-primary text-white">
           <h1 class="text-2xl font-bold">
             Transacción #{{ transaccion.id }}
@@ -210,7 +210,7 @@ onMounted(async () => {
                 Guardado
               </span>
             </transition>
-            <select v-model="transaccion.tipo" class="px-3 py-1 rounded-full text-sm font-bold bg-slate-100 neutro-font border border-slate-300">
+            <select v-model="transaccion.tipo" class="px-3 py-1 rounded-full text-sm font-bold bg-slate-100 text-black border border-slate-300">
               <option value="VENTA">VENTA</option>
               <option value="COMPRA">COMPRA</option>
               <option value="PAGO">PAGO</option>
@@ -221,43 +221,43 @@ onMounted(async () => {
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 px-6">
           <div>
-            <label class="text-xs neutro-font font-bold uppercase tracking-wider mb-1 block">Fecha</label>
-            <input type="date" v-model="transaccion.fecha" class="w-full servi-adapt-bg border border-gray-200 neutro-font rounded-lg p-2.5 font-medium" />
+            <label class="text-xs text-white font-bold uppercase tracking-wider mb-1 block">Fecha</label>
+            <input type="date" v-model="transaccion.fecha" class="w-full neutro-secondary border border-gray-200 text-white rounded-lg p-2.5 font-medium" />
           </div>
           <div>
-            <label class="text-xs neutro-font font-bold uppercase tracking-wider mb-1 block">Proveedor / Cliente</label>
-            <input type="text" v-model="transaccion.proveedor" placeholder="No especificado" class="w-full servi-adapt-bg border border-gray-200 neutro-font rounded-lg p-2.5 font-medium" />
+            <label class="text-xs text-white font-bold uppercase tracking-wider mb-1 block">Proveedor / Cliente</label>
+            <input type="text" v-model="transaccion.proveedor" placeholder="No especificado" class="w-full neutro-secondary border border-gray-200 text-white rounded-lg p-2.5 font-medium" />
           </div>
           <div class="md:col-span-2">
-            <label class="text-xs neutro-font font-bold uppercase tracking-wider mb-1 block">Descripción</label>
-            <textarea v-model="transaccion.descripcion" rows="2" class="w-full servi-adapt-bg border border-gray-200 neutro-font rounded-lg p-2.5 font-medium resize-none"></textarea>
+            <label class="text-xs text-white font-bold uppercase tracking-wider mb-1 block">Descripción</label>
+            <textarea v-model="transaccion.descripcion" rows="2" class="w-full neutro-secondary border border-gray-200 text-white rounded-lg p-2.5 font-medium resize-none"></textarea>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 px-6">
           <div>
-            <label class="text-xs neutro-font font-bold uppercase tracking-wider mb-1 block">Documento</label>
-            <input type="text" v-model="transaccion.documento" class="w-full servi-adapt-bg border border-gray-200 neutro-font rounded-lg p-2.5 font-medium" />
+            <label class="text-xs text-white font-bold uppercase tracking-wider mb-1 block">Documento</label>
+            <input type="text" v-model="transaccion.documento" class="w-full neutro-secondary border border-gray-200 text-white rounded-lg p-2.5 font-medium" />
           </div>
           <div>
-            <label class="text-xs neutro-font font-bold uppercase tracking-wider mb-1 block">Forma de Pago</label>
-            <input type="text" v-model="transaccion.forma_pago" class="w-full servi-adapt-bg border border-gray-200 neutro-font rounded-lg p-2.5 font-medium" />
+            <label class="text-xs text-white font-bold uppercase tracking-wider mb-1 block">Forma de Pago</label>
+            <input type="text" v-model="transaccion.forma_pago" class="w-full neutro-secondary border border-gray-200 text-white rounded-lg p-2.5 font-medium" />
           </div>
           <div>
-            <label class="text-xs neutro-font font-bold uppercase tracking-wider mb-1 block">Cantidad</label>
-            <input type="number" v-model="transaccion.cantidad" min="1" class="w-full servi-adapt-bg border border-gray-200 neutro-font rounded-lg p-2.5 font-medium" />
+            <label class="text-xs text-white font-bold uppercase tracking-wider mb-1 block">Cantidad</label>
+            <input type="number" v-model="transaccion.cantidad" min="1" class="w-full neutro-secondary border border-gray-200 text-white rounded-lg p-2.5 font-medium" />
           </div>
         </div>
 
         <div class="mb-8 px-6">
-          <label class="text-xs neutro-font font-bold uppercase tracking-wider mb-1 block">Observaciones</label>
-          <textarea v-model="transaccion.observacion" rows="3" placeholder="Sin observaciones" class="w-full servi-adapt-bg border border-gray-200 neutro-font rounded-lg p-2.5 font-medium resize-none"></textarea>
+          <label class="text-xs text-white font-bold uppercase tracking-wider mb-1 block">Observaciones</label>
+          <textarea v-model="transaccion.observacion" rows="3" placeholder="Sin observaciones" class="w-full neutro-secondary border border-gray-200 text-white rounded-lg p-2.5 font-medium resize-none"></textarea>
         </div>
 
         <div v-if="transaccion.transacciones_detalle && transaccion.transacciones_detalle.length > 0" class="mb-8 px-6">
-          <p class="text-xs neutro-font font-bold uppercase tracking-wider mb-2">Documentos Adjuntos</p>
+          <p class="text-xs text-white font-bold uppercase tracking-wider mb-2">Documentos Adjuntos</p>
           <div class="flex flex-col gap-2">
-            <a v-for="(url, index) in transaccion.transacciones_detalle" :key="index" :href="url.url" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline font-medium text-sm flex items-center gap-1">
+            <a v-for="(url, index) in transaccion.transacciones_detalle" :key="index" :href="url.url" target="_blank" rel="noopener noreferrer" class="text-blue-200 hover:text-blue-800 underline font-medium text-sm flex items-center gap-1">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
@@ -267,30 +267,30 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="shadow-xl pb-2 rounded-lg servi-adapt-bg">
+      <div class="shadow-xl pb-2 rounded-lg neutro-secondary">
         <h3 class="font-bold text-lg neutro-primary text-white p-4 mb-4 rounded-t-lg border-b-4 border-yellow-500">Desglose Financiero</h3>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 px-6">
           <div>
-            <label class="text-xs neutro-font font-bold uppercase tracking-wider mb-1 block">Valor Neto</label>
-            <input type="number" v-model="transaccion.valor_neto" class="w-full servi-adapt-bg border border-gray-200 neutro-font rounded-lg p-2.5 font-medium" />
+            <label class="text-xs text-white font-bold uppercase tracking-wider mb-1 block">Valor Neto</label>
+            <input type="number" v-model="transaccion.valor_neto" class="w-full neutro-secondary border border-gray-200 text-white rounded-lg p-2.5 font-medium" />
           </div>
           <div>
-            <label class="text-xs neutro-font font-bold uppercase tracking-wider mb-1 block">IVA</label>
-            <input type="number" v-model="transaccion.iva" class="w-full servi-adapt-bg border border-gray-200 neutro-font rounded-lg p-2.5 font-medium" />
+            <label class="text-xs text-white font-bold uppercase tracking-wider mb-1 block">IVA</label>
+            <input type="number" v-model="transaccion.iva" class="w-full neutro-secondary border border-gray-200 text-white rounded-lg p-2.5 font-medium" />
           </div>
           <div>
-            <label class="text-xs neutro-font font-bold uppercase tracking-wider mb-1 block">Total</label>
-            <input type="number" v-model="transaccion.valor_iva_incluido" class="w-full servi-adapt-bg border border-gray-200 neutro-font rounded-lg p-2.5 text-blue-600 font-extrabold" />
+            <label class="text-xs text-white font-bold uppercase tracking-wider mb-1 block">Total</label>
+            <input type="number" v-model="transaccion.valor_iva_incluido" class="w-full neutro-secondary border border-gray-200 text-white rounded-lg p-2.5 text-blue-300 font-extrabold" />
           </div>
           <div>
-            <label class="text-xs neutro-font font-bold uppercase tracking-wider mb-1 block">Precio Unitario</label>
-            <input type="number" v-model="transaccion.precio_costo_unitario" class="w-full servi-adapt-bg border border-gray-200 neutro-font rounded-lg p-2.5 font-medium" />
+            <label class="text-xs text-white font-bold uppercase tracking-wider mb-1 block">Precio Unitario</label>
+            <input type="number" v-model="transaccion.precio_costo_unitario" class="w-full neutro-secondary border border-gray-200 text-white rounded-lg p-2.5 font-medium" />
           </div>
         </div>
       </div>
 
       <div class="flex justify-end gap-3 pb-10">
-        <button @click="$router.back()" class="px-6 py-3 rounded-lg border border-gray-300 neutro-font font-bold hover:opacity-80 transition-all">
+        <button @click="$router.back()" class="px-6 py-3 rounded-lg neutro-font font-bold hover:opacity-80 transition-all">
           Cancelar
         </button>
         <button @click="guardarCambios" class="px-6 py-3 rounded-lg neutro-primary text-white font-bold hover:opacity-90 transition-all shadow-md">
@@ -311,11 +311,11 @@ onMounted(async () => {
 
     <!-- Modal de confirmación al salir -->
     <div v-if="mostrarModalSalir" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div class="servi-adapt-bg rounded-xl shadow-2xl max-w-sm w-full mx-4 p-6">
-        <h3 class="text-lg font-bold neutro-font mb-2">¿Salir sin guardar?</h3>
-        <p class="text-sm neutro-font mb-6">Tienes cambios que aún no se han confirmado en la base de datos. Si sales ahora podrías perderlos.</p>
+      <div class="neutro-secondary rounded-xl shadow-2xl max-w-sm w-full mx-4 p-6">
+        <h3 class="text-lg font-bold text-white mb-2">¿Salir sin guardar?</h3>
+        <p class="text-sm text-white mb-6">Tienes cambios que aún no se han confirmado en la base de datos. Si sales ahora podrías perderlos.</p>
         <div class="flex justify-end gap-3">
-          <button @click="cancelarSalir" class="px-4 py-2 rounded-lg border border-gray-300 neutro-font font-bold hover:opacity-80 transition-all text-sm">
+          <button @click="cancelarSalir" class="px-4 py-2 rounded-lg border border-gray-300 text-white font-bold hover:opacity-80 transition-all text-sm">
             Quedarme
           </button>
           <button @click="confirmarSalir" class="px-4 py-2 rounded-lg bg-red-500 text-white font-bold hover:bg-red-600 transition-all text-sm">

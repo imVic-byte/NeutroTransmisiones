@@ -77,13 +77,13 @@ onMounted(async () => {
             v-model="busqueda"
             type="text"
             placeholder="Buscar por patente, marca, modelo o dueño..."
-            class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-800 servi-adapt-bg neutro-font text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+            class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-800 neutro-secondary neutro-font text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
           />
         </div>
       </div>
 
       <!-- Tabla (pantallas grandes) -->
-      <div class="hidden md:block servi-adapt-bg rounded-xl shadow-sm border border-gray-800 overflow-hidden">
+      <div class="hidden md:block neutro-secondary rounded-xl shadow-sm border border-gray-800 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="min-w-full text-sm">
             <thead class="neutro-primary neutro-font">
@@ -96,7 +96,7 @@ onMounted(async () => {
                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
-            <tbody class="servi-adapt-bg divide-y divide-gray-100">
+            <tbody class="neutro-secondary divide-y divide-gray-100">
               <tr v-for="v in vehiculosFiltrados" :key="v.id" class="hover:opacity-80 transition-colors">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span class="px-2 py-1 bg-yellow-100 text-yellow-800 font-bold rounded text-xs">{{ v.patente || 'S/P' }}</span>
@@ -106,7 +106,7 @@ onMounted(async () => {
                 <td class="px-6 py-4 whitespace-nowrap neutro-font max-w-[150px] truncate">{{ camelCase(v.cliente?.nombre) }} {{ camelCase(v.cliente?.apellido) }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span v-if="v.en_taller" class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">En taller</span>
-                  <span v-else class="px-2 py-1 servi-adapt-bg neutro-font rounded-full text-xs font-semibold">Fuera</span>
+                  <span v-else class="px-2 py-1 neutro-secondary neutro-font rounded-full text-xs font-semibold">Fuera</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <button @click="verVehiculo(v.id)" class="neutro-primary neutro-font px-2 py-1 rounded-full hover:opacity-90 transition cursor-pointer">
@@ -129,13 +129,13 @@ onMounted(async () => {
         <div
           v-for="v in vehiculosFiltrados"
           :key="v.id"
-          class="servi-adapt-bg rounded-xl shadow-sm border border-gray-800 p-4 cursor-pointer"
+          class="neutro-secondary rounded-xl shadow-sm border border-gray-800 p-4 cursor-pointer"
           @click="verVehiculo(v.id)"
         >
           <div class="flex items-center justify-between mb-2">
             <span class="px-2 py-1 bg-yellow-100 text-yellow-800 font-bold rounded text-xs">{{ v.patente || 'S/P' }}</span>
             <span v-if="v.en_taller" class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">En taller</span>
-            <span v-else class="px-2 py-1 servi-adapt-bg neutro-font rounded-full text-xs font-semibold">Fuera</span>
+            <span v-else class="px-2 py-1 neutro-secondary neutro-font rounded-full text-xs font-semibold">Fuera</span>
           </div>
           <p class="font-semibold neutro-font text-sm">{{ v.marca || '—' }} {{ v.modelo || '—' }}</p>
           <div class="space-y-1 text-sm mt-2 border-t border-gray-800 pt-2">
@@ -150,7 +150,7 @@ onMounted(async () => {
             Ver Vehículo
           </button>
         </div>
-        <div v-if="vehiculosFiltrados.length === 0" class="servi-adapt-bg rounded-xl shadow-sm border border-gray-800 p-10 text-center">
+        <div v-if="vehiculosFiltrados.length === 0" class="neutro-secondary rounded-xl shadow-sm border border-gray-800 p-10 text-center">
           <p class="neutro-font font-medium">{{ busqueda ? 'No se encontraron resultados' : 'No hay vehículos registrados' }}</p>
         </div>
       </div>

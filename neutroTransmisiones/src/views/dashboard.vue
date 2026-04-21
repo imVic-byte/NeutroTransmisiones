@@ -307,7 +307,7 @@ onMounted(async () => {
         <div class="mt-2 sm:mt-0 flex items-center gap-3">
           
           <!--
-        <select v-model="tallerSeleccionado" @change="cambiarTaller" class="text-sm font-medium servi-adapt-bg neutro-font border border-gray-100 rounded-lg px-3 py-1.5 shadow-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none cursor-pointer">
+        <select v-model="tallerSeleccionado" @change="cambiarTaller" class="text-sm font-medium neutro-secondary neutro-font border border-gray-100 rounded-lg px-3 py-1.5 shadow-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none cursor-pointer">
             <option v-for="taller in talleres" :key="taller.id" :value="taller.id">{{ taller.nombre }}</option>
           </select>
           -->
@@ -445,7 +445,7 @@ onMounted(async () => {
       </div>
 
       <!-- Mis OTs asignadas -->
-      <div v-if="misOTs.length > 0" class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+      <div v-if="misOTs.length > 0" class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
         <div class="p-5 border-b border-gray-100 neutro-primary flex justify-between items-center">
           <h2 class="text-lg font-bold text-white flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -504,7 +504,7 @@ onMounted(async () => {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         <!-- Flujo de trabajo reciente (2/3) -->
-        <div class="lg:col-span-2 servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="lg:col-span-2 neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="p-5 border-b border-gray-100 neutro-primary flex justify-between items-center">
             <h2 class="text-lg font-bold text-white">Flujo de Trabajo Reciente</h2>
             <button @click="verTablero" class="text-sm cursor-pointer text-white hover:text-blue-800 font-medium">Ver tablero</button>
@@ -539,7 +539,7 @@ onMounted(async () => {
         <div class="space-y-6">
           
           <div class="space-y-6">
-  <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="p-5 neutro-primary border-b border-gray-100">
       <h3 class="font-bold text-white">Métricas de Eficiencia</h3>
     </div>
@@ -569,7 +569,7 @@ onMounted(async () => {
             {{ porcentajeAtiempo || 0 }}%
           </span>
         </div>
-        <div class="w-full servi-adapt-bg rounded-full h-2.5">
+        <div class="w-full neutro-secondary rounded-full h-2.5">
           <div 
             class="bg-green-500 h-2.5 rounded-full transition-all duration-500" 
             :style="{ width: `${porcentajeAtiempo || 0}%` }">
@@ -578,13 +578,13 @@ onMounted(async () => {
       </div>
 
       <div class="grid grid-cols-2 gap-3 pt-4 border-t border-gray-100">
-        <div class="text-center p-3 servi-adapt-bg rounded-lg transition-all duration-200 hover:shadow-sm">
+        <div class="text-center p-3 neutro-secondary rounded-lg transition-all duration-200 hover:shadow-sm">
           <div class="text-xs neutro-font uppercase tracking-wider">Ticket Prom.</div>
           <div class="font-bold neutro-font mt-1">
             {{ formatoMoneda(metricas.ticket_promedio) }}
           </div>
         </div>
-        <div class="text-center p-3 servi-adapt-bg rounded-lg">
+        <div class="text-center p-3 neutro-secondary rounded-lg">
           <div class="text-xs neutro-font uppercase tracking-wider">Rechazos</div>
           <div class="font-bold text-red-500 mt-1">
             {{ porcentajeRechazos || 0 }}%

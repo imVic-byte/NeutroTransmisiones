@@ -105,7 +105,7 @@ const asignarOrden = async () => {
         </div>
       </div>
       
-      <div class="mt-2 servi-adapt-bg p-2 rounded text-xs neutro-font italic line-clamp-2">
+      <div class="mt-2 neutro-secondary p-2 rounded text-xs neutro-font italic line-clamp-2">
         "{{ orden.diagnostico }}"
       </div>
       <div class="info-row" v-if="orden.fecha_ingreso">

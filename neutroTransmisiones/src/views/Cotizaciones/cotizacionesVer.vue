@@ -230,33 +230,33 @@ onMounted(async () => {
             <div class="lg:w-2/3 space-y-6">
 
                 <!-- Info General -->
-                <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="neutro-primary px-6 py-3 border-b border-gray-100 flex justify-between items-center">
+                <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
+                    <div class="neutro-primary px-6 py-3 border-b border-gray-700 flex justify-between items-center">
                         <h2 class="text-white font-bold text-lg">Información General</h2>
                     </div>
                     
                     <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Cliente -->
                         <div>
-                            <h3 class="text-xs font-semibold neutro-font uppercase tracking-wider mb-3">Datos del Cliente</h3>
-                            <div class="space-y-2 text-sm neutro-font">
+                            <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-3">Datos del Cliente</h3>
+                            <div class="space-y-2 text-sm text-white">
                                 <p class="flex flex-col">
-                                    <span class="neutro-font text-xs font-bold">Cliente</span>
-                                    <span class="neutro-font">{{ camelCase(cotizacion.nombre) + ' ' + camelCase(cotizacion.apellido) || 'No registrado' }}</span>
+                                    <span class="text-white text-xs font-bold">Cliente</span>
+                                    <span class="text-white">{{ camelCase(cotizacion.nombre) + ' ' + camelCase(cotizacion.apellido) || 'No registrado' }}</span>
                                 </p>
                             </div>
                         </div>
 
                         <!-- Diagnóstico y fechas -->
                         <div>
-                            <h3 class="text-xs font-semibold neutro-font uppercase tracking-wider mb-3">Detalles</h3>
-                            <div class="space-y-2 text-sm neutro-font">
+                            <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-3">Detalles</h3>
+                            <div class="space-y-2 text-sm text-white">
                                 <p>
-                                    <span class="block text-xs font-bold neutro-font">Diagnóstico / Descripción</span>
-                                    <span class="italic neutro-font">{{ camelCase(cotizacion.diagnostico) || 'No registrado' }}</span>
+                                    <span class="block text-xs font-bold text-white">Diagnóstico / Descripción</span>
+                                    <span class="italic text-white">{{ camelCase(cotizacion.diagnostico) || 'No registrado' }}</span>
                                 </p>
                                 <p>
-                                    <span class="block text-xs neutro-font font-bold">Fecha de Emisión</span>
+                                    <span class="block text-xs text-white font-bold">Fecha de Emisión</span>
                                     {{ formatearFecha(cotizacion.created_at) }}
                                 </p>
                             </div>
@@ -265,14 +265,14 @@ onMounted(async () => {
                 </div>
 
                 <!-- Servicios -->
-                <div v-if="cotizacion.detalle_cotizacion && cotizacion.detalle_cotizacion.length > 0" class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-100 neutro-primary">
+                <div v-if="cotizacion.detalle_cotizacion && cotizacion.detalle_cotizacion.length > 0" class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-700 neutro-primary">
                         <h3 class="text-white font-bold">Servicios Solicitados</h3>
                     </div>
                     <div class="divide-y divide-gray-800">
                         <div v-for="detalle in cotizacion.detalle_cotizacion" :key="detalle.id" class="px-6 py-4 flex justify-between items-center hover:opacity-80 transition-colors">
-                            <span class="text-sm neutro-font font-medium">{{ camelCase(detalle.descripcion) }}</span>
-                            <span class="text-sm font-bold neutro-font">{{ formatearDinero(detalle.monto) }} x {{ detalle.cantidad }} = {{ formatearDinero(detalle.monto * detalle.cantidad) }}</span>
+                            <span class="text-sm text-white font-medium">{{ camelCase(detalle.descripcion) }}</span>
+                            <span class="text-sm font-bold text-white">{{ formatearDinero(detalle.monto) }} x {{ detalle.cantidad }} = {{ formatearDinero(detalle.monto * detalle.cantidad) }}</span>
                         </div>
                     </div>
                 </div>
@@ -282,44 +282,44 @@ onMounted(async () => {
             <div class="lg:w-1/3 space-y-6">
 
                 <!-- Resumen Financiero -->
-                <div v-if="cotizacion.detalle_cotizacion && cotizacion.detalle_cotizacion.length > 0" class="neutro-primary rounded-xl shadow-sm border border-gray-100">
+                <div v-if="cotizacion.detalle_cotizacion && cotizacion.detalle_cotizacion.length > 0" class="neutro-primary rounded-xl shadow-sm dark:border border-gray-700">
                     <h3 class="text-sm font-bold text-white p-3 flex justify-between items-center">Resumen Financiero</h3>
                     
-                    <div class="space-y-3 servi-adapt-bg p-6 rounded-b-xl">
-                        <div class="flex justify-between items-center text-sm neutro-font">
+                    <div class="space-y-3 neutro-secondary p-6 rounded-b-xl">
+                        <div class="flex justify-between items-center text-sm text-white">
                             <span>Subtotal</span>
                             <span class="font-medium">{{ formatearDinero(cotizacion.subtotal || 0) }}</span>
                         </div>
-                        <div class="flex justify-between items-center text-sm neutro-font">
+                        <div class="flex justify-between items-center text-sm text-white">
                             <span>Descuento</span>
                             <span class="text-green-600 font-medium">- {{ cotizacion.descuento || '0' }}%</span>
                         </div>
-                        <div class="flex justify-between items-center text-sm neutro-font">
+                        <div class="flex justify-between items-center text-sm text-white">
                             <span>Neto</span>
                             <span class="font-medium">{{ formatearDinero(cotizacion.total_neto || 0) }}</span>
                         </div>
-                        <div class="flex justify-between items-center text-sm neutro-font">
+                        <div class="flex justify-between items-center text-sm text-white">
                             <span>IVA (19%)</span>
                             <span class="font-medium">{{ formatearDinero(cotizacion.iva || 0) }}</span>
                         </div>
                         
                         <div class="pt-4 mt-2 border-t border-gray-100 flex justify-between items-center">
-                            <span class="font-bold neutro-font text-lg">TOTAL</span>
-                            <span class="font-extrabold text-2xl neutro-font">{{ formatearDinero(cotizacion.total_final || 0) }}</span>
+                            <span class="font-bold text-white text-lg">TOTAL</span>
+                            <span class="font-extrabold text-2xl text-white">{{ formatearDinero(cotizacion.total_final || 0) }}</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Acciones -->
-                <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100">
+                <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700">
                     <h3 class="text-xs rounded-t-xl font-semibold uppercase neutro-primary p-3 flex justify-between items-center text-white tracking-wider mb-4">Acciones</h3>
                     
                     <!-- Selector de cuenta bancaria -->
-                    <div v-if="cuentasBancarias.length > 0 && !confirmada" class="mb-4 servi-adapt-bg py-2 px-3">
-                      <label class="block text-xs font-semibold neutro-font uppercase tracking-wider mb-2">Cuenta para PDF</label>
+                    <div v-if="cuentasBancarias.length > 0 && !confirmada" class="mb-4 neutro-secondary py-2 px-3">
+                      <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2">Cuenta para PDF</label>
                       <select
                         v-model="cuentaSeleccionada"
-                        class="w-full rounded-lg neutro-primary text-white border border-gray-100 px-2 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        class="w-full rounded-lg neutro-primary text-white dark:border border-gray-700 px-2 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         <option v-for="cuenta in cuentasBancarias" :key="cuenta.id" :value="cuenta">
                           {{ cuenta.banco }} - {{ cuenta.titular }}
@@ -329,7 +329,7 @@ onMounted(async () => {
                     <div class="py-2 px-3 space-y-3 pb-4">
                         <button 
                           @click="generarPDF"
-                          class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg neutro-primary text-white border border-gray-200 hover:bg-blue-800 transition-colors text-sm font-medium"
+                          class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg neutro-primary text-white   hover:bg-blue-800 transition-colors text-sm font-medium"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -339,7 +339,7 @@ onMounted(async () => {
                         <button 
                           v-if="!confirmada"
                           @click="irAEditar"
-                          class="neutro-primary w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg border border-gray-200 text-white hover:bg-blue-50 transition-colors text-sm font-medium"
+                          class="neutro-primary w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg   text-white hover:bg-blue-50 transition-colors text-sm font-medium"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -349,7 +349,7 @@ onMounted(async () => {
                         <button 
                           v-if="!confirmada"
                           @click="mostrarModalConfirmacion"
-                          class="neutro-primary w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg border border-gray-200 text-white hover:bg-blue-50 transition-colors text-sm font-medium"
+                          class="neutro-primary w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg   text-white hover:bg-blue-50 transition-colors text-sm font-medium"
                         >
                           Generar Ficha de Trabajo
                         </button>
@@ -389,9 +389,9 @@ onMounted(async () => {
 
               <!-- Resumen de Cotización -->
               <div>
-                <h3 class="text-xs font-semibold neutro-font uppercase tracking-wider mb-3">Resumen de la Cotización</h3>
+                <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-3">Resumen de la Cotización</h3>
                 <div class="rounded-lg border border-gray-200 overflow-hidden">
-                  <div class="px-4 py-3 space-y-2 text-sm neutro-font">
+                  <div class="px-4 py-3 space-y-2 text-sm text-white">
                     <p class="flex justify-between">
                       <span class="font-semibold">Cliente</span>
                       <span>{{ camelCase(cotizacion.nombre) + ' ' + camelCase(cotizacion.apellido) }}</span>
@@ -403,14 +403,14 @@ onMounted(async () => {
                   </div>
                   
                   <div v-if="cotizacion.detalle_cotizacion && cotizacion.detalle_cotizacion.length > 0" class="border-t border-gray-200">
-                    <div class="px-4 py-2 text-xs font-semibold neutro-font uppercase tracking-wider">Servicios</div>
-                    <div v-for="det in cotizacion.detalle_cotizacion" :key="det.id" class="px-4 py-2 flex justify-between text-sm neutro-font border-t border-gray-100">
+                    <div class="px-4 py-2 text-xs font-semibold text-white uppercase tracking-wider">Servicios</div>
+                    <div v-for="det in cotizacion.detalle_cotizacion" :key="det.id" class="px-4 py-2 flex justify-between text-sm text-white border-t border-gray-100">
                       <span>{{ camelCase(det.descripcion) }}</span>
                       <span class="font-medium">{{ formatearDinero(det.monto * det.cantidad) }}</span>
                     </div>
                   </div>
 
-                  <div class="px-4 py-3 border-t border-gray-200 flex justify-between font-bold neutro-font">
+                  <div class="px-4 py-3 border-t border-gray-200 flex justify-between font-bold text-white">
                     <span>Total</span>
                     <span>{{ formatearDinero(cotizacion.total_final || 0) }}</span>
                   </div>
@@ -419,18 +419,18 @@ onMounted(async () => {
 
               <!-- Datos de contacto -->
               <div>
-                <h3 class="text-xs font-semibold neutro-font uppercase tracking-wider mb-3">Datos de Contacto del Cliente</h3>
+                <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-3">Datos de Contacto del Cliente</h3>
                 <div class="space-y-3">
                   
                   <!-- Correo -->
                   <div>
-                    <label class="block text-xs font-medium neutro-font mb-1">Correo electrónico <span class="text-gray-400 text-[10px]">(opcional)</span></label>
+                    <label class="block text-xs font-medium text-white mb-1">Correo electrónico <span class="text-gray-400 text-[10px]">(opcional)</span></label>
                     <input 
                       v-model="correoCliente"
                       type="email" 
                       placeholder="cliente@ejemplo.com"
                       :class="[
-                        'w-full rounded-lg border px-3 py-2.5 text-sm neutro-font focus:ring-2 focus:border-transparent outline-none transition-all',
+                        'w-full rounded-lg border px-3 py-2.5 text-sm text-white focus:ring-2 focus:border-transparent outline-none transition-all',
                         correoCliente && !emailValido ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:ring-blue-500'
                       ]"
                     />
@@ -439,11 +439,11 @@ onMounted(async () => {
 
                   <!-- Teléfono con código de país -->
                   <div>
-                    <label class="block text-xs font-medium neutro-font mb-1">Teléfono <span class="text-red-500">*</span></label>
+                    <label class="block text-xs font-medium text-white mb-1">Teléfono <span class="text-red-500">*</span></label>
                     <div class="flex gap-2">
                       <select 
                         v-model="codigoPais"
-                        class="rounded-lg border border-gray-300 px-2 py-2.5 text-sm neutro-font focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none w-28"
+                        class="rounded-lg border border-gray-300 px-2 py-2.5 text-sm text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none w-28"
                       >
                         <option value="+56">🇨🇱 +56</option>
                         <option value="+54">🇦🇷 +54</option>
@@ -462,7 +462,7 @@ onMounted(async () => {
                         maxlength="15"
                         placeholder="912345678"
                         :class="[
-                          'flex-1 rounded-lg border px-3 py-2.5 text-sm neutro-font focus:ring-2 focus:border-transparent outline-none transition-all',
+                          'flex-1 rounded-lg border px-3 py-2.5 text-sm text-white focus:ring-2 focus:border-transparent outline-none transition-all',
                           telefonoCliente && !telefonoValido ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:ring-blue-500'
                         ]"
                       />
@@ -477,7 +477,7 @@ onMounted(async () => {
             <div class="px-6 py-4 flex gap-3 border-t border-gray-200">
               <button 
                 @click="cerrarModalConfirmacion"
-                class="flex-1 py-2.5 rounded-lg border border-gray-300 neutro-font font-medium text-sm hover:bg-gray-100 transition-colors"
+                class="flex-1 py-2.5 rounded-lg border border-gray-300 text-white font-medium text-sm hover:bg-gray-100 transition-colors"
               >
                 Cancelar
               </button>

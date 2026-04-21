@@ -276,7 +276,7 @@ onMounted(async () => {
         <div class="flex flex-col lg:flex-row gap-6 mt-6">
             
             <div class="lg:w-2/3 space-y-6">
-                <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="neutro-primary px-6 py-3 border-b border-gray-100 flex justify-between items-center">
                         <h2 class="text-white font-bold text-lg">Información General</h2>
                         <span :class="handleEstados(presupuesto.estado).clase" class="px-3 py-1 rounded-full text-xs neutro-font">
@@ -323,7 +323,7 @@ onMounted(async () => {
                     </div>
                 </div>
 
-                <div v-if="presupuesto.detalle_presupuesto.length > 0" class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div v-if="presupuesto.detalle_presupuesto.length > 0" class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 neutro-primary">
                         <h3 class="text-white font-bold">Servicios Solicitados</h3>
                     </div>
@@ -340,7 +340,7 @@ onMounted(async () => {
                 <div v-if="presupuesto.detalle_presupuesto.length > 0" class="neutro-primary rounded-xl shadow-sm border border-gray-100">
                     <h3 class="text-sm font-bold text-white p-3 flex justify-between items-center">Resumen Financiero</h3>
                     
-                    <div class="space-y-3 servi-adapt-bg p-6 rounded-b-xl">
+                    <div class="space-y-3 neutro-secondary p-6 rounded-b-xl">
                         <div class="flex justify-between items-center text-sm neutro-font">
                             <span>Subtotal</span>
                             <span class="font-medium">{{ formatarDinero(presupuesto.subtotal || 0) }}</span>
@@ -365,11 +365,11 @@ onMounted(async () => {
                     </div>
                 </div>
 
-                <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100">
+                <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100">
                     <h3 class="text-xs rounded-t-xl font-semibold uppercase neutro-primary p-3 flex justify-between items-center text-white tracking-wider mb-4">Acciones</h3>
                     
                     <!-- Selector de cuenta bancaria -->
-                    <div v-if="cuentasBancarias.length > 0" class="mb-4 servi-adapt-bg py-2 px-2">
+                    <div v-if="cuentasBancarias.length > 0" class="mb-4 neutro-secondary py-2 px-2">
                       <label class="block text-xs font-semibold neutro-font uppercase tracking-wider mb-2">Cuenta para PDF</label>
                       <select
                         v-model="cuentaSeleccionada"

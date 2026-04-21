@@ -136,7 +136,7 @@ onMounted(async () => {
             <div class="lg:w-2/3 space-y-6">
 
                 <!-- Info General -->
-                <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="neutro-primary px-6 py-3 border-b border-gray-100 flex justify-between items-center">
                         <h2 class="text-white font-bold text-lg">Información General</h2>
                     </div>
@@ -185,7 +185,7 @@ onMounted(async () => {
                 </div>
 
                 <!-- Servicios -->
-                <div v-if="cotizacion.detalle_cotizaciones_ficha && cotizacion.detalle_cotizaciones_ficha.length > 0" class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div v-if="cotizacion.detalle_cotizaciones_ficha && cotizacion.detalle_cotizaciones_ficha.length > 0" class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 neutro-primary">
                         <h3 class="text-white font-bold">Servicios Solicitados</h3>
                     </div>
@@ -205,7 +205,7 @@ onMounted(async () => {
                 <div v-if="cotizacion.detalle_cotizaciones_ficha && cotizacion.detalle_cotizaciones_ficha.length > 0" class="neutro-primary rounded-xl shadow-sm border border-gray-100">
                     <h3 class="text-sm font-bold text-white p-3 flex justify-between items-center">Resumen Financiero</h3>
                     
-                    <div class="space-y-3 servi-adapt-bg p-6 rounded-b-xl">
+                    <div class="space-y-3 neutro-secondary p-6 rounded-b-xl">
                         <div class="flex justify-between items-center text-sm neutro-font">
                             <span>Subtotal</span>
                             <span class="font-medium">{{ formatarDinero(cotizacion.subtotal || 0) }}</span>
@@ -231,9 +231,9 @@ onMounted(async () => {
                 </div>
 
                 <!-- Acciones -->
-                <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100">
+                <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100">
                     <h3 class="text-xs rounded-t-xl font-semibold uppercase neutro-primary p-3 flex justify-between items-center text-white tracking-wider mb-4">Acciones</h3>
-                    <div v-if="cuentasBancarias.length > 0 && !confirmada" class="mb-4 servi-adapt-bg py-2 px-3">
+                    <div v-if="cuentasBancarias.length > 0 && !confirmada" class="mb-4 neutro-secondary py-2 px-3">
                       <label class="block text-xs font-semibold neutro-font uppercase tracking-wider mb-2">Cuenta para PDF</label>
                       <select
                         v-model="cuentaSeleccionada"

@@ -21,7 +21,7 @@ const deuda = ref(null);
 const FichasEnDeuda = ref([]);
 const abonos = ref([]);
 const FichasDisponibles = ref([]);
-const FichasSeleccionadas = ref([]); // selección múltiple
+const FichasSeleccionadas = ref([]);
 
 // Modales y UI
 const showModalFicha = ref(false);
@@ -517,7 +517,7 @@ onMounted(cargarDatos);
     </div>
     <div v-else class="max-w-7xl mx-auto px-4 py-8">
       <volver></volver>
-      <div class="servi-adapt-bg card-shadow border border-gray-100 overflow-hidden mb-8">
+      <div class="neutro-secondary card-shadow dark:border border-gray-700 overflow-hidden mb-8">
         <div class="p-6 md:p-8 flex justify-between items-start flex-wrap gap-4 neutro-primary">
           <div class="flex flex-col gap-2">
             <h1 class="text-2xl font-bold text-white">{{ deuda.nombre }}</h1>
@@ -542,31 +542,31 @@ onMounted(cargarDatos);
         </div>
 
         <div class="px-6 pb-6">
-          <div class="w-full servi-adapt-bg mt-2 rounded-full h-3 overflow-hidden">
+          <div class="w-full neutro-secondary mt-2 rounded-full h-3 overflow-hidden">
             <div class="bg-green-500 h-3 rounded-full transition-all duration-700"
               :style="{ width: `${porcentajePagado}%` }"></div>
           </div>
 
           <div class="flex justify-between items-center mt-2">
-            <span class="text-xs font-bold neutro-font">{{ formatearDinero(totalPagado) }} / {{
+            <span class="text-xs font-bold text-white">{{ formatearDinero(totalPagado) }} / {{
               formatearDinero(totalDeuda) }}</span>
             <span class="text-xs font-bold">{{ porcentajePagado }}% Pagado</span>
           </div>
 
           <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-            <div class="neutro-primary rounded-lg p-3 border border-gray-100">
+            <div class="neutro-primary rounded-lg p-3 dark:border border-gray-700">
               <div class="text-xs text-white uppercase">Fichas</div>
               <div class="font-bold text-white">{{ FichasEnDeuda.length }}</div>
             </div>
-            <div class="neutro-primary rounded-lg p-3 border border-gray-100">
+            <div class="neutro-primary rounded-lg p-3 dark:border border-gray-700">
               <div class="text-xs text-white uppercase">Total deuda</div>
               <div class="font-bold text-white">{{ formatearDinero(totalDeuda) }}</div>
             </div>
-            <div class="neutro-primary rounded-lg p-3 border border-gray-100">
+            <div class="neutro-primary rounded-lg p-3 dark:border border-gray-700">
               <div class="text-xs text-white uppercase">Pagado</div>
               <div class="font-bold text-white">{{ formatearDinero(totalPagado) }}</div>
             </div>
-            <div class="neutro-primary rounded-lg p-3 border border-gray-100">
+            <div class="neutro-primary rounded-lg p-3 dark:border border-gray-700">
               <div class="text-xs text-white uppercase">Saldo</div>
               <div class="font-bold text-white">{{ formatearDinero(saldoPendiente) }}</div>
             </div>
@@ -575,28 +575,28 @@ onMounted(cargarDatos);
 
         <!-- Acciones -->
         <div v-if="!esCompletada"
-          class="servi-adapt-bg px-6 py-4 border-t border-gray-100 flex flex-wrap gap-3 items-center">
+          class="neutro-secondary px-6 py-4 border-t border-gray-100 flex flex-wrap gap-3 items-center">
           <button @click="buscarFichasDisponibles"
-            class="flex rounded-lg neutro-font text-white justify-center items-center px-4 py-2 font-bold shadow-sm hover:opacity-90 transition">
+            class="flex rounded-lg text-white text-white justify-center items-center px-4 py-2 font-bold shadow-sm hover:opacity-90 transition">
             <span class="text-xl leading-none mb-1">+ Agregar Ficha</span>
             <span class="hidden sm:inline"></span>
           </button>
 
           <button @click="abrirModalAbono" :disabled="!puedeAbonar"
-            class="w-full sm:w-auto neutro-primary neutro-font font-bold py-2 px-6 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+            class="w-full sm:w-auto neutro-primary text-white font-bold py-2 px-6 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
             <span class="text-xl leading-none mb-1">$ Abonar</span>
             <span class="hidden sm:inline"></span>
           </button>
 
           <button v-if="deuda.estado === 'pendiente'" @click="pedirConfirmacionCompletar" :disabled="!puedeCompletar"
-            class="w-full sm:w-auto neutro-primary neutro-font font-bold py-2 px-6 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+            class="w-full sm:w-auto neutro-primary text-white font-bold py-2 px-6 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
             <span class="text-xl leading-none mb-1">✓ Completar</span>
             <span class="hidden sm:inline"></span>
           </button>
 
 
           <button @click="showConfig = !showConfig"
-            class="flex rounded-lg neutro-font text-white justify-center items-center px-4 py-2 font-bold shadow-sm hover:opacity-90 transition">
+            class="flex rounded-lg text-white text-white justify-center items-center px-4 py-2 font-bold shadow-sm hover:opacity-90 transition">
             <span class="text-xl leading-none mb-1">⚙ Configurar</span>
             <span class="hidden sm:inline"></span>
           </button>
@@ -605,8 +605,8 @@ onMounted(cargarDatos);
 
         <!-- Config recordatorios -->
         <div v-if="showConfig" class="neutro-primary p-4 border-t border-white/10 flex items-center gap-4 animate-fadeIn">
-          <span class="neutro-font font-bold text-sm">Recordarme cobrar cada:</span>
-          <select v-model="diasNotificacion" class="rounded-lg px-3 py-2 neutro-font text-white font-bold text-sm">
+          <span class="text-white font-bold text-sm">Recordarme cobrar cada:</span>
+          <select v-model="diasNotificacion" class="rounded-lg px-3 py-2 text-white text-white font-bold text-sm">
             <option :value="0">Nunca</option>
             <option :value="5">5 días</option>
             <option :value="10">10 días</option>
@@ -614,7 +614,7 @@ onMounted(cargarDatos);
             <option :value="30">30 días</option>
           </select>
           <button @click="guardarConfigNotificacion"
-            class="px-4 py-2 text-sm font-bold neutro-font text-white rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-4 py-2 text-sm font-bold text-white text-white rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             :disabled="procesandoNotificacion">
             {{ procesandoNotificacion ? 'Guardando...' : 'Guardar' }}
           </button>
@@ -624,8 +624,8 @@ onMounted(cargarDatos);
       <!-- Listados -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Órdenes -->
-        <div class="card-shadow overflow-hidden border border-gray-100 servi-adapt-bg">
-          <div class="neutro-primary neutro-font px-4 py-3 flex items-center justify-between">
+        <div class="card-shadow overflow-hidden dark:border border-gray-700 neutro-secondary">
+          <div class="neutro-primary text-white px-4 py-3 flex items-center justify-between">
             <h3 class="font-bold text-xs uppercase tracking-wider">Fichas ({{ FichasEnDeuda.length }})</h3>
           </div>
 
@@ -650,7 +650,7 @@ onMounted(cargarDatos);
                 </span>
 
                 <RouterLink :to="{ name: 'ficha-de-trabajo', params: { id: item.id } }"
-                  class="neutro-primary neutro-font p-2 rounded-full transition-transform hover:scale-110 shadow-sm"
+                  class="neutro-primary text-white p-2 rounded-full transition-transform hover:scale-110 shadow-sm"
                   aria-label="Ver Ficha">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                     stroke="currentColor" class="size-5">
@@ -675,8 +675,8 @@ onMounted(cargarDatos);
         </div>
 
         <!-- Abonos -->
-        <div class="card-shadow overflow-hidden border border-gray-100 servi-adapt-bg">
-          <div class="neutro-primary neutro-font px-4 py-3 flex items-center justify-between">
+        <div class="card-shadow overflow-hidden dark:border border-gray-700 neutro-secondary">
+          <div class="neutro-primary text-white px-4 py-3 flex items-center justify-between">
             <h3 class="font-bold text-xs uppercase tracking-wider">Abonos Realizados</h3>
           </div>
 
@@ -710,9 +710,9 @@ onMounted(cargarDatos);
     <div v-if="showModalFicha"
       class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div
-        class="neutro-primary neutro-font rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[80vh] animate-in fade-in zoom-in duration-200">
+        class="neutro-primary text-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[80vh] animate-in fade-in zoom-in duration-200">
         <div class="px-6 py-4 border-b border-white/10">
-          <h2 class="text-lg font-bold neutro-font">Agregar Fichas</h2>
+          <h2 class="text-lg font-bold text-white">Agregar Fichas</h2>
           <p class="text-sm text-white/80">Selecciona una o varias fichas de trabajo para vincular a esta Deuda.</p>
         </div>
 
@@ -723,7 +723,7 @@ onMounted(cargarDatos);
           <button v-for="ot in FichasDisponibles" :key="ot.id" type="button" @click="toggleSeleccionFicha(ot.id)"
             class="w-full p-3 rounded-lg transition-all flex justify-between items-center text-left" :class="FichasSeleccionadas.includes(ot.id)
               ? 'bg-white/10 ring-2 ring-white/50'
-              : 'neutro-font neutro-primary-font hover:opacity-90'
+              : 'text-white neutro-primary-font hover:opacity-90'
               ">
             <div class="flex items-center gap-3 min-w-0">
               <div class="w-5 h-5 rounded border flex items-center justify-center flex-shrink-0"
@@ -751,7 +751,7 @@ onMounted(cargarDatos);
 
         <div class="px-6 py-4 border-t border-white/10">
           <button @click="agregarFichasMasivas" :disabled="FichasSeleccionadas.length === 0"
-            class="w-full neutro-font text-white font-bold py-3 rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition">
+            class="w-full text-white text-white font-bold py-3 rounded-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition">
             Agregar {{ FichasSeleccionadas.length }} Fichas Seleccionadas
           </button>
 
@@ -765,9 +765,9 @@ onMounted(cargarDatos);
     <div v-if="showModalAbono"
       class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div
-        class="neutro-primary neutro-font rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">
+        class="neutro-primary text-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">
         <div class="px-6 py-4 border-b border-white/10">
-          <h2 class="text-lg font-bold neutro-font">Registrar Abono</h2>
+          <h2 class="text-lg font-bold text-white">Registrar Abono</h2>
           <p class="text-sm text-white/80">Ingresa el monto y una observación opcional.</p>
         </div>
 
@@ -775,13 +775,13 @@ onMounted(cargarDatos);
           <div>
             <label class="block text-xs font-bold text-white/80 uppercase mb-1">Monto</label>
             <input v-model="nuevoAbono" type="number"
-              class="w-full rounded-lg px-3 py-2.5 servi-adapt-bg neutro-font font-bold outline-none" placeholder="0" />
+              class="w-full rounded-lg px-3 py-2.5 neutro-secondary text-white font-bold outline-none" placeholder="0" />
           </div>
 
           <div>
             <label class="block text-xs font-bold text-white/80 uppercase mb-1">Observación</label>
             <input v-model="abonoObs" type="text"
-              class="w-full rounded-lg px-3 py-2.5 servi-adapt-bg neutro-font font-bold outline-none"
+              class="w-full rounded-lg px-3 py-2.5 neutro-secondary text-white font-bold outline-none"
               placeholder="Ej: Transferencia, efectivo, etc." />
           </div>
 
@@ -791,7 +791,7 @@ onMounted(cargarDatos);
             
             <div v-if="!archivoAbono" class="flex gap-2">
               <button type="button" @click="activarInputAbono"
-                class="flex items-center gap-2 text-sm font-bold neutro-font servi-adapt-bg hover:opacity-80 px-4 py-2.5 rounded-lg transition-colors border border-white/20 cursor-pointer w-full justify-center">
+                class="flex items-center gap-2 text-sm font-bold text-white neutro-secondary hover:opacity-80 px-4 py-2.5 rounded-lg transition-colors border border-white/20 cursor-pointer w-full justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -799,7 +799,7 @@ onMounted(cargarDatos);
               </button>
             </div>
 
-            <div v-else class="flex items-center gap-3 servi-adapt-bg rounded-lg px-3 py-2.5 border border-white/20">
+            <div v-else class="flex items-center gap-3 neutro-secondary rounded-lg px-3 py-2.5 border border-white/20">
               <svg v-if="archivoAbono.type === 'application/pdf'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
@@ -818,10 +818,10 @@ onMounted(cargarDatos);
 
         <div class="px-6 py-4 flex justify-end gap-3">
           <button @click="showModalAbono = false"
-            class="px-4 py-2 text-sm font-medium neutro-font text-white rounded-lg">Cancelar</button>
+            class="px-4 py-2 text-sm font-medium text-white text-white rounded-lg">Cancelar</button>
 
           <button @click="registrarAbono"
-            class="px-4 py-2 text-sm font-bold neutro-font text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-4 py-2 text-sm font-bold text-white text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
             :disabled="nuevoAbono <= 0">
             Confirmar
           </button>

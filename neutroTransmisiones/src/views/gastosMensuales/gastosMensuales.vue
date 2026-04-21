@@ -140,7 +140,7 @@ const handleRegistrar = () => {
           </div>
         </div>
 
-        <div class="hidden md:block servi-adapt-bg rounded-lg shadow-md overflow-hidden mt-6">
+        <div class="hidden md:block neutro-secondary rounded-lg shadow-md overflow-hidden mt-6">
           <table class="min-w-full">
             <thead class="neutro-primary text-white">
               <tr>

@@ -642,7 +642,7 @@ onMounted(async () => {
     <navbar :titulo="'Ficha N°' + (ficha?.id || '...')" subtitulo="Detalle de ficha de trabajo" class="navbar sticky top-0 z-50 shadow-sm" />
     <div class="mx-auto p-4 max-w-7xl pb-28 pt-8">
       <volver />
-      <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 p-4 mb-6 overflow-x-auto">
+      <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 p-4 mb-6 overflow-x-auto">
         <div class="flex flex-nowrap md:flex-wrap items-center justify-start md:justify-center gap-2 min-w-max md:min-w-0" :class="{ 'pointer-events-none grayscale-[0.5]': isFichaBloqueada }">
           <div v-for="estado in estadosFicha" :key="estado.id" class="flex flex-col items-center group">
             <div
@@ -719,7 +719,7 @@ onMounted(async () => {
         <div class="lg:col-span-7 space-y-6">
           
           <!-- Datos del Cliente -->
-          <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="neutro-primary px-6 py-3 border-b border-gray-100 flex justify-between items-center">
               <h2 class="text-white font-bold text-lg">Datos del Cliente</h2>
             </div>
@@ -743,7 +743,7 @@ onMounted(async () => {
               <p v-else class="text-sm text-gray-500 italic">No hay información del cliente vinculada.</p>
             </div>
           </div>
-          <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="neutro-primary px-6 py-3 border-b border-gray-100 flex justify-between items-center">
               <h2 class="text-white font-bold text-lg">Datos de la Ficha</h2>
               <div class="flex items-center gap-2 min-h-[32px]">
@@ -809,7 +809,7 @@ onMounted(async () => {
             </div>
           </div>
           </div>
-          <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="neutro-primary px-6 py-3 border-b border-gray-100 flex justify-between items-center">
               <h2 class="text-white font-bold text-lg">Vehículos</h2>
               <button v-if="!isFichaBloqueada" @click="abrirModalOT" class="neutro-font neutro-secondary p-2 rounded-lg hover:text-gray-200 text-xs uppercase tracking-wider flex items-center gap-1 transition-colors">
@@ -820,14 +820,14 @@ onMounted(async () => {
               <div v-if="ficha.orden_trabajo" class="flex flex-row" :class="{ 'pointer-events-none opacity-80': isFichaBloqueada }">
                 <OTcard v-for="(orden, i) in ficha.orden_trabajo" :key="orden.id" :orden="orden" :index="i" :estado="handleEstados(orden.estado_actual_id)" />
               </div>
-              <p v-else class="text-sm neutro-font italic text-center py-4 servi-adapt-bg rounded-lg border border-dashed border-gray-200">
+              <p v-else class="text-sm neutro-font italic text-center py-4 neutro-secondary rounded-lg border border-dashed border-gray-200">
                 No se encontraron vehículos registrados para este cliente.
               </p>
             </div>
           </div>
         </div>
         <div class="lg:col-span-5 space-y-6">
-          <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="px-6 py-3 border-b border-gray-100 flex justify-between items-center neutro-primary">
               <h2 class="text-white font-bold text-sm tracking-wide uppercase flex items-center gap-2">
                 Cotizaciones
@@ -864,7 +864,7 @@ onMounted(async () => {
             </div>
             <p v-else class="text-sm text-gray-500 italic p-6 text-center">No hay cotizaciones previas.</p>
           </div>
-          <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
              <div class="neutro-primary px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                 <span class="text-sm font-bold text-white uppercase tracking-wider">Acciones</span>
              </div>

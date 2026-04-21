@@ -238,7 +238,7 @@ onMounted(() => {
 
     <!-- Stats Cards -->
     <div class="stats-grid px-5 mt-2">
-      <div class="stat-card stat-total">
+      <div class="stat-card stat-total neutro-primary text-white">
         <div class="stat-icon-wrap bg-blue-100 dark:bg-blue-900/40">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="stat-icon text-blue-600 dark:text-blue-400">
             <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
@@ -530,7 +530,8 @@ onMounted(() => {
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--neutro-primary);
+  color: white;
   border-radius: 16px;
   padding: 14px;
   display: flex;
@@ -542,7 +543,6 @@ onMounted(() => {
 }
 
 .dark .stat-card {
-  background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.08);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
@@ -577,7 +577,6 @@ onMounted(() => {
   font-size: 1.4rem;
   font-weight: 800;
   line-height: 1.1;
-  color: var(--neutro-font);
 }
 
 .stat-number-small {
@@ -590,7 +589,6 @@ onMounted(() => {
   opacity: 0.65;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--neutro-font);
 }
 
 /* ═══════════════════════════════════════
@@ -686,7 +684,8 @@ onMounted(() => {
   background: transparent;
   font-size: 0.78rem;
   font-weight: 500;
-  color: var(--neutro-font);
+  color: white;
+  background-color: var(--neutro-primary);
   cursor: pointer;
   outline: none;
   transition: border-color 0.2s;
@@ -697,7 +696,6 @@ onMounted(() => {
 }
 
 .dark .sort-select {
-  background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.15);
 }
 
@@ -712,7 +710,8 @@ onMounted(() => {
 
 .product-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--neutro-primary);
+  color: white;
   border-radius: 16px;
   padding: 16px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -722,7 +721,6 @@ onMounted(() => {
 }
 
 .dark .product-card {
-  background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.08);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
@@ -756,7 +754,6 @@ onMounted(() => {
 .product-name {
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--neutro-font);
   line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -766,16 +763,10 @@ onMounted(() => {
 .product-category {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--neutro-primary);
   background: rgba(75, 121, 74, 0.1);
   padding: 2px 8px;
   border-radius: 6px;
   width: fit-content;
-}
-
-.dark .product-category {
-  background: rgba(75, 121, 74, 0.2);
-  color: #7cc47a;
 }
 
 .stock-badge {
@@ -836,13 +827,11 @@ onMounted(() => {
   width: 15px;
   height: 15px;
   opacity: 0.5;
-  color: var(--neutro-font);
 }
 
 .detail-value {
   font-size: 0.8rem;
   font-weight: 500;
-  color: var(--neutro-font);
   opacity: 0.8;
 }
 
@@ -881,14 +870,13 @@ onMounted(() => {
 /* Delete inline button */
 .btn-delete-inline {
   position: absolute;
-  top: 14px;
+  top: 54px;
   right: 14px;
   width: 28px;
   height: 28px;
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: var(--neutro-font);
   opacity: 0;
   cursor: pointer;
   display: flex;
@@ -971,7 +959,8 @@ onMounted(() => {
 }
 
 .modal-card {
-  background: var(--neutro-background);
+  background: var(--neutro-primary);
+  color: white;
   border-radius: 24px 24px 0 0;
   width: 100%;
   max-width: 500px;
@@ -1001,7 +990,6 @@ onMounted(() => {
 .modal-title {
   font-size: 1.2rem;
   font-weight: 800;
-  color: var(--neutro-font);
 }
 
 .modal-close {
@@ -1010,7 +998,6 @@ onMounted(() => {
   border-radius: 10px;
   border: none;
   background: rgba(0, 0, 0, 0.06);
-  color: var(--neutro-font);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1045,7 +1032,6 @@ onMounted(() => {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   opacity: 0.55;
-  color: var(--neutro-font);
 }
 
 .form-input {
@@ -1097,9 +1083,8 @@ onMounted(() => {
   flex: 1;
   padding: 12px;
   border-radius: 14px;
-  border: 1.5px solid rgba(0, 0, 0, 0.1);
   background: transparent;
-  color: var(--neutro-font);
+  color: white;
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
@@ -1119,7 +1104,7 @@ onMounted(() => {
   padding: 12px;
   border-radius: 14px;
   border: none;
-  background: var(--neutro-primary);
+  background: var(--neutro-secondary);
   color: #fff;
   font-weight: 700;
   font-size: 0.9rem;

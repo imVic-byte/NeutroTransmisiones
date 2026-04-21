@@ -155,59 +155,59 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen neutro-background pb-12 font-sans neutro-font">
+  <div class="min-h-screen neutro-background pb-12 font-sans text-white">
     <navbar titulo="NeutroTransmisiones" subtitulo="Deudas y Abonos" class="navbar" />
 
     <div class="max-w-7xl mx-auto px-4 py-8">
 
       <!-- Tabs Ocultar -->
-      <div class="flex gap-1 mb-6 servi-adapt-bg rounded-xl p-1 shadow-sm border border-gray-100 w-fit">
+      <div class="flex gap-1 mb-6 neutro-secondary rounded-xl p-1 shadow-sm dark:border border-gray-700 w-fit">
         <button
           @click="tabOcultar = false; filtroEstado = 'todas'"
           class="px-5 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 flex items-center gap-2"
-          :class="!tabOcultar ? 'neutro-primary text-white shadow-sm' : 'neutro-font hover:opacity-70'"
+          :class="!tabOcultar ? 'neutro-primary text-white shadow-sm' : 'text-white hover:opacity-70'"
         >
           Activas
           <span class="text-[11px] font-extrabold px-2 py-0.5 rounded-full"
-            :class="!tabOcultar ? 'bg-white/20 text-white' : 'servi-adapt-bg neutro-font'">{{ cantidadActivas }}</span>
+            :class="!tabOcultar ? 'bg-white/20 text-white' : 'neutro-secondary text-white'">{{ cantidadActivas }}</span>
         </button>
         <button
           @click="tabOcultar = true; filtroEstado = 'todas'"
           class="px-5 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 flex items-center gap-2"
-          :class="tabOcultar ? 'neutro-primary text-white shadow-sm' : 'neutro-font hover:opacity-70'"
+          :class="tabOcultar ? 'neutro-primary text-white shadow-sm' : 'text-white hover:opacity-70'"
         >
           Ocultas
           <span class="text-[11px] font-extrabold px-2 py-0.5 rounded-full"
-            :class="tabOcultar ? 'bg-white/20 text-white' : 'servi-adapt-bg neutro-font'">{{ cantidadOcultas }}</span>
+            :class="tabOcultar ? 'bg-white/20 text-white' : 'neutro-secondary text-white'">{{ cantidadOcultas }}</span>
         </button>
       </div>
 
       <!-- Header + Toolbar -->
       <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-6">
         <div>
-          <h2 class="text-2xl font-bold">{{ tabOcultar ? 'Deudas Ocultas' : 'Deudas' }}</h2>
+          <h2 class="text-2xl font-bold neutro-font">{{ tabOcultar ? 'Deudas Ocultas' : 'Deudas' }}</h2>
           <p class="neutro-font">{{ tabOcultar ? 'Deudas que has marcado como ocultas' : 'Gestiona las deudas agrupadas por cliente' }}</p>
         </div>
 
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
           <!-- Filtros Estado -->
           <div
-            class="inline-flex self-start w-fit rounded-xl border border-gray-100 servi-adapt-bg shadow-sm overflow-hidden">
+            class="inline-flex self-start w-fit rounded-xl dark:border border-gray-700 neutro-secondary shadow-sm overflow-hidden">
             <button type="button" @click="filtroEstado = 'todas'" class="px-4 py-2 text-sm font-bold transition-colors"
-              :class="filtroEstado === 'todas' ? 'neutro-primary neutro-font' : 'servi-adapt-bg neutro-font hover:opacity-80'">
+              :class="filtroEstado === 'todas' ? 'neutro-primary text-white' : 'neutro-secondary text-white hover:opacity-80'">
               Todas
               <span class="ml-2 text-[11px] font-extrabold px-2 py-0.5 rounded-full"
-                :class="filtroEstado === 'todas' ? 'servi-adapt-bg/20 text-white' : 'servi-adapt-bg neutro-font'">
+                :class="filtroEstado === 'todas' ? 'neutro-secondary/20 text-white' : 'neutro-secondary text-white'">
                 {{ deudasDelTab.length }}
               </span>
             </button>
 
             <button type="button" @click="filtroEstado = 'pendiente'"
-              class="px-4 py-2 text-sm font-bold transition-colors border-l border-gray-100"
-              :class="filtroEstado === 'pendiente' ? 'neutro-primary neutro-font' : 'servi-adapt-bg neutro-font hover:opacity-80'">
+              class="px-4 py-2 text-sm font-bold transition-colors dark:border-l border-gray-700"
+              :class="filtroEstado === 'pendiente' ? 'neutro-primary text-white' : 'neutro-secondary text-white hover:opacity-80'">
               Pendientes
               <span class="ml-2 text-[11px] font-extrabold px-2 py-0.5 rounded-full"
-                :class="filtroEstado === 'pendiente' ? 'servi-adapt-bg/20 text-white' : 'bg-red-50 text-red-600'">
+                :class="filtroEstado === 'pendiente' ? 'neutro-secondary/20 text-white' : 'bg-red-50 text-red-600'">
                 {{ cantidadPendientes }}
               </span>
             </button>
@@ -215,13 +215,13 @@ onMounted(() => {
             <button
               type="button"
               @click="filtroEstado = 'pagada'"
-              class="px-4 py-2 text-sm font-bold transition-colors border-l border-gray-100"
-              :class="filtroEstado === 'pagada' ? 'neutro-primary neutro-font' : 'servi-adapt-bg neutro-font hover:opacity-80'"
+              class="px-4 py-2 text-sm font-bold transition-colors border-l border-gray-700"
+              :class="filtroEstado === 'pagada' ? 'neutro-primary text-white' : 'neutro-secondary text-white hover:opacity-80'"
             >
               Pagadas
               <span
                 class="ml-2 text-[11px] font-extrabold px-2 py-0.5 rounded-full"
-                :class="filtroEstado === 'pagada' ? 'servi-adapt-bg/20 text-white' : 'bg-green-50 text-green-700'"
+                :class="filtroEstado === 'pagada' ? 'neutro-secondary/20 text-white' : 'bg-green-50 text-green-700'"
               >
                 {{ cantidadPagadas }}
               </span>
@@ -229,10 +229,10 @@ onMounted(() => {
           </div>
 
           <!-- Orden + Acción -->
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 inline-flex">
             <select
               v-model="ordenCampo"
-              class="neutro-font neutro-font font-bold border border-gray-100 rounded-lg px-3 py-2 shadow-sm outline-none"
+              class="neutro-primary text-white font-bold border border-gray-700 rounded-lg px-3 py-2 shadow-sm outline-none"
               title="Ordenar por"
             >
               <option value="created_at">Fecha</option>
@@ -242,7 +242,7 @@ onMounted(() => {
             <button
               type="button"
               @click="ordenAsc = !ordenAsc"
-              class="neutro-font neutro-font font-bold border border-gray-100 rounded-lg px-3 py-2 shadow-sm flex items-center gap-2 hover:opacity-90 transition"
+              class="text-white neutro-primary text-white font-bold border border-gray-700 rounded-lg px-3 py-2 shadow-sm flex items-center gap-2 hover:opacity-90 transition"
               :title="ordenAsc ? 'Ascendente' : 'Descendente'"
             >
               <svg
@@ -263,7 +263,7 @@ onMounted(() => {
 
             <button
               @click="showModalCrear = true"
-              class="neutro-font neutro-secondary px-5 py-2.5 rounded-lg font-bold shadow-sm flex items-center gap-2 hover:opacity-90 transition"
+              class="text-white neutro-secondary px-5 py-2.5 rounded-lg font-bold shadow-sm flex items-center gap-2 hover:opacity-90 transition"
             >
               <span class="text-xl leading-none">+</span>
               Nueva Deuda
@@ -280,10 +280,10 @@ onMounted(() => {
 
       <template v-else>
         <!-- Sin cuentas -->
-        <div v-if="deudas.length === 0" class="servi-adapt-bg rounded-xl p-10 text-center shadow-sm border border-gray-100">
-          <div class="neutro-font mb-2">
-            <p class="neutro-font text-lg">No hay deudas creadas</p>
-            <p class="text-sm neutro-font">Crea una deuda para agrupar fichas y registrar abonos.</p>
+        <div v-if="deudas.length === 0" class="neutro-secondary rounded-xl p-10 text-center shadow-sm border border-gray-700">
+          <div class="text-white mb-2">
+            <p class="text-white text-lg">No hay deudas creadas</p>
+            <p class="text-sm text-white">Crea una deuda para agrupar fichas y registrar abonos.</p>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-12 w-12 mx-auto mt-6"
@@ -302,7 +302,7 @@ onMounted(() => {
 
           <button
             @click="showModalCrear = true"
-            class="mt-2 inline-flex items-center gap-2 neutro-font neutro-font px-4 py-2 rounded-lg font-bold shadow-sm hover:opacity-90"
+            class="mt-2 inline-flex items-center gap-2 text-white text-white px-4 py-2 rounded-lg font-bold shadow-sm hover:opacity-90"
           >
             <span class="text-xl leading-none">+</span>
             Crear la primera
@@ -312,13 +312,13 @@ onMounted(() => {
         <!-- Con cuentas, pero filtros sin resultados -->
         <div
           v-else-if="deudasFiltradas.length === 0"
-          class="servi-adapt-bg rounded-xl p-10 text-center shadow-sm border border-gray-100"
+          class="neutro-secondary rounded-xl p-10 text-center shadow-sm border border-gray-700"
         >
-          <p class="neutro-font text-lg font-bold">No hay resultados con esos filtros.</p>
-          <p class="neutro-font">Prueba cambiando el estado o el orden.</p>
+          <p class="text-white text-lg font-bold">No hay resultados con esos filtros.</p>
+          <p class="text-white">Prueba cambiando el estado o el orden.</p>
           <button
             @click="limpiarFiltros"
-            class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg neutro-font neutro-font font-bold shadow-sm hover:opacity-90"
+            class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white text-white font-bold shadow-sm hover:opacity-90"
           >
             Limpiar filtros
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -331,10 +331,10 @@ onMounted(() => {
 
         <!-- Listado -->
         <div v-else>
-          <div class="hidden md:block servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="hidden md:block neutro-secondary rounded-xl shadow-sm border border-gray-700 overflow-hidden">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="neutro-primary neutro-font text-xs uppercase tracking-wider border-b border-gray-100">
+                <tr class="neutro-primary text-white text-xs uppercase tracking-wider border-b border-gray-700">
                   <th class="p-4 font-semibold">Deuda</th>
                   <th class="p-4 font-semibold">Estado</th>
                   <th class="p-4 font-semibold text-center">Notificación</th>
@@ -353,7 +353,7 @@ onMounted(() => {
                 >
                   <td class="p-4">
                     <div class="font-bold">{{ item.nombre }}</div>
-                    <div class="text-xs neutro-font">#{{ item.id }}</div>
+                    <div class="text-xs text-white">#{{ item.id }}</div>
                   </td>
 
                   <td class="p-4">
@@ -368,10 +368,10 @@ onMounted(() => {
                       class="text-sm font-semibold">
                       🔔 Cada {{ item.notificar_cada }} días
                     </span>
-                    <span v-else class="neutro-font">—</span>
+                    <span v-else class="text-white">—</span>
                   </td>
 
-                  <td class="p-4 text-center text-sm neutro-font">
+                  <td class="p-4 text-center text-sm text-white">
                     {{ formatearFecha(item.created_at) }}
                   </td>
 
@@ -394,7 +394,7 @@ onMounted(() => {
                     <RouterLink
                       :to="{ name: 'ver-deuda', params: { id: item.id } }"
                       @click.stop
-                      class="inline-flex servi-adapt-bg neutro-font p-2 rounded-full transition-transform hover:scale-110 shadow-sm"
+                      class="inline-flex neutro-secondary text-white p-2 rounded-full transition-transform hover:scale-110 shadow-sm"
                       aria-label="Ver detalle"
                     >
                       <svg
@@ -418,15 +418,15 @@ onMounted(() => {
             <div
               v-for="item in deudasFiltradas"
               :key="item.id"
-              class="servi-adapt-bg mx-2 neutro-font card-shadow p-3 mb-3 flex flex-col gap-2 overflow-hidden transition-all hover:shadow-md"
+              class="neutro-secondary mx-2 text-white card-shadow p-3 mb-3 flex flex-col gap-2 overflow-hidden transition-all hover:shadow-md"
               role="button"
               tabindex="0"
               @click="verDetalle(item.id)"
             >
-              <div class="flex justify-between items-start border-b border-gray-100 pb-2">
+              <div class="flex justify-between items-start border-b border-gray-700 pb-2">
                 <div class="flex flex-col min-w-0">
                   <span class="font-bold text-lg truncate">{{ item.nombre }}</span>
-                  <span class="text-xs neutro-font">Creada: {{ formatearFecha(item.created_at) }}</span>
+                  <span class="text-xs text-white">Creada: {{ formatearFecha(item.created_at) }}</span>
                 </div>
 
                 <span :style="{ backgroundColor: estadoUI(item).bg, color: estadoUI(item).fg }"
@@ -436,17 +436,17 @@ onMounted(() => {
               </div>
 
               <div class="flex justify-between items-center text-sm">
-                <span class="neutro-font">Notificación:</span>
+                <span class="text-white">Notificación:</span>
                 <span
                   v-if="(item.estado || '').toLowerCase() === 'pendiente' && item.notificar_cada > 0"
                   class="font-semibold"
                 >
                   🔔 Cada {{ item.notificar_cada }} días
                 </span>
-                <span v-else class="neutro-font">—</span>
+                <span v-else class="text-white">—</span>
               </div>
 
-              <div class="flex mt-2 pt-2 border-t border-gray-100 items-center justify-between">
+              <div class="flex mt-2 pt-2 border-t border-gray-700 items-center justify-between">
                 <button
                   @click.stop="toggleOcultar(item)"
                   class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:opacity-80 shadow-sm"
@@ -461,7 +461,7 @@ onMounted(() => {
                 <RouterLink
                   :to="{ name: 'ver-deuda', params: { id: item.id } }"
                   @click.stop
-                  class="neutro-primary neutro-font p-2 rounded-full transition-transform hover:scale-110 shadow-sm"
+                  class="neutro-primary text-white p-2 rounded-full transition-transform hover:scale-110 shadow-sm"
                   aria-label="Ver detalle"
                 >
                   <svg
@@ -485,9 +485,9 @@ onMounted(() => {
     <div v-if="showModalCrear"
       class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div
-        class="neutro-primary neutro-font rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+        class="neutro-primary text-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
         <div class="px-6 py-4 border-b border-white/10">
-          <h2 class="text-lg font-bold neutro-font">Abrir Nueva Deuda</h2>
+          <h2 class="text-lg font-bold text-white">Abrir Nueva Deuda</h2>
           <p class="text-sm text-white/80">Crea una deuda para agrupar fichas y registrar abonos.</p>
         </div>
 
@@ -497,19 +497,19 @@ onMounted(() => {
             v-model="form.nombre"
             type="text"
             placeholder="Ej: Juan Pérez, Deuda Pepe, etc."
-            class="w-full rounded-lg px-3 py-2.5 neutro-font neutro-secondary font-bold"
+            class="w-full rounded-lg px-3 py-2.5 text-white neutro-secondary font-bold"
           />
         </div>
 
         <div class="px-6 py-4 flex justify-end gap-3">
-          <button @click="showModalCrear = false" class="px-4 py-2 text-sm font-medium neutro-font neutro-secondary rounded-lg">
+          <button @click="showModalCrear = false" class="px-4 py-2 text-sm font-medium text-white neutro-secondary rounded-lg">
             Cancelar
           </button>
 
           <button
             @click="crearDeuda"
             :disabled="!form.nombre"
-            class="px-4 py-2 text-sm font-bold neutro-font neutro-secondary rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            class="px-4 py-2 text-sm font-bold text-white neutro-secondary rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             Crear
           </button>

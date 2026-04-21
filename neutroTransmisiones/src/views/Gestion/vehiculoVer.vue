@@ -96,7 +96,7 @@ onMounted(async () => {
 
         <!-- Columna izquierda: Info del vehículo -->
         <div class="lg:w-1/3 space-y-6">
-          <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="neutro-primary p-6 flex flex-col items-center relative">
               <!-- Icono auto -->
               <div class="w-20 h-20 rounded-full neutro-background flex items-center justify-center neutro-font mb-3">
@@ -114,7 +114,7 @@ onMounted(async () => {
               <!-- Botón editar / guardar / cancelar -->
               <div class="absolute top-4 right-4 flex gap-2">
                 <template v-if="!editando">
-                  <button @click="iniciarEdicion" class="p-2 servi-adapt-bg/20 hover:servi-adapt-bg/30 rounded-lg transition cursor-pointer" title="Editar">
+                  <button @click="iniciarEdicion" class="p-2 neutro-secondary/20 hover:neutro-secondary/30 rounded-lg transition cursor-pointer" title="Editar">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
@@ -145,7 +145,7 @@ onMounted(async () => {
                 </div>
                 <div class="flex-1">
                   <p class="text-xs neutro-font uppercase font-semibold">Patente</p>
-                  <input v-if="editando" v-model="vehiculo.patente" type="text" class="mt-1 block w-full rounded-lg border border-gray-100 servi-adapt-bg neutro-font px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase" />
+                  <input v-if="editando" v-model="vehiculo.patente" type="text" class="mt-1 block w-full rounded-lg border border-gray-100 neutro-secondary neutro-font px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase" />
                   <p v-else class="text-sm neutro-font font-bold">{{ vehiculo.patente || '—' }}</p>
                 </div>
               </div>
@@ -159,7 +159,7 @@ onMounted(async () => {
                 </div>
                 <div class="flex-1">
                   <p class="text-xs neutro-font uppercase font-semibold">Marca</p>
-                  <input v-if="editando" v-model="vehiculo.marca" type="text" class="mt-1 block w-full rounded-lg border border-gray-100 servi-adapt-bg neutro-font px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <input v-if="editando" v-model="vehiculo.marca" type="text" class="mt-1 block w-full rounded-lg border border-gray-100 neutro-secondary neutro-font px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                   <p v-else class="text-sm neutro-font">{{ vehiculo.marca || '—' }}</p>
                 </div>
               </div>
@@ -173,7 +173,7 @@ onMounted(async () => {
                 </div>
                 <div class="flex-1">
                   <p class="text-xs neutro-font uppercase font-semibold">Modelo</p>
-                  <input v-if="editando" v-model="vehiculo.modelo" type="text" class="mt-1 block w-full rounded-lg border border-gray-100 servi-adapt-bg neutro-font px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <input v-if="editando" v-model="vehiculo.modelo" type="text" class="mt-1 block w-full rounded-lg border border-gray-100 neutro-secondary neutro-font px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                   <p v-else class="text-sm neutro-font">{{ vehiculo.modelo || '—' }}</p>
                 </div>
               </div>
@@ -188,7 +188,7 @@ onMounted(async () => {
                 <div>
                   <p class="text-xs neutro-font uppercase font-semibold">Estado</p>
                   <span v-if="vehiculo.en_taller" class="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">En taller</span>
-                  <span v-else class="inline-block mt-1 px-2 py-1 servi-adapt-bg neutro-font rounded-full text-xs font-semibold">Fuera del taller</span>
+                  <span v-else class="inline-block mt-1 px-2 py-1 neutro-secondary neutro-font rounded-full text-xs font-semibold">Fuera del taller</span>
                 </div>
               </div>
             </div>
@@ -196,7 +196,7 @@ onMounted(async () => {
 
           <!-- Estadísticas -->
           <div class="grid">
-            <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 p-4 text-center">
+            <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 p-4 text-center">
               <p class="text-3xl font-bold neutro-font">{{ totalOT }}</p>
               <p class="text-xs neutro-font mt-1 uppercase font-semibold">Órdenes de Trabajo</p>
             </div>
@@ -205,7 +205,7 @@ onMounted(async () => {
 
         <!-- Columna derecha: Dueño -->
         <div class="lg:w-2/3">
-          <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100 neutro-primary">
               <h2 class="font-bold text-white">Propietario</h2>
             </div>

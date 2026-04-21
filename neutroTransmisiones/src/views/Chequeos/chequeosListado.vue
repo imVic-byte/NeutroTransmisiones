@@ -96,7 +96,7 @@ onMounted(async () => {
       </div>
 
       <!-- Tabla desktop -->
-      <div class="hidden md:block servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="hidden md:block neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <table class="w-full text-sm text-left">
           <thead class="text-xs text-white neutro-primary uppercase">
             <tr>
@@ -134,7 +134,7 @@ onMounted(async () => {
       <!-- Cards mobile -->
       <div class="md:hidden space-y-3">
         <div v-for="chequeo in chequeos" :key="chequeo.id" @click="verChequeo(chequeo.id)"
-          class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:opacity-80 transition-all active:scale-[0.98]">
+          class="neutro-secondary rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:opacity-80 transition-all active:scale-[0.98]">
           <div class="flex items-center justify-between mb-2">
             <span class="font-bold neutro-font">#{{ chequeo.id }}</span>
             <span class="text-xs neutro-font">{{ formatFecha(chequeo.created_at) }}</span>
@@ -149,7 +149,7 @@ onMounted(async () => {
           </div>
           <p class="text-xs neutro-font mt-2">OT #{{ chequeo.orden_trabajo?.id || '—' }}</p>
         </div>
-        <div v-if="chequeos.length === 0" class="servi-adapt-bg rounded-xl p-10 text-center shadow-sm border border-gray-100">
+        <div v-if="chequeos.length === 0" class="neutro-secondary rounded-xl p-10 text-center shadow-sm border border-gray-100">
           <p class="neutro-font text-lg">No hay chequeos registrados</p>
           <p class="text-sm neutro-font">Realiza un chequeo completo para comenzar.</p>
         </div>

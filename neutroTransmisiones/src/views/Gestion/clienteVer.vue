@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import navbar from '../../components/componentes/navbar.vue'
 import { useInterfaz } from '../../stores/interfaz.js'
 import { supabase } from '../../lib/supabaseClient.js'
-
+import volver from '../../components/componentes/volver.vue'
 const interfaz = useInterfaz()
 const route = useRoute()
 const router = useRouter()
@@ -124,32 +124,24 @@ onMounted(async () => {
     <div v-if="cliente" class="neutro-background min-h-screen pb-24">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 pt-4">
 
-        <!-- Botón volver -->
-        <button @click="router.push({ name: 'listado-clientes' })"
-          class="mb-4 flex items-center gap-1 text-sm neutro-font hover:opacity-80 transition cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-            stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-          Volver al listado
-        </button>
+        <volver />
 
         <div class="flex flex-col lg:flex-row gap-6">
           <div class="lg:w-1/3 space-y-6">
-            <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
               <div class="neutro-primary p-6 flex flex-col items-center relative">
                 <div
-                  class="w-20 h-20 rounded-full neutro-background flex items-center justify-center neutro-font text-2xl font-bold mb-3">
+                  class="w-20 h-20 rounded-full neutro-background flex items-center justify-center text-green-900 text-2xl font-bold mb-3">
                   {{ iniciales(cliente.nombre, cliente.apellido) }}
                 </div>
-                <h1 class="text-xl font-bold neutro-font text-center">
+                <h1 class="text-xl font-bold text-white text-center">
                   {{ camelCase(cliente.nombre) }} {{ camelCase(cliente.apellido) }}
                 </h1>
                 <!-- Botón editar / guardar / cancelar -->
                 <div class="absolute top-4 right-4 flex gap-2">
                   <template v-if="!editando">
                     <button @click="iniciarEdicion"
-                      class="p-2 servi-adapt-bg/20 hover:servi-adapt-bg/30 rounded-lg transition cursor-pointer"
+                      class="p-2 neutro-secondary/20 hover:neutro-secondary/30 rounded-lg transition cursor-pointer"
                       title="Editar">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2">
@@ -160,7 +152,7 @@ onMounted(async () => {
                   </template>
                   <template v-else>
                     <button @click="guardarCliente"
-                      class="p-2 neutro-font rounded-lg transition cursor-pointer hover:translate-y-1" title="Guardar">
+                      class="p-2 text-white rounded-lg transition cursor-pointer hover:translate-y-1" title="Guardar">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
@@ -180,35 +172,35 @@ onMounted(async () => {
               <div class="p-6 space-y-4">
                 <!-- Nombre -->
                 <div class="flex items-start gap-3">
-                  <div class="p-2 servi-adapt-bg rounded-lg shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 neutro-font" fill="none"
+                  <div class="p-2 neutro-secondary rounded-lg shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none"
                       viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round"
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
                   <div class="flex-1">
-                    <p class="text-xs neutro-font uppercase font-semibold">Nombre</p>
+                    <p class="text-xs text-white uppercase font-semibold">Nombre</p>
                     <input v-if="editando" v-model="cliente.nombre" type="text"
-                      class="mt-1 block w-full rounded-lg border border-gray-100 servi-adapt-bg neutro-font px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                    <p v-else class="text-sm neutro-font">{{ camelCase(cliente.nombre) || '—' }}</p>
+                      class="mt-1 block w-full rounded-lg dark:border border-gray-700 neutro-secondary text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    <p v-else class="text-sm text-white">{{ camelCase(cliente.nombre) || '—' }}</p>
                   </div>
                 </div>
 
                 <!-- Apellido -->
                 <div class="flex items-start gap-3">
-                  <div class="p-2 servi-adapt-bg rounded-lg shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 neutro-font" fill="none"
+                  <div class="p-2 neutro-secondary rounded-lg shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none"
                       viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round"
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
                   <div class="flex-1">
-                    <p class="text-xs neutro-font uppercase font-semibold">Apellido</p>
+                    <p class="text-xs text-white uppercase font-semibold">Apellido</p>
                     <input v-if="editando" v-model="cliente.apellido" type="text"
-                      class="mt-1 block w-full rounded-lg border border-gray-100 servi-adapt-bg neutro-font px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                    <p v-else class="text-sm neutro-font">{{ camelCase(cliente.apellido) || '—' }}</p>
+                      class="mt-1 block w-full rounded-lg dark:border border-gray-700 neutro-secondary text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    <p v-else class="text-sm text-white">{{ camelCase(cliente.apellido) || '—' }}</p>
                   </div>
                 </div>
 
@@ -222,10 +214,10 @@ onMounted(async () => {
                     </svg>
                   </div>
                   <div class="flex-1">
-                    <p class="text-xs neutro-font uppercase font-semibold">Email</p>
+                    <p class="text-xs text-white uppercase font-semibold">Email</p>
                     <input v-if="editando" v-model="cliente.email" type="email"
-                      class="mt-1 block w-full rounded-lg border border-gray-100 servi-adapt-bg neutro-font px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                    <p v-else class="text-sm neutro-font break-all">{{ cliente.email || '—' }}</p>
+                      class="mt-1 block w-full rounded-lg dark:border border-gray-700 neutro-secondary text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    <p v-else class="text-sm text-white break-all">{{ cliente.email || '—' }}</p>
                   </div>
                 </div>
 
@@ -239,12 +231,12 @@ onMounted(async () => {
                     </svg>
                   </div>
                   <div class="flex-1">
-                    <p class="text-xs neutro-font uppercase font-semibold">Teléfono</p>
+                    <p class="text-xs text-white uppercase font-semibold">Teléfono</p>
                     <input v-if="editando" :value="cliente.telefono"
                       @input="e => cliente.telefono = e.target.value.replace(/\D/g, '').slice(0, 9)" type="text"
                       inputmode="numeric" placeholder="912345678"
-                      class="mt-1 block w-full rounded-lg border border-gray-100 servi-adapt-bg neutro-font px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                    <p v-else class="text-sm neutro-font">{{ cliente.telefono ? '+' + (cliente.codigo_pais || '56')
+                      class="mt-1 block w-full rounded-lg dark:border border-gray-700 neutro-secondary text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    <p v-else class="text-sm text-white">{{ cliente.telefono ? '+' + (cliente.codigo_pais || '56')
                       + ' ' +
                       cliente.telefono : '—' }}</p>
                   </div>
@@ -260,8 +252,8 @@ onMounted(async () => {
                     </svg>
                   </div>
                   <div>
-                    <p class="text-xs neutro-font uppercase font-semibold">RUT</p>
-                    <p class="text-sm neutro-font">{{ cliente.rut }}</p>
+                    <p class="text-xs text-white uppercase font-semibold">RUT</p>
+                    <p class="text-sm text-white">{{ cliente.rut }}</p>
                   </div>
                 </div>
 
@@ -276,8 +268,8 @@ onMounted(async () => {
                     </svg>
                   </div>
                   <div>
-                    <p class="text-xs neutro-font uppercase font-semibold">Dirección</p>
-                    <p class="text-sm neutro-font">{{ cliente.direccion }}</p>
+                    <p class="text-xs text-white uppercase font-semibold">Dirección</p>
+                    <p class="text-sm text-white">{{ cliente.direccion }}</p>
                   </div>
                 </div>
               </div>
@@ -285,31 +277,31 @@ onMounted(async () => {
 
             <!-- Estadísticas -->
             <div class="grid grid-cols-2 gap-3">
-              <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 p-4 text-center">
-                <p class="text-3xl font-bold neutro-font">{{ totalFichas }}</p>
-                <p class="text-xs neutro-font mt-1 uppercase font-semibold">Fichas de Trabajo</p>
+              <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 p-4 text-center">
+                <p class="text-3xl font-bold text-white">{{ totalFichas }}</p>
+                <p class="text-xs text-white mt-1 uppercase font-semibold">Fichas de Trabajo</p>
               </div>
-              <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 p-4 text-center">
-                <p class="text-3xl font-bold neutro-font">{{ totalOT }}</p>
-                <p class="text-xs neutro-font mt-1 uppercase font-semibold">Órdenes de Trabajo</p>
+              <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 p-4 text-center">
+                <p class="text-3xl font-bold text-white">{{ totalOT }}</p>
+                <p class="text-xs text-white mt-1 uppercase font-semibold">Órdenes de Trabajo</p>
               </div>
-              <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 p-4 text-center">
-                <p class="text-3xl font-bold neutro-font">{{ totalPresupuestos }}</p>
-                <p class="text-xs neutro-font mt-1 uppercase font-semibold">Presupuestos</p>
+              <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 p-4 text-center">
+                <p class="text-3xl font-bold text-white">{{ totalPresupuestos }}</p>
+                <p class="text-xs text-white mt-1 uppercase font-semibold">Presupuestos</p>
               </div>
-              <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 p-4 text-center">
-                <p class="text-3xl font-bold neutro-font">{{ vehiculos.length }}</p>
-                <p class="text-xs neutro-font mt-1 uppercase font-semibold">Vehículos Registrados</p>
+              <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 p-4 text-center">
+                <p class="text-3xl font-bold text-white">{{ vehiculos.length }}</p>
+                <p class="text-xs text-white mt-1 uppercase font-semibold">Vehículos Registrados</p>
               </div>
             </div>
           </div>
 
           <!-- Columna derecha: Vehículos -->
           <div class="lg:w-2/3">
-            <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <div class="px-6 py-4 border-b border-gray-100 servi-adapt-bg flex items-center justify-between">
-                <h2 class="font-bold neutro-font">Vehículos del Cliente</h2>
-                <span class="text-xs neutro-font font-semibold">{{ vehiculos.length }} registrado{{ vehiculos.length
+            <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
+              <div class="px-6 py-4  neutro-primary flex items-center justify-between">
+                <h2 class="font-bold text-white">Vehículos del Cliente</h2>
+                <span class="text-xs text-white font-semibold">{{ vehiculos.length }} registrado{{ vehiculos.length
                   !== 1 ?
                   's' : '' }}</span>
               </div>
@@ -317,34 +309,33 @@ onMounted(async () => {
               <!-- Tabla (desktop) -->
               <div class="hidden md:block overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-800 text-sm">
-                  <thead class="servi-adapt-bg">
+                  <thead class="neutro-primary">
                     <tr>
-                      <th class="px-6 py-3 text-left text-xs font-semibold neutro-font uppercase tracking-wider">
+                      <th class="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">
                         Patente</th>
-                      <th class="px-6 py-3 text-left text-xs font-semibold neutro-font uppercase tracking-wider">
+                      <th class="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">
                         Marca</th>
-                      <th class="px-6 py-3 text-left text-xs font-semibold neutro-font uppercase tracking-wider">
+                      <th class="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">
                         Modelo</th>
-                      <th class="px-6 py-3 text-left text-xs font-semibold neutro-font uppercase tracking-wider">
+                      <th class="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">
                         Estado</th>
                     </tr>
                   </thead>
-                  <tbody class="servi-adapt-bg divide-y divide-gray-800">
-                    <tr v-for="v in vehiculos" :key="v.id" class="hover:opacity-80 transition-colors cursor-pointer"
-                      @click="router.push({ name: 'ver-vehiculo', params: { id: v.id } })">
+                  <tbody class="neutro-secondary divide-y divide-gray-800">
+                    <tr v-for="v in vehiculos" :key="v.id" class="hover:opacity-80 transition-colors cursor-pointer">
                       <td class="px-6 py-4 whitespace-nowrap">
                         <span class="px-2 py-1 bg-yellow-100 text-yellow-800 font-bold rounded text-xs">{{ v.patente ||
                           'S/P'
                           }}</span>
                       </td>
-                      <td class="px-6 py-4 whitespace-nowrap neutro-font font-medium">{{ v.marca || '—' }}</td>
-                      <td class="px-6 py-4 whitespace-nowrap neutro-font">{{ v.modelo || '—' }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-white font-medium">{{ v.marca || '—' }}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-white">{{ v.modelo || '—' }}</td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <span v-if="v.en_taller"
                           class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">En
                           taller</span>
                         <span v-else
-                          class="px-2 py-1 servi-adapt-bg neutro-font rounded-full text-xs font-semibold">Fuera</span>
+                          class="px-2 py-1 neutro-secondary text-white rounded-full text-xs font-semibold">Fuera</span>
                       </td>
                     </tr>
                   </tbody>
@@ -363,14 +354,14 @@ onMounted(async () => {
                       class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">En
                       taller</span>
                     <span v-else
-                      class="px-2 py-1 servi-adapt-bg neutro-font rounded-full text-xs font-semibold">Fuera</span>
+                      class="px-2 py-1 neutro-secondary text-white rounded-full text-xs font-semibold">Fuera</span>
                   </div>
-                  <p class="font-semibold neutro-font text-sm">{{ v.marca || '—' }} {{ v.modelo || '—' }}</p>
+                  <p class="font-semibold text-white text-sm">{{ v.marca || '—' }} {{ v.modelo || '—' }}</p>
                 </div>
               </div>
 
               <div v-if="vehiculos.length === 0" class="p-10 text-center">
-                <p class="neutro-font font-medium">No hay vehículos registrados para este cliente</p>
+                <p class="text-white font-medium">No hay vehículos registrados para este cliente</p>
               </div>
             </div>
           </div>

@@ -4,6 +4,9 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabaseClient.js'
 import navbar from '@/components/componentes/navbar.vue'
 import { formatearFecha, formatearDinero } from '@/js/formateadores.js'
+import { useInterfaz } from '@/stores/interfaz.js'
+
+const interfaz = useInterfaz()
 
 const mostrarStats = ref(false)
 const cargando = ref(true)
@@ -37,9 +40,6 @@ const obtenerTransacciones = async () => {
   }
 }
 
-onMounted(() => {
-  obtenerTransacciones()
-})
 
 // Transacciones filtradas por fecha (solo para stats)
 const transaccionesFiltradas = computed(() => {
@@ -110,6 +110,12 @@ const handleRedirigir = (id) => {
 const handleRegistrar = () => {
   router.push({ name: 'crear-finanza' })
 }
+
+onMounted(async () => {
+  interfaz.showLoading()
+  await obtenerTransacciones()
+  interfaz.hideLoading()
+})
 </script>
 
 <template>
@@ -132,12 +138,12 @@ const handleRegistrar = () => {
         <div class="flex gap-2 justify-between">
           <button 
             @click="mostrarStats = !mostrarStats" 
-            class="md:hidden neutro-primary text-white py-3 rounded-full font-semibold shadow-sm flex justify-between items-center px-4"
+            class="md:hidden neutro-primary text-white rounded-full font-semibold shadow-sm flex justify-between items-center px-2"
           >
-            <span>Resumen Financiero</span>
+            <span>Resumen Financiero </span>
             <span class="text-white font-bold"> {{ mostrarStats ? ' -' : ' +' }}</span>
           </button>
-          <button @click="handleRegistrar" class="neutro-font rounded-full md:w-auto px-5 py-2.5 shadow-md font-semibold text-sm">
+          <button @click="handleRegistrar" class="neutro-primary text-white rounded-full md:w-auto px-5 py-2.5 shadow-md font-semibold text-sm">
             <p class="md:hidden">+</p>
             <p class="hidden md:block">Nueva Transacción</p>
           </button>
@@ -146,14 +152,14 @@ const handleRegistrar = () => {
 
       <!-- Filtros de fecha para Stats -->
       <div :class="mostrarStats ? 'block' : 'hidden md:block'">
-        <div class="flex flex-col md:flex-row md:items-end gap-3 neutro-primary p-4 rounded-lg shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-end gap-3 neutro-primary p-2 rounded-lg shadow-sm">
           <div class="flex-1 space-y-1">
             <label class="block text-xs font-bold text-white uppercase tracking-wider">Desde</label>
-            <input type="date" v-model="fechaDesde" class="w-full px-3 py-2 rounded-md focus:ring-2 outline-none neutro-font servi-adapt-bg text-sm">
+            <input type="date" v-model="fechaDesde" class="w-full px-3 py-2 rounded-md focus:ring-2 outline-none text-white neutro-secondary text-sm">
           </div>
           <div class="flex-1 space-y-1">
             <label class="block text-xs font-bold text-white uppercase tracking-wider">Hasta</label>
-            <input type="date" v-model="fechaHasta" class="w-full px-3 py-2 rounded-md focus:ring-2 outline-none neutro-font servi-adapt-bg text-sm">
+            <input type="date" v-model="fechaHasta" class="w-full px-3 py-2 rounded-md focus:ring-2 outline-none text-white neutro-secondary text-sm">
           </div>
           <button 
             v-if="hayFiltroActivo"
@@ -226,7 +232,7 @@ const handleRegistrar = () => {
         <!-- Desktop Table -->
         <div class="hidden md:block rounded-lg shadow-md overflow-hidden mt-6">
           <div class="overflow-x-auto">
-            <table class="min-w-[800px] w-full">
+            <table class="min-w-[800px] w-full neutro-secondary">
               <thead class="neutro-primary text-white">
                 <tr>
                   <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider">Fecha</th>
@@ -237,15 +243,15 @@ const handleRegistrar = () => {
                   <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
-              <tbody class="servi-adapt-bg">
+              <tbody class="neutro-secondary">
                 <tr v-if="transacciones.length === 0">
                   <td colspan="6" class="px-6 py-4 text-center text-gray-500 font-medium">No hay transacciones disponibles.</td>
                 </tr>
                 
-                <tr @click="handleRedirigir(t.id)" v-for="t in transaccionesPaginadas" :key="t.id" class=" transition-colors">
-                  <td class="px-4 py-4 whitespace-nowrap text-sm font-medium neutro-font">{{ formatearFecha(t.fecha) }}</td>
-                  <td class="px-4 py-4 text-sm neutro-font max-w-xs truncate" :title="t.descripcion">{{ t.descripcion }}</td>
-                  <td class="px-4 py-4 text-sm neutro-font max-w-xs truncate" :title="t.proveedor">{{ t.proveedor }}</td>
+                <tr @click="handleRedirigir(t.id)" v-for="t in transaccionesPaginadas" :key="t.id" class=" transition-colors text-white">
+                  <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">{{ formatearFecha(t.fecha) }}</td>
+                  <td class="px-4 py-4 text-sm max-w-xs truncate" :title="t.descripcion">{{ t.descripcion }}</td>
+                  <td class="px-4 py-4 text-sm max-w-xs truncate" :title="t.proveedor">{{ t.proveedor }}</td>
                   <td class="px-4 py-4 whitespace-nowrap">
                     <span 
                       :class="claseTipo(t.tipo)"
@@ -254,8 +260,8 @@ const handleRegistrar = () => {
                       {{ t.tipo }}
                     </span>
                   </td>
-                  <td class="px-4 py-4 whitespace-nowrap text-right font-bold neutro-font">{{ formatearDinero(t.valor_iva_incluido) }}</td>
-                  <td class="px-4 py-4 whitespace-nowrap flex neutro-font justify-center">
+                  <td class="px-4 py-4 whitespace-nowrap text-right font-bold">{{ formatearDinero(t.valor_iva_incluido) }}</td>
+                  <td class="px-4 py-4 whitespace-nowrap flex  justify-center">
                     <button @click="handleRedirigir(t.id)" class="hover:text-blue-600 p-1 rounded-full hover:bg-slate-200 transition-colors" title="Ver detalle">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

@@ -594,7 +594,7 @@ onMounted(async () => {
         <p class="font-bold">No eres el técnico asignado. Modo solo lectura.</p>
       </div>
 
-      <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 p-4 mb-6 overflow-x-auto">
+      <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 p-4 mb-6 overflow-x-auto">
         <div class="flex flex-nowrap md:flex-wrap items-center justify-start md:justify-center gap-2 min-w-max md:min-w-0">
           <div v-for="estado in estados" :key="estado.id" class="flex flex-col items-center group">
             <div v-if="estado.id !== 1 && estado.id !== 8 && estado.id !== 7 && estado.id !== 9 && estado.id !== 11" @click="cambiarEstadoDirecto(estado)"
@@ -616,7 +616,7 @@ onMounted(async () => {
 
         <div class="lg:col-span-2 space-y-6">
           
-          <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="neutro-primary px-6 py-4 flex justify-between items-center">
               <h1 class="neutro-font font-bold text-lg tracking-wide">INFORMACIÓN GENERAL</h1>
             </div>
@@ -632,7 +632,7 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="neutro-primary px-6 py-4 flex justify-between items-center">
               <h1 class="neutro-font font-bold text-lg tracking-wide">DATOS DE RECEPCIÓN</h1>
               <div class="flex items-center gap-2 min-h-[32px]">
@@ -654,7 +654,7 @@ onMounted(async () => {
                 <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
                   <div class="space-y-1">
                     <label class="text-xs font-bold neutro-font uppercase tracking-wider">Prioridad</label>
-                    <select class="w-full servi-adapt-bg border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" v-model="orden.prioridad" :disabled="soloLectura || isCerrado">
+                    <select class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" v-model="orden.prioridad" :disabled="soloLectura || isCerrado">
                       <option value="1">Alta (Urgencia)</option>
                       <option value="2">Media (Normal)</option>
                       <option value="3">Baja (Proyecto)</option>
@@ -664,53 +664,53 @@ onMounted(async () => {
                 <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
                   <div class="space-y-1">
                     <label class="text-xs font-bold neutro-font uppercase tracking-wider">Tipo de Trabajo</label>
-                    <input class="w-full servi-adapt-bg border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" type="text" placeholder="Ej: Mantención 10.000km" v-model="orden.tipo_trabajo" :disabled="soloLectura || isCerrado" />
+                    <input class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" type="text" placeholder="Ej: Mantención 10.000km" v-model="orden.tipo_trabajo" :disabled="soloLectura || isCerrado" />
                   </div>
                 </div>
                 <div class="space-y-1">
                   <label class="text-xs font-bold neutro-font uppercase tracking-wider">Kilometraje Actual</label>
                   <div class="relative">
-                    <input class="w-full servi-adapt-bg border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium pl-4" type="number" v-model="orden.kilometraje_inicial" :disabled="soloLectura || isCerrado" />
+                    <input class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium pl-4" type="number" v-model="orden.kilometraje_inicial" :disabled="soloLectura || isCerrado" />
                     <span class="absolute right-4 top-2.5 neutro-font text-sm font-bold">KM</span>
                   </div>
                 </div>
                 <div class="space-y-1 flex-row">
                   <label class="text-xs font-bold neutro-font uppercase tracking-wider">Diagnóstico</label>
-                  <textarea class="w-full h-32 servi-adapt-bg border border-gray-100 neutro-font rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500 font-medium resize-none" placeholder="Describa el problema encontrado" v-model="orden.diagnostico" :disabled="soloLectura || isCerrado"></textarea>
+                  <textarea class="w-full h-32 neutro-secondary border border-gray-100 neutro-font rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500 font-medium resize-none" placeholder="Describa el problema encontrado" v-model="orden.diagnostico" :disabled="soloLectura || isCerrado"></textarea>
                 </div>
               </div>
 
               <div class="flex flex-col gap-6">
-                <div class="space-y-2 servi-adapt-bg p-4 rounded-xl border border-gray-100">
+                <div class="space-y-2 neutro-secondary p-4 rounded-xl border border-gray-100">
                   <label class="text-xs font-bold neutro-font uppercase tracking-wider flex justify-between">
                     <span>Nivel de Combustible</span>
                   </label>
                   <medidorCombustible v-model="nivelCombustible" />
                 </div>
-                <div class="servi-adapt-bg p-4 rounded-xl border border-gray-100">
+                <div class="neutro-secondary p-4 rounded-xl border border-gray-100">
                   <label class="text-xs font-bold neutro-font uppercase tracking-wider mb-3 block">Inventario Rápido</label>
                   <div class="grid grid-cols-2 gap-3">
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 servi-adapt-bg rounded-lg border hover:border-blue-400 transition-colors">
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
                       <input type="checkbox" v-model="orden.trae_documentos" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" :disabled="soloLectura || isCerrado">
                       <span class="text-sm font-medium neutro-font">Documentos</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 servi-adapt-bg rounded-lg border hover:border-blue-400 transition-colors">
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
                       <input type="checkbox" v-model="orden.trae_llaves" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" :disabled="soloLectura || isCerrado">
                       <span class="text-sm font-medium neutro-font">Llaves</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 servi-adapt-bg rounded-lg border hover:border-blue-400 transition-colors">
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
                       <input type="checkbox" v-model="orden.trae_candado_seguridad" class="w-4 h-4 text-blue-600 rounded-full focus:ring-blue-500" :disabled="soloLectura || isCerrado">
                       <span class="text-xs font-medium neutro-font">Tuerca Seguridad</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 servi-adapt-bg rounded-lg border hover:border-blue-400 transition-colors">
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
                       <input type="checkbox" v-model="orden.trae_panel_radio" class="w-4 h-4 text-blue-600 rounded-full focus:ring-blue-500" :disabled="soloLectura || isCerrado">
                       <span class="text-sm font-medium neutro-font">Panel Radio</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 servi-adapt-bg rounded-lg border hover:border-blue-400 transition-colors">
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
                       <input type="checkbox" v-model="orden.trae_rueda_repuesto" class="w-4 h-4 text-blue-600 rounded-full focus:ring-blue-500" :disabled="soloLectura || isCerrado">
                       <span class="text-sm font-medium neutro-font">Rueda Repuesto</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 servi-adapt-bg rounded-lg border hover:border-blue-400 transition-colors">
+                    <label class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
                       <input type="checkbox" v-model="orden.trae_encendedor" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" :disabled="soloLectura || isCerrado">
                       <span class="text-sm font-medium neutro-font">Encendedor</span>
                     </label>
@@ -721,7 +721,7 @@ onMounted(async () => {
           </div>
 
           <!-- FOTOS DE RECEPCIÓN -->
-          <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="neutro-primary px-6 py-4 flex justify-between items-center">
               <h3 class="neutro-font font-bold text-lg tracking-wide uppercase">Fotos de Recepción</h3>
             </div>
@@ -760,7 +760,7 @@ onMounted(async () => {
 
                 <button 
                   @click="activarInputRecepcion('galeria')"
-                  class="flex items-center gap-2 text-sm font-bold neutro-font servi-adapt-bg hover:opacity-80 px-4 py-2.5 rounded-lg transition-colors border border-gray-100 cursor-pointer"
+                  class="flex items-center gap-2 text-sm font-bold neutro-font neutro-secondary hover:opacity-80 px-4 py-2.5 rounded-lg transition-colors border border-gray-100 cursor-pointer"
                   title="Seleccionar de galería"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -785,7 +785,7 @@ onMounted(async () => {
               </div>
 
               <!-- Empty state -->
-              <div v-else class="flex flex-col items-center justify-center py-10 neutro-font servi-adapt-bg rounded-xl border border-dashed border-gray-100">
+              <div v-else class="flex flex-col items-center justify-center py-10 neutro-font neutro-secondary rounded-xl border border-dashed border-gray-100">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -795,7 +795,7 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="neutro-primary px-6 py-4 flex justify-between items-center">
               <h3 class="neutro-font font-bold text-lg tracking-wide uppercase">Bitácora de hallazgos</h3>
               <button v-if="!soloLectura && !isCerrado" @click="agregarObservacion" class="neutro-font text-blue-900 font-bold p-2 rounded-full shadow-md transition-all transform hover:scale-105" title="Agregar Observación">
@@ -805,7 +805,7 @@ onMounted(async () => {
               </button>
             </div>
 
-            <div class="p-6 servi-adapt-bg min-h-[200px] max-h-[500px] overflow-y-auto">
+            <div class="p-6 neutro-secondary min-h-[200px] max-h-[500px] overflow-y-auto">
               <div v-if="observaciones.length === 0" class="flex flex-col items-center justify-center py-10 neutro-font">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -821,7 +821,7 @@ onMounted(async () => {
                     </div>
                   </div>
                   <div class="flex-grow">
-                    <div class="relative servi-adapt-bg border border-gray-100 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm hover:shadow-md transition-shadow">
+                    <div class="relative neutro-secondary border border-gray-100 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm hover:shadow-md transition-shadow">
                       <div class="flex justify-between items-start mb-2">
                         <span class="text-xs neutro-font font-semibold">{{ new Date(observacion.fecha).toLocaleDateString() }}</span>
                         <button v-if="observacion.isNew" @click="eliminarObservacion(index)" class="text-red-400 hover:text-red-600">
@@ -878,7 +878,7 @@ onMounted(async () => {
 
   <button 
     @click="activarInput(index, 'galeria')"
-    class="flex items-center gap-2 text-xs font-bold neutro-font servi-adapt-bg hover:opacity-80 px-3 py-2 rounded-lg transition-colors border border-gray-100"
+    class="flex items-center gap-2 text-xs font-bold neutro-font neutro-secondary hover:opacity-80 px-3 py-2 rounded-lg transition-colors border border-gray-100"
     title="Seleccionar de galería"
   >
     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -898,7 +898,7 @@ onMounted(async () => {
         </div>
 
         <div class="space-y-6">
-          <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 p-4">
+          <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 p-4">
             <h3 class="text-xs font-bold neutro-font uppercase tracking-wider mb-4 border-b pb-2">Acciones</h3>
             <div class="flex flex-col gap-3">
               <button v-if="!soloLectura && !isCerrado && !chequeo" @click="irACrearChequeo" class="w-full neutro-font neutro-secondary py-3 px-4 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer">

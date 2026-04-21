@@ -12,23 +12,29 @@ const handleMostrarNotificaciones = () => {
   mostrarModal.value = !mostrarModal.value
 }
 
-defineProps({
+const props = defineProps({
     titulo: String,
     subtitulo: String,
     searchInput: String,
-    notificaciones: String
+    notificaciones: String,
+    modelValue: {
+      type: String,
+      default: ''
+    }
 })
 
 
-const emit = defineEmits(['buscar'])
+const emit = defineEmits(['buscar', 'update:modelValue'])
 
 const onInput = (event) => {
-  emit('buscar', event.target.value.toUpperCase())
+  const val = event.target.value
+  emit('update:modelValue', val)
+  emit('buscar', val.toUpperCase())
 }
 </script>
 <template>
 <nav>
-    <header class="navbar header neutro-secondary text-white px-5 py-3 pt-13 shadow-lg rounded-b-xl justify-between h-auto">
+    <header class="navbar header neutro-secondary text-white px-5 py-3 shadow-lg rounded-b-xl justify-between h-auto">
     <div class="flex-center flex justify-between h-auto">
       <div class="user-info">
       <h2 class="welcome">{{ titulo }}</h2>
@@ -36,7 +42,7 @@ const onInput = (event) => {
     </div>
     </div>
     <div v-if="searchInput === 'true'" class="search-container">
-      <input type="text" placeholder="Buscar..." class="search-input" @input="onInput">
+      <input type="text" placeholder="Buscar..." class="search-input" :value="props.modelValue" @input="onInput">
     </div>
   </header>
 </nav>

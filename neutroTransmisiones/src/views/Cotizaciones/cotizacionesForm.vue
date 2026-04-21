@@ -138,10 +138,10 @@ const validarFormulario = () => {
 const totales = computed(() => {
   const subtotal = items.value.reduce((acc, item) => acc + ((Number(item.monto) || 0) * (Number(item.cantidad) || 1)), 0);
   const dsc = descuentoPorcentaje.value || 0;
-  const total_neto = subtotal - (subtotal * (dsc / 100));
+  const total_neto = subtotal - Math.trunc(subtotal * (dsc / 100));
   const pctIva = ivaBoolean.value ? 19 : 0;
   const iva = Math.trunc(total_neto * (pctIva / 100));
-  const total_final = total_neto + iva;
+  const total_final = Math.trunc(total_neto + iva); 
 
   return { subtotal, descuento: dsc, total_neto, iva, total_final };
 });
@@ -202,20 +202,20 @@ onMounted(() => {
       <volver />
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 rounded-lg">
 
-        <div class="lg:col-span-7 space-y-12 servi-adapt-bg rounded-xl">
+        <div class="lg:col-span-7 space-y-12 neutro-secondary rounded-xl">
 
           <!-- CLIENTE -->
           <section>
             <h2
-              class="text-2xl w-full neutro-primary neutro-font border-b-2 border-yellow-400 rounded-t-lg p-2 inline-block pb-1 mb-6">
+              class="text-2xl w-full neutro-primary text-white border-b-2 border-yellow-400 rounded-t-lg p-2 inline-block pb-1 mb-6">
               Cliente
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 px-3">
               <div class="group relative">
                 <label
-                  class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Nombre</label>
+                  class="block text-xs font-bold text-white uppercase tracking-wide mb-1 transition-colors group-focus-within:text-green-900">Nombre</label>
                 <input v-model="nombre" type="text"
-                  class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
+                  class="w-full py-2 neutro-secondary text-white border-b border-gray-100 focus:border-green-900 focus:outline-none text-lg transition-colors"
                   placeholder="Juan" 
                   @input="buscarClientes"
                   @focus="abrirClienteAutocompletado"
@@ -223,30 +223,30 @@ onMounted(() => {
                   autocomplete="off" />
                 <!-- Dropdown autocompletado clientes -->
                 <div v-if="clienteAutocompletado && clientesSugeridos.length > 0"
-                  class="absolute z-30 left-0 right-0 top-full mt-1 servi-adapt-bg border border-gray-100 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  class="absolute z-30 left-0 right-0 top-full mt-1 neutro-secondary border border-gray-100 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                   <button v-for="cli in clientesSugeridos" :key="cli.id" type="button"
                     class="w-full px-3 py-2.5 text-left hover:bg-blue-50 flex items-center gap-2 text-sm transition-colors cursor-pointer"
                     @mousedown.prevent="seleccionarCliente(cli)">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 neutro-font opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    <span class="neutro-font">{{ cli.nombre }} {{ cli.apellido }}</span>
+                    <span class="text-white">{{ cli.nombre }} {{ cli.apellido }}</span>
                   </button>
                 </div>
               </div>
               <div class="group">
                 <label
-                  class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Apellido</label>
+                  class="block text-xs font-bold text-white uppercase tracking-wide mb-1 transition-colors group-focus-within:text-green-900">Apellido</label>
                 <input v-model="apellido" type="text"
-                  class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
+                  class="w-full py-2 neutro-secondary text-white border-b border-gray-100 focus:border-green-900 focus:outline-none text-lg transition-colors"
                   placeholder="Perez" />
               </div>
               <div class="md:col-span-2 group">
                 <label
-                  class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Diagnóstico
+                  class="block text-xs font-bold text-white uppercase tracking-wide mb-1 transition-colors group-focus-within:text-green-900">Diagnóstico
                   / Descripción</label>
                 <textarea v-model="diagnostico" rows="2"
-                  class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none neutro-font resize-none transition-colors"
+                  class="w-full py-2 neutro-secondary text-white border-b border-gray-100 focus:border-green-900 focus:outline-none text-white resize-none transition-colors"
                   placeholder="Describe el trabajo o servicio solicitado..."></textarea>
               </div>
             </div>
@@ -255,7 +255,7 @@ onMounted(() => {
           <!-- SERVICIOS / ITEMS -->
           <section>
             <h2
-              class="text-2xl w-full font-light neutro-primary neutro-font border-b-2 border-yellow-400 rounded-t-lg p-2 inline-block pb-1 mb-6">
+              class="text-2xl w-full font-light neutro-primary text-white border-b-2 border-yellow-400 rounded-t-lg p-2 inline-block pb-1 mb-6">
               Servicios
             </h2>
             <div class="space-y-4 px-3">
@@ -263,40 +263,40 @@ onMounted(() => {
                 :style="{ zIndex: autocompletadoActivo === index ? 20 : 0 }">
                 <div class="flex gap-4 items-end">
                   <div class="flex-1 group relative">
-                    <label class="block text-xs neutro-font mb-0.5">Descripción</label>
+                    <label class="block text-xs text-white mb-0.5">Descripción</label>
                     <input v-model="item.descripcion" type="text"
-                      class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm"
+                      class="w-full py-2 neutro-secondary text-white border-b border-gray-100 focus:border-green-900 focus:outline-none text-sm"
                       placeholder="Buscar servicio..." @focus="abrirAutocompletado(index)" @blur="cerrarAutocompletado()"
                       @input="abrirAutocompletado(index)" autocomplete="off" />
                     <!-- Dropdown autocompletado -->
                     <div v-if="autocompletadoActivo === index && sugerenciasFiltradas.length > 0"
-                      class="absolute z-30 left-0 right-0 top-full mt-1 servi-adapt-bg border border-gray-100 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                      class="absolute z-30 left-0 right-0 top-full mt-1 neutro-secondary border border-gray-100 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                       <button v-for="servicio in sugerenciasFiltradas" :key="servicio.nombre" type="button"
-                        class="w-full px-3 py-2.5 text-left servi-adapt-bg-100 hover:bg-blue-50 flex justify-between items-center gap-2 text-sm transition-colors cursor-pointer"
+                        class="w-full px-3 py-2.5 text-left  text-white neutro-secondary-100 hover:bg-blue-300 hover:text-black flex justify-between items-center gap-2 text-sm transition-colors cursor-pointer"
                         @mousedown.prevent="seleccionarServicio(servicio, index)">
-                        <span class="truncate neutro-font">{{ servicio.nombre }}</span>
-                        <span class="text-xs font-semibold neutro-font whitespace-nowrap">{{
+                        <span class="truncate">{{ servicio.nombre }}</span>
+                        <span class="text-xs font-semibold text-white whitespace-nowrap">{{
                           formatearDinero(servicio.precio) }}</span>
                       </button>
                     </div>
                   </div>
                   <div class="w-28 group">
-                    <label class="block text-xs neutro-font mb-0.5">P. Unit.</label>
+                    <label class="block text-xs text-white mb-0.5">P. Unit.</label>
                     <input v-model.number="item.monto" type="number"
-                      class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm text-right"
+                      class="w-full py-2 neutro-secondary text-white border-b border-gray-100 focus:border-green-900 focus:outline-none text-sm text-right"
                       placeholder="$0" />
                   </div>
                   <div class="w-16 group">
-                    <label class="block text-xs neutro-font mb-0.5">Cant.</label>
+                    <label class="block text-xs text-white mb-0.5">Cant.</label>
                     <input v-model.number="item.cantidad" type="number" min="1"
-                      class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm text-center"
+                      class="w-full py-2 neutro-secondary text-white border-b border-gray-100 focus:border-green-900 focus:outline-none text-sm text-center"
                       placeholder="1" />
                   </div>
                   <div class="w-28 text-right pb-2">
-                    <label class="block text-xs neutro-font mb-0.5">Total</label>
-                    <span class="text-sm font-semibold neutro-font">{{ formatearDinero((Number(item.monto) || 0) * (Number(item.cantidad) || 1)) }}</span>
+                    <label class="block text-xs text-white mb-0.5">Total</label>
+                    <span class="text-sm font-semibold text-white">{{ formatearDinero((Number(item.monto) || 0) * (Number(item.cantidad) || 1)) }}</span>
                   </div>
-                  <button @click="eliminarItem(index)" class="neutro-font hover:text-red-500 pb-2 transition-colors">
+                  <button @click="eliminarItem(index)" class="text-white hover:text-red-500 pb-2 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd"
                         d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
@@ -307,7 +307,7 @@ onMounted(() => {
               </div>
 
               <button @click="agregarItem"
-                class="mt-4 text-sm font-bold neutro-primary neutro-font px-2 py-1 rounded-sm mb-2 hover:text-blue-600 flex items-center gap-2 transition-colors">
+                class="mt-4 text-sm font-bold neutro-primary text-white px-2 py-1 rounded-sm mb-2 hover:text-blue-600 flex items-center gap-2 transition-colors">
                 <span class="text-xl ">+</span> Agregar otro ítem
               </button>
             </div>
@@ -317,50 +317,50 @@ onMounted(() => {
 
         <!-- RESUMEN / TOTALES -->
         <div class="lg:col-span-5 relative">
-          <div class="servi-adapt-bg shadow-xl sticky top-24 rounded-xl">
+          <div class="neutro-secondary shadow-xl sticky top-24 rounded-xl">
             <h2
-              class="text-2xl w-full font-light neutro-primary neutro-font border-b-2 border-yellow-400 rounded-t-lg p-2 inline-block pb-1 mb-6">
+              class="text-2xl w-full font-light neutro-primary text-white border-b-2 border-yellow-400 rounded-t-lg p-2 inline-block pb-1 mb-6">
               Resumen
             </h2>
             <div class="space-y-4 mb-8 px-3">
               <div class="flex justify-between text-sm">
-                <span class="neutro-font">Subtotal</span>
-                <span class="font-medium neutro-font">{{ formatearDinero(totales.subtotal) }}</span>
+                <span class="text-white">Subtotal</span>
+                <span class="font-medium text-white">{{ formatearDinero(totales.subtotal) }}</span>
               </div>
               <div class="flex justify-between items-center text-sm">
-                <span class="neutro-font">Descuento</span>
+                <span class="text-white">Descuento</span>
                 <div class="flex items-center gap-1 border-b border-gray-100 w-16">
                   <input v-model.number="descuentoPorcentaje" type="number"
-                    class="w-full text-right text-sm neutro-font focus:outline-none" placeholder="0" />
-                  <span class="text-xs font-bold neutro-font">%</span>
+                    class="w-full text-right text-sm text-white focus:outline-none" placeholder="0" />
+                  <span class="text-xs font-bold text-white">%</span>
                 </div>
               </div>
               <div class="flex justify-between items-center text-sm">
-                <span class="neutro-font">Impuesto (IVA)</span>
+                <span class="text-white">Impuesto (IVA)</span>
                 <div class="flex flex-col items-end gap-1">
                   <button @click="ivaBoolean = !ivaBoolean"
                     class="text-xs font-bold px-2 py-0.5 rounded transition-colors"
-                    :class="ivaBoolean ? 'bg-blue-100 text-blue-800' : 'servi-adapt-bg neutro-font'">
+                    :class="ivaBoolean ? 'bg-blue-100 text-blue-800' : 'neutro-secondary text-white'">
                     {{ ivaBoolean ? '19%' : 'Exento' }}
                   </button>
-                  <p class="text-xs neutro-font">Presionar para cambiar</p>
+                  <p class="text-xs text-white">Presionar para cambiar</p>
                 </div>
               </div>
               <div class="flex justify-between text-sm border-t pt-4 ">
-                <span class="neutro-font">Monto IVA</span>
-                <span class="font-medium neutro-font">{{ formatearDinero(totales.iva) }}</span>
+                <span class="text-white">Monto IVA</span>
+                <span class="font-medium text-white">{{ formatearDinero(totales.iva) }}</span>
               </div>
             </div>
 
             <div class="flex justify-between items-center mb-8 px-3">
-              <span class="text-xs font-bold neutro-font tracking-widest uppercase">Total Estimado</span>
+              <span class="text-xs font-bold text-white tracking-widest uppercase">Total Estimado</span>
               <div class="text-right">
-                <p class="text-3xl font-bold neutro-font">{{ formatearDinero(totales.total_final) }}</p>
+                <p class="text-3xl font-bold text-white">{{ formatearDinero(totales.total_final) }}</p>
               </div>
             </div>
 
             <button @click="enviarFormulario"
-              class="w-full neutro-primary neutro-font text-sm font-bold py-4 mb-4 px-4 rounded-b-lg hover:bg-blue-800 transition-all flex justify-center items-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              class="w-full neutro-primary text-white text-sm font-bold py-4 mb-4 px-4 rounded-b-lg hover:bg-blue-800 transition-all flex justify-center items-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               :disabled="loading">
               <span v-if="loading">Procesando...</span>
               <span v-else>EMITIR COTIZACIÓN</span>

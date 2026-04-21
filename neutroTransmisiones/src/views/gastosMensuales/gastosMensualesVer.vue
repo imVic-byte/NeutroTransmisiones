@@ -217,7 +217,7 @@ const irAEditar = () => {
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           <div class="lg:col-span-2 space-y-6">
-            <div class="servi-adapt-bg rounded-lg shadow-sm border border-gray-100">
+            <div class="neutro-secondary rounded-lg shadow-sm border border-gray-100">
               <div
                 class="border-yellow-500 border-b-4 px-4 md:px-6 py-3 md:py-4 rounded-t-lg neutro-primary flex justify-between items-center text-white">
                 <h2 class="text-base md:text-lg font-bold">Desglose de Gastos</h2>
@@ -302,7 +302,7 @@ const irAEditar = () => {
           </div>
 
           <div class="lg:col-span-1 order-first lg:order-none">
-            <div class="servi-adapt-bg rounded-xl shadow-lg border-t-4 border-yellow-500 p-4 md:p-6 lg:sticky lg:top-6">
+            <div class="neutro-secondary rounded-xl shadow-lg border-t-4 border-yellow-500 p-4 md:p-6 lg:sticky lg:top-6">
               <h2 class="text-lg md:text-xl font-bold mb-4 md:mb-6 neutro-font uppercase tracking-wide">Resumen
                 Financiero</h2>
 

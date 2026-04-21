@@ -87,13 +87,13 @@ const irADetalle = (id) => {
     <tr class="hover:opacity-80 transition-colors cursor-pointer" @click="irADetalle(orden.id)">
         <td class="p-4 font-medium neutro-font">#{{ orden.id }}</td>
         <td class="p-4 neutro-font">
-            <span class="servi-adapt-bg neutro-font px-2 py-1 rounded text-xs font-bold uppercase">
+            <span class="neutro-secondary neutro-font px-2 py-1 rounded text-xs font-bold uppercase">
                 {{ orden.vehiculo?.patente }}
             </span>
             <div class="text-xs neutro-font mt-1">{{ orden.vehiculo?.marca }} {{ orden.vehiculo?.modelo }}</div>
         </td>
         <td class="p-4 neutro-font">
-            <span class="servi-adapt-bg neutro-font px-2 py-1 rounded text-xs font-bold block max-w-[200px] truncate">
+            <span class="neutro-secondary neutro-font px-2 py-1 rounded text-xs font-bold block max-w-[200px] truncate">
                 {{ orden.presupuesto?.diagnostico }}
             </span>
         </td>

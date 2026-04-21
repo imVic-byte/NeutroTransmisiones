@@ -224,7 +224,7 @@ onMounted(async () => {
       <volver />
 
       <!-- Info de la OT -->
-      <div v-if="ot" class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 mb-6">
+      <div v-if="ot" class="neutro-secondary rounded-xl shadow-sm border border-gray-100 mb-6">
         <div class="flex items-center justify-between neutro-primary py-6 px-3 rounded-t-xl">
           <h3 class="font-bold text-white text-lg">
             Editar Inspección
@@ -259,7 +259,7 @@ onMounted(async () => {
       </div>
 
       <!-- Formulario por categorías -->
-      <div v-for="(categoria, catKey) in categorias" :key="catKey" class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+      <div v-for="(categoria, catKey) in categorias" :key="catKey" class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
         <div class="p-5 neutro-primary border-b border-gray-100">
           <h3 class="font-bold text-white text-lg">{{ categoria.titulo }}</h3>
         </div>
@@ -301,7 +301,7 @@ onMounted(async () => {
                   </label>
                   <textarea v-model="comentarios[catKey][item.key]" rows="2"
                     :placeholder="`Describe el problema en ${item.label.toLowerCase()}...`"
-                    class="w-full rounded-lg border-2 border-red-200 servi-adapt-bg px-3 py-2 text-sm neutro-font focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none resize-none bg-white">
+                    class="w-full rounded-lg border-2 border-red-200 neutro-secondary px-3 py-2 text-sm neutro-font focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none resize-none bg-white">
                   </textarea>
                 </div>
 
@@ -354,13 +354,13 @@ onMounted(async () => {
       </div>
 
       <!-- Observaciones generales -->
-      <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+      <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
         <div class="p-5 neutro-primary border-b border-gray-100">
           <h3 class="font-bold text-white">Observaciones Generales</h3>
         </div>
         <div class="p-5">
           <textarea v-model="observacionesGenerales" rows="4" placeholder="Escribe observaciones adicionales..."
-            class="w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-sm neutro-font focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none resize-none servi-adapt-bg">
+            class="w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-sm neutro-font focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none resize-none neutro-secondary">
           </textarea>
         </div>
       </div>

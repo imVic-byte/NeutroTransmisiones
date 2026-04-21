@@ -30,7 +30,7 @@ watch(() => props.ordenes, (nuevoValor) => {
 })
 </script>
 <template>
-    <div class="hidden md:block servi-adapt-bg rounded-xl shadow-sm  overflow-hidden">
+    <div class="hidden md:block neutro-secondary rounded-xl shadow-sm  overflow-hidden">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="neutro-primary neutro-font text-xs uppercase tracking-wider">
@@ -53,7 +53,7 @@ watch(() => props.ordenes, (nuevoValor) => {
                 />
             </tbody>
         </table>
-        <div v-if="ordenesListado.length === 0" class="servi-adapt-bg rounded-xl p-10 text-center shadow-sm border border-gray-100">
+        <div v-if="ordenesListado.length === 0" class="neutro-secondary rounded-xl p-10 text-center shadow-sm border border-gray-100">
         <div class="neutro-font mb-2">
           <p class="neutro-font text-lg">No se encontraron ordenes de trabajo</p>
           <p class="text-sm neutro-font">Intenta cambiar el filtro de búsqueda o crea uno nuevo.</p>

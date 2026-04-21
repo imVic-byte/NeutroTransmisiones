@@ -61,14 +61,14 @@ onMounted(async () => {
 })
 </script>
 <template>
-    <div class="lg:col-span-2 servi-adapt-bg rounded-lg shadow-sm border border-gray-100">
+    <div class="lg:col-span-2 neutro-secondary rounded-lg shadow-sm border border-gray-100">
                         <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                             <h3 class="font-bold neutro-font text-lg">Flujo de Trabajo Reciente</h3>
                             <button @click="handleRedirect" class="text-blue-600 cursor-pointer text-sm font-medium hover:text-blue-800 transition-colors">Ver tablero completo</button>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm text-left neutro-font">
-                                <thead class="text-xs neutro-font uppercase servi-adapt-bg">
+                                <thead class="text-xs neutro-font uppercase neutro-secondary">
                                     <tr>
                                         <th class="px-6 py-3">Orden</th>
                                         <th class="px-6 py-3">Vehículo</th>

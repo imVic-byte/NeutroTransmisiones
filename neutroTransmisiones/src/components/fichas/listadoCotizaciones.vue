@@ -134,19 +134,19 @@ onMounted( async () => {
   <div>
     <!-- Stats Desktop -->
     <div class="hidden md:grid md:grid-cols-4 gap-4 mb-8">
-      <div class="servi-adapt-bg p-4 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-4 rounded-xl shadow-sm border border-gray-100">
           <p class="text-xs neutro-font uppercase font-bold">Total</p>
           <p class="text-2xl font-bold neutro-font">{{ stats.total }}</p>
       </div>
-      <div class="servi-adapt-bg p-4 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-4 rounded-xl shadow-sm border border-gray-100">
           <p class="text-xs neutro-font uppercase font-bold">Pendientes</p>
           <p class="text-2xl font-bold text-yellow-600">{{ stats.pendientes }}</p>
       </div>
-      <div class="servi-adapt-bg p-4 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-4 rounded-xl shadow-sm border border-gray-100">
           <p class="text-xs neutro-font uppercase font-bold">Aprobadas</p>
           <p class="text-2xl font-bold text-green-600">{{ stats.aprobadas }}</p>
       </div>
-      <div class="servi-adapt-bg p-4 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-4 rounded-xl shadow-sm border border-gray-100">
           <p class="text-xs neutro-font uppercase font-bold">Monto Total</p>
           <p class="text-lg font-bold neutro-font">{{ formatearDinero(stats.montoTotal) }}</p>
       </div>
@@ -154,19 +154,19 @@ onMounted( async () => {
 
     <!-- Stats Mobile -->
     <div class="md:hidden grid grid-cols-2 gap-3 mb-6">
-      <div class="servi-adapt-bg p-3 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-100">
           <p class="text-xs neutro-font uppercase font-bold">Total</p>
           <p class="text-xl font-bold neutro-font">{{ stats.total }}</p>
       </div>
-      <div class="servi-adapt-bg p-3 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-100">
           <p class="text-xs neutro-font uppercase font-bold">Pendientes</p>
           <p class="text-xl font-bold text-yellow-600">{{ stats.pendientes }}</p>
       </div>
-      <div class="servi-adapt-bg p-3 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-100">
           <p class="text-xs neutro-font uppercase font-bold">Aprobadas</p>
           <p class="text-xl font-bold text-green-600">{{ stats.aprobadas }}</p>
       </div>
-      <div class="servi-adapt-bg p-3 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-100">
           <p class="text-xs neutro-font uppercase font-bold">Monto Total</p>
           <p class="text-lg font-bold neutro-font">{{ formatearDinero(stats.montoTotal) }}</p>
       </div>
@@ -192,7 +192,7 @@ onMounted( async () => {
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-900"></div>
     </div>
     <!-- Tabla Desktop -->
-    <div v-if="!loading" class="hidden md:block servi-adapt-bg rounded-xl shadow-sm overflow-hidden">
+    <div v-if="!loading" class="hidden md:block neutro-secondary rounded-xl shadow-sm overflow-hidden">
       <table class="w-full text-left border-collapse">
         <thead>
           <tr class="neutro-primary neutro-font text-xs uppercase tracking-wider border-b border-gray-100">
@@ -261,7 +261,7 @@ onMounted( async () => {
         v-for="item in cotizaciones" 
         :key="item.id"
         @click="irADetalle(item)"
-        class="card-container servi-adapt-bg neutro-font"
+        class="card-container neutro-secondary neutro-font"
         :class="claseEstadoCard(item.estado).contenedor"
       >
       <div class="card-header neutro-font flex justify-between pb-4">
@@ -312,7 +312,7 @@ onMounted( async () => {
     <listadoFichas v-if="abrirListadoFichas" @cerrar="handleListadoFichas()" />
 
     <!-- Empty state mobile -->
-    <div v-if="cotizaciones.length === 0" class="servi-adapt-bg rounded-xl p-10 text-center shadow-sm border border-gray-100 md:hidden">
+    <div v-if="cotizaciones.length === 0" class="neutro-secondary rounded-xl p-10 text-center shadow-sm border border-gray-100 md:hidden">
       <div class="neutro-font mb-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

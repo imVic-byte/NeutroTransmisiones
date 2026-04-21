@@ -161,7 +161,7 @@ onMounted(async () => {
 
       <div v-if="chequeo">
         <!-- Header con info OT -->
-        <div class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 mb-6">
+        <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 mb-6">
           <div class="flex items-center justify-between neutro-primary py-6 px-3 rounded-t-xl">
             <h3 class="font-bold text-white text-lg">
               Inspección Técnica
@@ -218,7 +218,7 @@ onMounted(async () => {
 
         <!-- Categorías del chequeo -->
         <div v-for="(catMeta, catKey) in categorias" :key="catKey">
-          <div v-if="chequeo.datos_chequeo?.[catKey]" class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+          <div v-if="chequeo.datos_chequeo?.[catKey]" class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
             <div class="p-5 neutro-primary border-b border-gray-100">
               <h3 class="font-bold text-white text-lg">{{ catMeta.titulo }}</h3>
             </div>
@@ -276,7 +276,7 @@ onMounted(async () => {
         </div>
 
         <!-- Observaciones generales -->
-        <div v-if="chequeo.observaciones" class="servi-adapt-bg rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+        <div v-if="chequeo.observaciones" class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
           <div class="p-5 neutro-primary border-b border-gray-100">
             <h3 class="font-bold text-white">Observaciones Generales</h3>
           </div>

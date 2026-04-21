@@ -266,7 +266,7 @@ onMounted(() => {
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 rounded-lg">
 
-        <div class="lg:col-span-7 space-y-12 servi-adapt-bg rounded-xl">
+        <div class="lg:col-span-7 space-y-12 neutro-secondary rounded-xl">
 
           <section>
             <h2
@@ -278,21 +278,21 @@ onMounted(() => {
                 <label
                   class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Patente</label>
                 <input v-model="patente" type="text"
-                  class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-xl font-medium uppercase transition-colors"
+                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-xl font-medium uppercase transition-colors"
                   placeholder="AAAA11" @input="patente = patente.toUpperCase()" maxlength="7" />
               </div>
               <div class="group">
                 <label
                   class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Marca</label>
                 <input v-model="marca" type="text"
-                  class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
+                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
                   placeholder="Ej: Toyota" />
               </div>
               <div class="group">
                 <label
                   class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Modelo</label>
                 <input v-model="modelo" type="text"
-                  class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
+                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
                   placeholder="Ej: Yaris" />
               </div>
               <div class="md:col-span-2 group">
@@ -300,7 +300,7 @@ onMounted(() => {
                   class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Diagnóstico
                   Técnico</label>
                 <textarea v-model="diagnostico" rows="2"
-                  class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none neutro-font resize-none transition-colors"
+                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none neutro-font resize-none transition-colors"
                   placeholder="Describe el problema del vehículo..."></textarea>
               </div>
             </div>
@@ -316,14 +316,14 @@ onMounted(() => {
                 <label
                   class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Nombre</label>
                 <input v-model="nombre" type="text"
-                  class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
+                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
                   placeholder="Juan" />
               </div>
               <div class="group">
                 <label
                   class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Apellido</label>
                 <input v-model="apellido" type="text"
-                  class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
+                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
                   placeholder="Perez" />
               </div>
               <div class="group">
@@ -331,12 +331,12 @@ onMounted(() => {
                   class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Teléfono</label>
                 <div class="flex items-end gap-2">
                   <select v-model="codigoPais"
-                    class="w-20 py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm">
+                    class="w-20 py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm">
                     <option value="+56">+56</option>
                     <option value="+51">+51</option>
                   </select>
                   <input :value="telefono" @input="filtrarTelefono" type="text" inputmode="numeric" maxlength="9"
-                    class="flex-1 py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
+                    class="flex-1 py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
                     placeholder="912345678" />
                 </div>
               </div>
@@ -345,7 +345,7 @@ onMounted(() => {
                   class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Correo
                   Electrónico</label>
                 <input v-model="correo" type="email"
-                  class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
+                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
                   placeholder="ejemplo@gmail.com" />
               </div>
             </div>
@@ -363,14 +363,14 @@ onMounted(() => {
                   <div class="flex-1 group relative">
                     <label class="block text-xs neutro-font mb-0.5">Descripción</label>
                     <input v-model="item.descripcion" type="text"
-                      class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm"
+                      class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm"
                       placeholder="Buscar servicio..." @focus="abrirAutocompletado(index)" @blur="cerrarAutocompletado()"
                       @input="abrirAutocompletado(index)" autocomplete="off" />
                     <!-- Dropdown autocompletado -->
                     <div v-if="autocompletadoActivo === index && sugerenciasFiltradas.length > 0"
-                      class="absolute z-30 left-0 right-0 top-full mt-1 servi-adapt-bg border border-gray-100 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                      class="absolute z-30 left-0 right-0 top-full mt-1 neutro-secondary border border-gray-100 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                       <button v-for="servicio in sugerenciasFiltradas" :key="servicio.nombre" type="button"
-                        class="w-full px-3 py-2.5 text-left servi-adapt-bg-100 hover:bg-blue-50 flex justify-between items-center gap-2 text-sm transition-colors cursor-pointer"
+                        class="w-full px-3 py-2.5 text-left neutro-secondary-100 hover:bg-blue-50 flex justify-between items-center gap-2 text-sm transition-colors cursor-pointer"
                         @mousedown.prevent="seleccionarServicio(servicio, index)">
                         <span class="truncate neutro-font">{{ servicio.nombre }}</span>
                         <span class="text-xs font-semibold neutro-font whitespace-nowrap">{{
@@ -381,13 +381,13 @@ onMounted(() => {
                   <div class="w-28 group">
                     <label class="block text-xs neutro-font mb-0.5">P. Unit.</label>
                     <input v-model.number="item.monto" type="number"
-                      class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm text-right"
+                      class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm text-right"
                       placeholder="$0" />
                   </div>
                   <div class="w-16 group">
                     <label class="block text-xs neutro-font mb-0.5">Cant.</label>
                     <input v-model.number="item.cantidad" type="number" min="1"
-                      class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm text-center"
+                      class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm text-center"
                       placeholder="1" />
                   </div>
                   <div class="w-28 text-right pb-2">
@@ -414,7 +414,7 @@ onMounted(() => {
         </div>
 
         <div class="lg:col-span-5 relative">
-          <div class="servi-adapt-bg shadow-xl sticky top-24 rounded-xl">
+          <div class="neutro-secondary shadow-xl sticky top-24 rounded-xl">
             <h2
               class="text-2xl w-full font-light neutro-primary neutro-font border-b-2 border-yellow-400 rounded-t-lg p-2 inline-block pb-1 mb-6">
               Resumen
@@ -437,7 +437,7 @@ onMounted(() => {
                 <div class="flex flex-col items-end gap-1">
                   <button @click="ivaBoolean = !ivaBoolean"
                     class="text-xs font-bold px-2 py-0.5 rounded transition-colors"
-                    :class="ivaBoolean ? 'bg-blue-100 text-blue-800' : 'servi-adapt-bg neutro-font'">
+                    :class="ivaBoolean ? 'bg-blue-100 text-blue-800' : 'neutro-secondary neutro-font'">
                     {{ ivaBoolean ? '19%' : 'Exento' }}
                   </button>
                   <p class="text-xs neutro-font">Presionar para cambiar</p>

@@ -103,13 +103,13 @@ onMounted(async () => {
         <div class="flex gap-2">
           <button 
           @click="obtenerTrabajadores" 
-          class="px-4 cursor-pointer py-2 neutro-font neutro-font border border-gray-100 rounded-lg text-sm font-medium hover:opacity-80 shadow-sm transition-colors"
+          class="px-4 cursor-pointer py-2 neutro-primary text-white dark:border border-gray-700 rounded-lg text-sm font-medium hover:opacity-80 shadow-sm transition-colors"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
           </svg>
         </button>
-        <button @click="invitarUsuario" class="px-4 cursor-pointer py-2 neutro-font neutro-font border border-gray-100 rounded-lg text-sm font-medium hover:opacity-80 shadow-sm transition-colors">
+        <button @click="invitarUsuario" class="px-4 neutro-primary cursor-pointer py-2 text-white dark:border border-gray-700 rounded-lg text-sm font-medium hover:opacity-80 shadow-sm transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
             </svg>
@@ -118,7 +118,7 @@ onMounted(async () => {
       </div>
 
       <div class="rounded-xl shadow-sm overflow-hidden">
-        <div v-if="cargando" class="p-8 text-center neutro-font">
+        <div v-if="cargando" class="p-8 text-center text-white">
           Cargando datos del personal...
         </div>
 
@@ -132,15 +132,15 @@ onMounted(async () => {
             <div 
               v-for="trabajador in trabajadores" 
               :key="'card-' + trabajador.id" 
-              class="servi-adapt-bg rounded-xl border border-gray-100 shadow-sm p-4 space-y-3"
+              class="neutro-secondary rounded-xl dark:border border-gray-700 shadow-sm p-4 space-y-3"
             >
               <div class="flex items-center gap-3">
                 <div class="flex-shrink-0 h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg">
                   {{ trabajador.nombre ? trabajador.nombre.charAt(0).toUpperCase() : '?' }}
                 </div>
                 <div class="min-w-0 flex-1">
-                  <div class="text-sm font-bold neutro-font truncate">{{ trabajador.nombre }} {{ trabajador.apellido }}</div>
-                  <div class="text-xs neutro-font">RUT: {{ trabajador.rut || 'No registrado' }}</div>
+                  <div class="text-sm font-bold text-white truncate">{{ trabajador.nombre }} {{ trabajador.apellido }}</div>
+                  <div class="text-xs text-white">RUT: {{ trabajador.rut || 'No registrado' }}</div>
                 </div>
                 <div class="flex flex-col items-end gap-1">
                   <span 
@@ -148,8 +148,8 @@ onMounted(async () => {
                     :class="{
                       'bg-purple-100 text-purple-800': trabajador.rol === 'Administrador',
                       'bg-blue-100 text-blue-800': trabajador.rol === 'Gerente',
-                      'servi-adapt-bg neutro-font': trabajador.rol === 'Mecánico' || trabajador.rol === 'Trabajador',
-                      'neutro-font': trabajador.rol === 'Soporte'
+                      'neutro-secondary text-white': trabajador.rol === 'Mecánico' || trabajador.rol === 'Trabajador',
+                      'text-white': trabajador.rol === 'Soporte'
                     }"
                   >
                     {{ trabajador.rol }}
@@ -164,12 +164,12 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <div class="border-t border-gray-100 pt-2 space-y-1">
-                <div class="flex items-center gap-2 text-xs neutro-font">
+              <div class="border-t border-gray-700 pt-2 space-y-1">
+                <div class="flex items-center gap-2 text-xs text-white">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                   <span class="truncate">{{ trabajador.email }}</span>
                 </div>
-                <div class="flex items-center gap-2 text-xs neutro-font">
+                <div class="flex items-center gap-2 text-xs text-white">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                   <span>{{ trabajador.telefono || 'Sin teléfono' }}</span>
                 </div>
@@ -178,13 +178,13 @@ onMounted(async () => {
               <div class="flex gap-2 pt-1">
                 <button 
                   @click="alternarEstado(trabajador.id, trabajador.activo)"
-                  class="flex-1 text-xs font-semibold neutro-font px-3 py-2 rounded-lg text-center cursor-pointer"
+                  class="flex-1 text-xs font-semibold text-white px-3 py-2 rounded-lg text-center cursor-pointer"
                 >
                   {{ trabajador.activo ? 'Desactivar' : 'Activar' }}
                 </button>
                 <button 
                   @click="RecuperarContraseña(trabajador.id)"
-                  class="flex-1 text-xs font-semibold neutro-font px-3 py-2 rounded-lg text-center cursor-pointer"
+                  class="flex-1 text-xs font-semibold text-white px-3 py-2 rounded-lg text-center cursor-pointer"
                 >
                   Recuperar Contraseña
                 </button>
@@ -194,8 +194,8 @@ onMounted(async () => {
 
           <!-- Desktop: Table -->
           <div class="hidden md:block overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-100">
-              <thead class="neutro-primary neutro-font">
+            <table class="min-w-full divide-y divide-gray-700">
+              <thead class="neutro-primary text-white">
                 <tr>
                   <th scope="col" class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Trabajador</th>
                   <th scope="col" class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Contacto</th>
@@ -204,22 +204,22 @@ onMounted(async () => {
                   <th scope="col" class="px-6 py-3 text-center text-sm font-medium uppercase tracking-wider">Acciones</th>
                 </tr>
               </thead>
-              <tbody class="servi-adapt-bg divide-y divide-gray-100">
+              <tbody class="neutro-secondary divide-y divide-gray-700">
                 <tr v-for="trabajador in trabajadores" :key="trabajador.id" class="hover:opacity-80 transition-colors">
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center neutro-font">
+                    <div class="flex items-center text-white">
                       <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
                         {{ trabajador.nombre ? trabajador.nombre.charAt(0).toUpperCase() : '?' }}
                       </div>
                       <div class="ml-4">
-                        <div class="text-sm font-medium neutro-font">{{ trabajador.nombre }} {{ trabajador.apellido }}</div>
-                        <div class="text-sm neutro-font">RUT: {{ trabajador.rut || 'No registrado' }}</div>
+                        <div class="text-sm font-medium text-white">{{ trabajador.nombre }} {{ trabajador.apellido }}</div>
+                        <div class="text-sm text-white">RUT: {{ trabajador.rut || 'No registrado' }}</div>
                       </div>
                     </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm neutro-font">{{ trabajador.email }}</div>
-                    <div class="text-sm neutro-font">{{ trabajador.telefono || 'Sin teléfono' }}</div>
+                    <div class="text-sm text-white">{{ trabajador.email }}</div>
+                    <div class="text-sm text-white">{{ trabajador.telefono || 'Sin teléfono' }}</div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span 
@@ -227,8 +227,8 @@ onMounted(async () => {
                       :class="{
                         'bg-purple-100 text-purple-800': trabajador.rol === 'Administrador',
                         'bg-blue-100 text-blue-800': trabajador.rol === 'Gerente',
-                        'servi-adapt-bg neutro-font': trabajador.rol === 'Mecánico' || trabajador.rol === 'Trabajador',
-                        'neutro-font': trabajador.rol === 'Soporte'
+                        'neutro-secondary text-white': trabajador.rol === 'Mecánico General' || trabajador.rol === 'Trabajador',
+                        'text-white': trabajador.rol === 'Soporte'
                       }"
                     >
                       {{ trabajador.rol }}
@@ -243,17 +243,17 @@ onMounted(async () => {
                       {{ trabajador.activo ? 'Activo' : 'Inactivo' }}
                     </span>
                   </td>
-                  <td class="px-2 py-2 w-full h-full flex flex-col justify-center items-center whitespace-nowrap text-center text-sm font-medium gap-2">
+                  <td class="px-2 py-5 w-full h-full flex justify-center items-center whitespace-nowrap text-center text-sm font-medium">
                     <button 
                       @click="alternarEstado(trabajador.id, trabajador.activo)"
-                      class="text-indigo-600 cursor-pointer hover:text-indigo-900 font-semibold neutro-font px-2 py-1 rounded-lg"
+                      class="neutro-primary cursor-pointer hover:text-indigo-900 font-semibold text-white px-2 py-1 rounded-lg"
                     >
                       {{ trabajador.activo ? 'Desactivar' : 'Activar' }}
                     </button>
                     <!--
                     <button 
                       @click="RecuperarContraseña(trabajador.id)"
-                      class="text-indigo-600 cursor-pointer hover:text-indigo-900 font-semibold neutro-font px-2 py-1 rounded-lg"
+                      class="text-indigo-600 cursor-pointer hover:text-indigo-900 font-semibold text-white px-2 py-1 rounded-lg"
                     >
                       Recuperar Contraseña 
                     </button>-->

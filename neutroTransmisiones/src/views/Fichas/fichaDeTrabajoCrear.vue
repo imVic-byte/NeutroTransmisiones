@@ -195,7 +195,7 @@ onMounted(() => {
         
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 rounded-lg mt-4">
 
-        <div class="lg:col-span-7 space-y-12 servi-adapt-bg rounded-xl">
+        <div class="lg:col-span-7 space-y-12 neutro-secondary rounded-xl">
 
           <section>
             <h2 class="text-2xl w-full neutro-primary neutro-font border-b-2 border-yellow-400 rounded-t-lg p-2 inline-block pb-1 mb-6">
@@ -206,7 +206,7 @@ onMounted(() => {
               <div class="group relative">
                 <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Nombre *</label>
                 <input v-model="nombre" type="text"
-                  class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
+                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
                   placeholder="Juan" 
                   @input="buscarClientes"
                   @focus="abrirClienteAutocompletado"
@@ -214,7 +214,7 @@ onMounted(() => {
                   autocomplete="off" />
                 
                 <div v-if="clienteAutocompletado && clientesSugeridos.length > 0"
-                  class="absolute z-30 left-0 right-0 top-full mt-1 servi-adapt-bg border border-gray-100 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  class="absolute z-30 left-0 right-0 top-full mt-1 neutro-secondary border border-gray-100 rounded-lg shadow-lg max-h-48 overflow-y-auto">
                   <button v-for="cli in clientesSugeridos" :key="cli.id" type="button"
                     class="w-full px-3 py-2.5 text-left hover:bg-blue-50 flex items-center gap-2 text-sm transition-colors cursor-pointer"
                     @mousedown.prevent="seleccionarCliente(cli)">
@@ -229,7 +229,7 @@ onMounted(() => {
               <div class="group">
                 <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Apellido *</label>
                 <input v-model="apellido" type="text"
-                  class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
+                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
                   placeholder="Perez" />
               </div>
 
@@ -238,7 +238,7 @@ onMounted(() => {
                 <div class="flex items-center gap-4">
                   <div class="relative w-[110px]">
                     <select v-model="codigoPais"
-                      class="w-full py-2 pl-2 pr-8 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg text-left cursor-pointer appearance-none">
+                      class="w-full py-2 pl-2 pr-8 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg text-left cursor-pointer appearance-none">
                       <option value="56">+56</option>
                       <option value="54">+54</option>
                     </select>
@@ -249,7 +249,7 @@ onMounted(() => {
                     </div>
                   </div>
                   <input v-model="telefono" type="text" inputmode="numeric" maxlength="12"
-                    class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
+                    class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
                     placeholder="912345678" />
                 </div>
               </div>
@@ -257,7 +257,7 @@ onMounted(() => {
               <div class="group">
                 <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Correo Electrónico</label>
                 <input v-model="correo" type="email"
-                  class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
+                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
                   placeholder="ejemplo@correo.com" />
               </div>
             </div>
@@ -271,7 +271,7 @@ onMounted(() => {
               <div class="group">
                 <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Diagnóstico / Descripción detallada *</label>
                 <textarea v-model="motivoIngreso" rows="4"
-                  class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none resize-none transition-colors"
+                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none resize-none transition-colors"
                   placeholder="Describe el problema o motivo por el que ingresa el vehículo..."></textarea>
               </div>
             </div>
@@ -280,7 +280,7 @@ onMounted(() => {
         </div>
 
         <div class="lg:col-span-5 relative">
-          <div class="servi-adapt-bg shadow-xl sticky top-24 rounded-xl">
+          <div class="neutro-secondary shadow-xl sticky top-24 rounded-xl">
             <h2 class="text-2xl w-full font-light neutro-primary neutro-font border-b-2 border-yellow-400 rounded-t-lg p-2 inline-block pb-1 mb-6">
               Detalles del Ingreso
             </h2>
@@ -290,7 +290,7 @@ onMounted(() => {
               <div class="group">
                 <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1">Origen Ingreso</label>
                 <div class="relative">
-                  <select v-model="origenIngreso" class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-base transition-colors appearance-none cursor-pointer">
+                  <select v-model="origenIngreso" class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-base transition-colors appearance-none cursor-pointer">
                     <option value="cliente" >Conducido por Cliente</option>
                     <option value="grua">Grúa / Remolque</option>
                     <option value="tercero">Chofer / Tercero</option>
@@ -303,7 +303,7 @@ onMounted(() => {
 
               <div class="group">
                 <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1">Fecha Promesa (Opcional)</label>
-                <input type="date" v-model="fechaPromesa" class="w-full py-2 servi-adapt-bg neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-base transition-colors cursor-pointer" />
+                <input type="date" v-model="fechaPromesa" class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-base transition-colors cursor-pointer" />
               </div>
 
             </div>

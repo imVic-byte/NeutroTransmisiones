@@ -136,7 +136,7 @@ onMounted(async () => {
           @asignacion-exitosa="() => obtenerOrdenes()"
         />
       </div>
-      <div v-if="ordenes.length === 0" class="servi-adapt-bg rounded-xl p-10 text-center shadow-sm border border-gray-100 md:hidden">
+      <div v-if="ordenes.length === 0" class="neutro-secondary rounded-xl p-10 text-center shadow-sm border border-gray-100 md:hidden">
         <div class="neutro-font mb-2">
           <p v-if="esTrabajador" class="neutro-font text-lg">No se encontraron tus ordenes de trabajo</p>
           <p v-else class="neutro-font text-lg">No se encontraron ordenes de trabajo</p>

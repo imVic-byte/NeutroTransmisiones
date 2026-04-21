@@ -120,7 +120,7 @@ onUnmounted(() => {
             <volver />
         </div>
         <div class="calendar-container pt-5 px-5">
-            <vue-cal locale="es" :events="events" @cell-click="handleCellClick" @event-click="handleEventClick"
+            <vue-cal class="neutro-primary rounded-xl text-white" locale="es" :events="events" @cell-click="handleCellClick" @event-click="handleEventClick"
             :editable-events="{ title: false, drag: true, resize: true, delete: false, create: false }"
                 :default-view="currentView" :active-view="currentView" :time-from="8 * 60" :time-to="20 * 60"
                 :disable-views="['years', 'year']" :small="isMobile" />

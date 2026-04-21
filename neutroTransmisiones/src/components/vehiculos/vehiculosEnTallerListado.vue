@@ -32,7 +32,7 @@ const redirigir = (id) => {
 </script>
 
 <template>
-    <div class="hidden md:block servi-adapt-bg rounded-xl shadow-sm overflow-hidden border border-gray-100">
+    <div class="hidden md:block neutro-secondary rounded-xl shadow-sm overflow-hidden border border-gray-100">
         <table class="w-full text-left">
             <thead>
                 <tr class="neutro-primary text-white text-xs uppercase tracking-wider">

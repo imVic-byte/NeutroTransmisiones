@@ -29,7 +29,7 @@ const handleEstados = (estado) => {
 </script>
 
 <template>
-    <div class="card-container servi-adapt-bg neutro-font"
+    <div class="card-container neutro-secondary neutro-font"
     :class="handleEstados(data.estado).contenedor"
   >
     <div class="card-header neutro-font">

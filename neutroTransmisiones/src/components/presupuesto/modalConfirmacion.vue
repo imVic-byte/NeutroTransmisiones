@@ -49,7 +49,7 @@ const showButtons = computed(() => {
   </div>
 
   <div v-if="confirm" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-    <div class="relative w-full max-w-md servi-adapt-bg rounded-lg shadow p-6 text-center">
+    <div class="relative w-full max-w-md neutro-secondary rounded-lg shadow p-6 text-center">
       <h3 class="mb-5 text-lg font-normal neutro-font">¿Estás seguro de confirmar la cotización?</h3>
       <div class="flex justify-center gap-3">
         <button @click="ejecutarConfirmacion" class="neutro-primary px-4 py-2 rounded text-white cursor-pointer hover:scale-105 transition-all">
@@ -63,7 +63,7 @@ const showButtons = computed(() => {
   </div>
 
   <div v-if="discard" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-    <div class="relative w-full max-w-md servi-adapt-bg rounded-lg shadow p-6 text-center">
+    <div class="relative w-full max-w-md neutro-secondary rounded-lg shadow p-6 text-center">
       <h3 class="mb-5 text-lg font-normal neutro-font">¿Estás seguro de descartar la cotización?</h3>
       <div class="flex justify-center gap-3">
         <button @click="ejecutarDescarte" class="bg-red-800 px-4 py-2 rounded text-white cursor-pointer hover:scale-105 transition-all">
@@ -76,7 +76,7 @@ const showButtons = computed(() => {
     </div>
   </div>
   <div v-if="borrador" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-    <div class="relative w-full max-w-md servi-adapt-bg rounded-lg shadow p-6 text-center">
+    <div class="relative w-full max-w-md neutro-secondary rounded-lg shadow p-6 text-center">
       <h3 class="mb-5 text-lg font-normal neutro-font">¿Estás seguro de revertir la cotización a estado borrador?</h3>
       <div class="flex justify-center gap-3">
         <button @click="ejecutarBorrador" class="neutro-primary px-4 py-2 rounded text-white cursor-pointer hover:scale-105 transition-all">

@@ -220,7 +220,7 @@ const cerrarMes = async () => {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2 space-y-6">
           
-          <div class="servi-adapt-bg rounded-lg shadow-sm overflow-hidden border border-gray-100">
+          <div class="neutro-secondary rounded-lg shadow-sm overflow-hidden border border-gray-100">
             <div class="neutro-primary px-6 py-4 flex justify-between items-center border-yellow-500 border-b-4">
               <h2 class="text-lg font-bold text-white tracking-wide">Registrar Nuevo Gasto</h2>
             </div>
@@ -229,24 +229,24 @@ const cerrarMes = async () => {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="flex flex-col">
                   <label class="text-xs font-bold neutro-font uppercase tracking-wider mb-1">Concepto / Descripción *</label>
-                  <input v-model="concepto" type="text" required class="w-full neutro-font servi-adapt-bg border border-gray-100 rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium text-sm" placeholder="Ej. Pago de internet">
+                  <input v-model="concepto" type="text" required class="w-full neutro-font neutro-secondary border border-gray-100 rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium text-sm" placeholder="Ej. Pago de internet">
                 </div>
                 
                 <div class="flex flex-col">
                   <label class="text-xs font-bold neutro-font uppercase tracking-wider mb-1">Monto *</label>
-                  <input v-model="monto" type="number" required min="1" class="w-full neutro-font servi-adapt-bg border border-gray-100 rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium text-sm" placeholder="0">
+                  <input v-model="monto" type="number" required min="1" class="w-full neutro-font neutro-secondary border border-gray-100 rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium text-sm" placeholder="0">
                 </div>
                 
                 <div class="flex flex-col">
                   <label class="text-xs font-bold neutro-font uppercase tracking-wider mb-1">Categoría *</label>
-                  <select v-model="categoria" class="w-full neutro-font servi-adapt-bg border border-gray-100 rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium text-sm">
+                  <select v-model="categoria" class="w-full neutro-font neutro-secondary border border-gray-100 rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium text-sm">
                     <option v-for="cat in categoriasDisponibles" :key="cat" :value="cat">{{ cat }}</option>
                   </select>
                 </div>
                 
                 <div class="flex flex-col">
                   <label class="text-xs font-bold neutro-font uppercase tracking-wider mb-1">Fecha de Emisión *</label>
-                  <input v-model="fechaEmision" type="date" required class="w-full neutro-font servi-adapt-bg border border-gray-100 rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium text-sm">
+                  <input v-model="fechaEmision" type="date" required class="w-full neutro-font neutro-secondary border border-gray-100 rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium text-sm">
                 </div>
 
                 <div class="col-span-1 md:col-span-2 flex flex-col mt-2">
@@ -264,7 +264,7 @@ const cerrarMes = async () => {
                       Cámara
                     </button>
 
-                    <button type="button" @click="activarInputComprobante('galeria')" class="flex items-center gap-2 text-sm font-bold neutro-font servi-adapt-bg hover:opacity-80 px-4 py-2.5 rounded-lg transition-colors border border-gray-100 shadow-sm cursor-pointer">
+                    <button type="button" @click="activarInputComprobante('galeria')" class="flex items-center gap-2 text-sm font-bold neutro-font neutro-secondary hover:opacity-80 px-4 py-2.5 rounded-lg transition-colors border border-gray-100 shadow-sm cursor-pointer">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
@@ -297,7 +297,7 @@ const cerrarMes = async () => {
             </form>
           </div>
 
-          <div class="servi-adapt-bg rounded-lg shadow-sm border border-gray-100">
+          <div class="neutro-secondary rounded-lg shadow-sm border border-gray-100">
             <div class="border-yellow-500 border-b-4 px-4 md:px-6 py-3 md:py-4 rounded-t-lg neutro-primary flex justify-between items-center text-white">
               <h2 class="text-base md:text-lg font-bold uppercase tracking-wide">Gastos Ingresados</h2>
               <span class="text-xs md:text-sm font-semibold">{{ listaGastos.length }} ítems</span>
@@ -369,7 +369,7 @@ const cerrarMes = async () => {
         </div>
 
         <div class="lg:col-span-1 order-first lg:order-none">
-          <div class="servi-adapt-bg rounded-xl shadow-lg p-4 md:p-6 lg:sticky lg:top-6">
+          <div class="neutro-secondary rounded-xl shadow-lg p-4 md:p-6 lg:sticky lg:top-6">
             <h2 class="border-yellow-500 border-b-4 text-lg md:text-xl font-bold mb-4 md:mb-6 neutro-font uppercase tracking-wide">Resumen del Mes</h2>
             
             <div class="space-y-3 md:space-y-4 mb-6 md:mb-8">

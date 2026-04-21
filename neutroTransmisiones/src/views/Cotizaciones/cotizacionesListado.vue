@@ -99,7 +99,7 @@ const claseEstado = (estado) => {
     case 2: return { clase: "bg-green-100 text-green-800 border-green-200", texto: "Aprobada" };
     case 3: return { clase: "bg-red-100 text-red-800 border-red-200", texto: "Rechazada" };
     case 1: return { clase: "bg-yellow-100 text-yellow-800 border-yellow-200", texto: "Pendiente" };
-    default: return { clase: "servi-adapt-bg neutro-font border-gray-100", texto: "Cerrada" };
+    default: return { clase: "neutro-secondary neutro-font border-gray-100", texto: "Cerrada" };
   }
 };
 
@@ -154,42 +154,42 @@ onMounted( async () => {
     />
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="hidden md:grid md:grid-cols-4 gap-4 mb-8">
-        <div class="servi-adapt-bg p-4 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-xs neutro-font uppercase font-bold">Total / mes</p>
-            <p class="text-2xl font-bold neutro-font">{{ stats.total }}</p>
+        <div class="neutro-primary p-4 rounded-xl shadow-sm border border-gray-700">
+            <p class="text-xs text-white uppercase font-bold">Total / mes</p>
+            <p class="text-2xl font-bold text-white">{{ stats.total }}</p>
         </div>
-        <div class="servi-adapt-bg p-4 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-xs neutro-font uppercase font-bold">Pendientes / mes</p>
+        <div class="neutro-primary p-4 rounded-xl shadow-sm border border-gray-700">
+            <p class="text-xs text-white uppercase font-bold">Pendientes / mes</p>
             <p class="text-2xl font-bold text-yellow-600">{{ stats.pendientes }}</p>
         </div>
-        <div class="servi-adapt-bg p-4 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-xs neutro-font uppercase font-bold">Aprobadas / mes</p>
+        <div class="neutro-primary p-4 rounded-xl shadow-sm border border-gray-700">
+            <p class="text-xs text-white uppercase font-bold">Aprobadas / mes</p>
             <p class="text-2xl font-bold text-green-600">{{ stats.aprobadas }}</p>
         </div>
-        <div class="servi-adapt-bg p-4 rounded-xl shadow-sm border border-gray-100">
-            <p class="text-xs neutro-font uppercase font-bold">Monto Total / mes</p>
-            <p class="text-lg font-bold neutro-font">{{ formatearDinero(stats.montoTotal) }}</p>
+        <div class="neutro-primary p-4 rounded-xl shadow-sm border border-gray-700">
+            <p class="text-xs text-white uppercase font-bold">Monto Total / mes</p>
+            <p class="text-lg font-bold text-white">{{ formatearDinero(stats.montoTotal) }}</p>
         </div>
       </div>
 
       <!-- Stats Mobile -->
       <Transition name="slide-stats">
         <div v-show="showStats" class="md:hidden grid grid-cols-2 gap-3 mb-6">
-          <div class="servi-adapt-bg p-3 rounded-xl shadow-sm border border-gray-100">
-              <p class="text-xs neutro-font uppercase font-bold">Total / mes</p>
-              <p class="text-xl font-bold neutro-font">{{ stats.total }}</p>
+          <div class="neutro-primary p-3 rounded-xl shadow-sm border border-gray-700">
+              <p class="text-xs text-white uppercase font-bold">Total / mes</p>
+              <p class="text-xl font-bold text-white">{{ stats.total }}</p>
           </div>
-          <div class="servi-adapt-bg p-3 rounded-xl shadow-sm border border-gray-100">
-              <p class="text-xs neutro-font uppercase font-bold">Pendientes / mes</p>
+          <div class="neutro-primary p-3 rounded-xl shadow-sm border border-gray-700">
+              <p class="text-xs text-white uppercase font-bold">Pendientes / mes</p>
               <p class="text-xl font-bold text-yellow-600">{{ stats.pendientes }}</p>
           </div>
-          <div class="servi-adapt-bg p-3 rounded-xl shadow-sm border border-gray-100">
-              <p class="text-xs neutro-font uppercase font-bold">Aprobadas / mes</p>
+          <div class="neutro-primary p-3 rounded-xl shadow-sm border border-gray-700">
+              <p class="text-xs text-white uppercase font-bold">Aprobadas / mes</p>
               <p class="text-xl font-bold text-green-600">{{ stats.aprobadas }}</p>
           </div>
-          <div class="servi-adapt-bg p-3 rounded-xl shadow-sm border border-gray-100">
-              <p class="text-xs neutro-font uppercase font-bold">Monto Total / mes</p>
-              <p class="text-lg font-bold neutro-font">{{ formatearDinero(stats.montoTotal) }}</p>
+          <div class="neutro-primary p-3 rounded-xl shadow-sm border border-gray-700">
+              <p class="text-xs text-white uppercase font-bold">Monto Total / mes</p>
+              <p class="text-lg font-bold text-white">{{ formatearDinero(stats.montoTotal) }}</p>
           </div>
         </div>
       </Transition>
@@ -204,7 +204,7 @@ onMounted( async () => {
           <!-- Botón toggle stats mobile -->
           <button 
             @click="showStats = !showStats" 
-            class="md:hidden servi-adapt-bg neutro-font font-bold py-2 px-4 rounded-lg shadow-sm border border-gray-100 hover:opacity-80 transition-all flex items-center gap-2"
+            class="md:hidden neutro-primary text-white font-bold py-2 px-4 rounded-lg shadow-sm border border-gray-700 hover:opacity-80 transition-all flex items-center gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -224,7 +224,7 @@ onMounted( async () => {
           <!-- Botón nueva cotización -->
           <button 
             @click="irACrear" 
-            class="neutro-font neutro-secondary font-bold py-2 px-6 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center gap-2"
+            class="text-white neutro-primary font-bold py-2 px-6 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center gap-2"
           >
             <span class="text-xl leading-none mb-1">+</span>
             <span class="hidden sm:inline">Nueva Cotización Inicial</span>
@@ -233,10 +233,10 @@ onMounted( async () => {
       </div>
 
       <!-- Tabla Desktop -->
-      <div class="hidden md:block servi-adapt-bg rounded-xl shadow-sm overflow-hidden">
+      <div class="hidden md:block neutro-secondary rounded-xl shadow-sm overflow-hidden">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="neutro-primary neutro-font text-xs uppercase tracking-wider border-b border-gray-100">
+            <tr class="neutro-primary text-white text-xs uppercase tracking-wider border-b border-gray-100">
               <th class="p-4 font-semibold">Cliente</th>
               <th class="p-4 font-semibold">Vehículo</th>
               <th class="p-4 font-semibold">Diagnostico</th>
@@ -249,29 +249,29 @@ onMounted( async () => {
             <tr v-for="item in cotizaciones" :key="item.id" 
                 class="hover:opacity-80 transition-colors cursor-pointer"
                 @click="irADetalle(item.id)">
-              <td class="p-4 neutro-font">
+              <td class="p-4 text-white">
                 <div class="font-medium">{{ camelCase(item.nombre) }} {{ camelCase(item.apellido) }}</div>
               </td>
-              <td class="p-4 neutro-font">
+              <td class="p-4 text-white">
                 <div v-if="obtenerVehiculos(item).length > 0">
-                <div v-for="(veh, index) in obtenerVehiculos(item)" :key="veh.id" class="mb-2">
+                <div v-for="veh in obtenerVehiculos(item)" :key="veh.id" class="mb-2">
                   <div class="font-medium">{{ camelCase(veh.marca) }} {{ camelCase(veh.modelo) }}</div>
                   <div class="text-xs text-gray-500 uppercase font-bold">{{ veh.patente }}</div>
                 </div>
                  </div>
                 <div v-else class="text-gray-400 italic text-sm">Sin vehículo</div>
               </td>
-              <td class="p-4 neutro-font">
+              <td class="p-4 text-white">
                 <span class="block max-w-[200px] truncate" :title="item.diagnostico">{{ camelCase(item.diagnostico) }}</span>
               </td>
               <td class="p-4 text-center whitespace-nowrap">
-                <span class="neutro-font">{{ formatearFecha(item.created_at) }}</span>
+                <span class="text-white">{{ formatearFecha(item.created_at) }}</span>
               </td>
-              <td class="p-4 text-right font-bold neutro-font">
+              <td class="p-4 text-right font-bold text-white">
                 {{ formatearDinero(item.total_final) }}
               </td>
               <td class="p-4 text-center">
-                <button class="neutro-font hover:text-blue-600 transition-colors">
+                <button class="text-white hover:text-blue-600 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                   </svg>
@@ -282,12 +282,12 @@ onMounted( async () => {
         </table>
         <!-- Empty state tabla -->
         <div v-if="cotizaciones.length === 0" class="p-10 text-center">
-          <div class="neutro-font mb-2">
+          <div class="text-white mb-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <p class="neutro-font text-lg">No se encontraron cotizaciones</p>
-            <p class="text-sm neutro-font">Intenta cambiar el filtro de búsqueda o crea una nueva.</p>
+            <p class="text-white text-lg">No se encontraron cotizaciones</p>
+            <p class="text-sm text-white">Intenta cambiar el filtro de búsqueda o crea una nueva.</p>
           </div>
         </div>
       </div>
@@ -298,10 +298,10 @@ onMounted( async () => {
           v-for="item in cotizaciones" 
           :key="item.id"
           :to="{ name: 'ver-cotizacion', params: { id: item.id } }" 
-          class="card-container servi-adapt-bg neutro-font"
+          class="card-container neutro-primary text-white"
           :class="claseEstadoCard(item.estado).contenedor"
         >
-          <div class="card-body neutro-font">
+          <div class="card-body text-white">
             <div class="info-row">
               <span class="label">Emisión:</span>
               <span class="valor">{{ formatearFecha(item.created_at) }}</span>
@@ -343,13 +343,13 @@ onMounted( async () => {
       </div>
 
       <!-- Empty state mobile -->
-      <div v-if="cotizaciones.length === 0" class="servi-adapt-bg rounded-xl p-10 text-center shadow-sm border border-gray-100 md:hidden">
-        <div class="neutro-font mb-2">
+      <div v-if="cotizaciones.length === 0" class="neutro-secondary rounded-xl p-10 text-center shadow-sm border border-gray-100 md:hidden">
+        <div class="text-white mb-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <p class="neutro-font text-lg">No se encontraron cotizaciones</p>
-          <p class="text-sm neutro-font">Intenta cambiar el filtro de búsqueda o crea una nueva.</p>
+          <p class="text-white text-lg">No se encontraron cotizaciones</p>
+          <p class="text-sm text-white">Intenta cambiar el filtro de búsqueda o crea una nueva.</p>
         </div>
       </div>
     </div>

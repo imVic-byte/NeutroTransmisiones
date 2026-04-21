@@ -35,7 +35,7 @@ const menu = [
 </script>
 <template>
   <div class="min-h-screen neutro-background font-sans neutro-font pb-20">
-    <navbar subtitulo="Panel de Control" class="navbar shadow-sm" searchInput="false" />
+    <navbar subtitulo="Panel de Control" class="navbar" searchInput="false" />
 
     <div class="container mx-auto px-6 mt-2 pb-15">
 
@@ -48,7 +48,7 @@ const menu = [
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <div
           @click="$router.push('/clientes')"
-          class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-blue-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
+          class="group neutro-primary text-white rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-blue-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
           <div
             class="bg-cyan-100 text-cyan-600 p-4 rounded-full mb-4 group-hover:bg-cyan-600 group-hover:text-white transition-colors duration-300">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -57,13 +57,13 @@ const menu = [
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </div>
-          <h3 class="text-lg font-bold neutro-font group-hover:text-blue-100 mb-1">Clientes</h3>
-          <p class="text-sm neutro-font">Cartera de clientes</p>
+          <h3 class="text-lg font-bold group-hover:text-blue-100 mb-1">Clientes</h3>
+          <p class="text-sm">Cartera de clientes</p>
         </div>
 
         <div
           @click="$router.push('/deudas')"
-          class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-orange-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
+          class="group neutro-primary text-white rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-orange-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
           <div
             class="bg-orange-100 text-orange-600 p-4 rounded-full mb-4 group-hover:bg-orange-600 group-hover:text-white transition-colors duration-300">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -74,13 +74,13 @@ const menu = [
                 d="M12 15.75h.008v.008H12v-.008ZM12 12.75h.008v.008H12v-.008Z" />
             </svg>
           </div>
-          <h3 class="text-lg font-bold neutro-font group-hover:text-orange-100 mb-1">Deudas y Abonos</h3>
-          <p class="text-sm neutro-font">Cuentas por cobrar</p>
+          <h3 class="text-lg font-bold group-hover:text-orange-100 mb-1">Deudas y Abonos</h3>
+          <p class="text-sm">Cuentas por cobrar</p>
         </div>
 
         <div
           @click="$router.push('/finanzas')"
-          class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-green-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
+          class="group neutro-primary text-white rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-green-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
           <div
             class="bg-green-100 text-green-600 p-4 rounded-full mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -89,35 +89,35 @@ const menu = [
                 d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg>
           </div>
-          <h3 class="text-lg font-bold neutro-font group-hover:text-green-100 mb-1">Finanzas Diarias</h3>
-          <p class="text-sm neutro-font">Ingresos y Egresos</p>
+          <h3 class="text-lg font-bold group-hover:text-green-100 mb-1">Finanzas Diarias</h3>
+          <p class="text-sm">Ingresos y Egresos</p>
         </div>
         <div
           @click="$router.push('/inventario')"
-          class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-purple-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
+          class="group neutro-primary text-white rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-purple-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
           <div
             class="bg-purple-100 text-purple-600 p-4 rounded-full mb-4 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
             </svg>
           </div>
-          <h3 class="text-lg font-bold neutro-font group-hover:text-purple-100 mb-1">Inventario</h3>
-          <p class="text-sm neutro-font">Productos en bodega</p>
+          <h3 class="text-lg font-bold group-hover:text-purple-100 mb-1">Inventario</h3>
+          <p class="text-sm">Productos en bodega</p>
         </div>
         <div
             @click="$router.push('/agenda')"
-          class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-yellow-800 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
+          class="group neutro-primary text-white rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-yellow-800 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
           <div
             class="bg-yellow-50 text-yellow-600 p-4 rounded-full mb-4 group-hover:bg-yellow-600 group-hover:text-white transition-colors duration-300">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
             </svg>
           </div>
-          <h3 class="text-lg font-bold neutro-font group-hover:text-yellow-100 mb-1">Agenda</h3>
-          <p class="text-sm neutro-font">Citas y recordatorios</p>
+          <h3 class="text-lg font-bold group-hover:text-yellow-100 mb-1">Agenda</h3>
+          <p class="text-sm">Citas y recordatorios</p>
         </div>
         <div @click="router.push('/gestion-usuarios')"
-          class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-blue-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
+          class="group neutro-primary text-white rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-blue-400 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
           <div
             class="bg-indigo-100 text-indigo-600 p-4 rounded-full mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -126,20 +126,20 @@ const menu = [
                 d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
             </svg>
           </div>
-          <h3 class="text-lg font-bold neutro-font group-hover:text-blue-700 mb-1">Usuarios</h3>
-          <p class="text-sm neutro-font">Administrar equipo</p>
+          <h3 class="text-lg font-bold group-hover:text-blue-300 mb-1">Usuarios</h3>
+          <p class="text-sm">Administrar equipo</p>
         </div>
         <div
           @click="$router.push('/neutro-transmisiones')"
-          class="group neutro-primary neutro-white-font rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-green-800 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
+          class="group neutro-primary text-white rounded-2xl p-6 cursor-pointer shadow-md border-2 border-transparent hover:border-green-800 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 flex flex-col items-center text-center">
           <div
             class="bg-green-100 text-green-600 p-4 rounded-full mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300">
             <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 7.205c4.418 0 8-1.165 8-2.602C20 3.165 16.418 2 12 2S4 3.165 4 4.603c0 1.437 3.582 2.602 8 2.602ZM12 22c4.963 0 8-1.686 8-2.603v-4.404c-.052.032-.112.06-.165.09a7.75 7.75 0 0 1-.745.387c-.193.088-.394.173-.6.253-.063.024-.124.05-.189.073a18.934 18.934 0 0 1-6.3.998c-2.135.027-4.26-.31-6.3-.998-.065-.024-.126-.05-.189-.073a10.143 10.143 0 0 1-.852-.373 7.75 7.75 0 0 1-.493-.267c-.053-.03-.113-.058-.165-.09v4.404C4 20.315 7.037 22 12 22Zm7.09-13.928a9.91 9.91 0 0 1-.6.253c-.063.025-.124.05-.189.074a18.935 18.935 0 0 1-6.3.998c-2.135.027-4.26-.31-6.3-.998-.065-.024-.126-.05-.189-.074a10.163 10.163 0 0 1-.852-.372 7.816 7.816 0 0 1-.493-.268c-.055-.03-.115-.058-.167-.09V12c0 .917 3.037 2.603 8 2.603s8-1.686 8-2.603V7.596c-.052.031-.112.059-.165.09a7.816 7.816 0 0 1-.745.386Z"/>
             </svg>
           </div>
-          <h3 class="text-lg font-bold neutro-font group-hover:text-green-100 mb-1">Neutro-T</h3>
-          <p class="text-sm neutro-font">Control de Neutro-T</p>
+          <h3 class="text-lg font-bold group-hover:text-green-100 mb-1">Neutro-T</h3>
+          <p class="text-sm">Control de Neutro-T</p>
         </div>
 
         <div @click="manejarCierreSesion"
