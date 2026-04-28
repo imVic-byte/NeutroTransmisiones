@@ -140,7 +140,7 @@ const bancos = [
 
 const obtenerCuentas = async () => {
   const { data, error } = await supabase
-    .from('neutro-cuentas')
+    .from('neutro_cuentas')
     .select('*')
     .order('banco', { ascending: true })
   if (error) {
