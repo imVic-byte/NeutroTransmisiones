@@ -40,7 +40,7 @@ export const generarFichaTrabajo = async (datosEntrada) => {
             .not('folio_aceptacion', 'is', null)
             .order('folio_aceptacion', { ascending: false })
             .limit(1)
-            .single();
+            .maybeSingle
 
         // B. Calculamos el nuevo folio (si no hay ninguno, empezamos en el 1)
         let nuevoFolio = 1;

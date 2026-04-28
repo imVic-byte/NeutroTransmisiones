@@ -223,7 +223,7 @@ const guardarCambios = async () => {
   for (const obs of observaciones.value) {
     if (obs.isNew) {
       const { data: obsData, error: obsError } = await supabase
-        .from("OT_bitacora")
+        .from("ot_bitacora")
         .insert({
           ot_id: route.params.id,
           tipo_evento: "observacion",
@@ -264,14 +264,14 @@ const guardarCambios = async () => {
         const res = await fetch(WORKER_URL, { method: 'POST', body: formData });
         if (res.ok) {
           const data = await res.json();
-          registros.push({ url: data.url, id_OT: route.params.id });
+          registros.push({ url: data.url, id_ot: route.params.id });
         }
       } catch (e) {
         console.error('Error subiendo foto de recepción:', e);
       }
     }
     if (registros.length > 0) {
-      const { error: errorFotos } = await supabase.from('OT_fotos_ingreso').insert(registros);
+      const { error: errorFotos } = await supabase.from('ot_fotos_ingreso').insert(registros);
       if (errorFotos) console.error('Error guardando fotos de recepción:', errorFotos);
     }
   }
@@ -293,7 +293,7 @@ const guardarCambios = async () => {
 
 const traerObservaciones = async () => {
   const { data } = await supabase
-    .from("OT_bitacora")
+    .from("ot_bitacora")
     .select("*")
     .eq("ot_id", route.params.id)
     .eq("tipo_evento", "observacion")
@@ -310,7 +310,7 @@ const traerObservaciones = async () => {
       const { data } = await supabase
         .from("OT_Fotos")
         .select("*")
-        .eq("id_OT_bitacora", obs.id);
+        .eq("id_ot_bitacora", obs.id);
       if (data) {
         obs.fotos = data;
       }
@@ -321,9 +321,9 @@ const traerObservaciones = async () => {
 
 const traerFotosRecepcion = async () => {
   const { data } = await supabase
-    .from('OT_fotos_ingreso')
+    .from('ot_fotos_ingreso')
     .select('*')
-    .eq('id_OT', route.params.id);
+    .eq('id_ot', route.params.id);
   if (data) {
     fotosRecepcion.value = data.map(f => ({
       url: f.url,
@@ -344,7 +344,7 @@ const handleIsCerrado = async (estado_actual_id) => {
 
 const obtenerTalleres = async () => {
   const { data } = await supabase
-    .from('NeutroTransmisiones_taller')
+    .from('neutro_taller')
     .select('*')
     .order('id', { ascending: true });
   if (data) talleres.value = data;
@@ -395,7 +395,7 @@ const cambiarEstadoDirecto = async (estado) => {
   selectedEstado.value = estado;
   manejarBloqueo(true);
   interfaz.showLoadingOverlay();
-  const { error: errorBitacora } = await supabase.from("OT_bitacora").insert({
+  const { error: errorBitacora } = await supabase.from("ot_bitacora").insert({
     ot_id: route.params.id,
     nuevo_estado_id: estado.id,
     tipo_evento: "cambio_estado",
@@ -443,7 +443,7 @@ const handleBuscarTrabajador = (nuevoId) => {
 
 const actualizarBitacora = async (nuevoId) => {
   let texto = "cambio a trabajador " + handleBuscarTrabajador(nuevoId)
-  const { error } = await supabase.from('OT_bitacora').insert({
+  const { error } = await supabase.from('ot_bitacora').insert({
     ot_id: route.params.id,
     nuevo_estado_id: orden.value.estado_actual_id,
     tipo_evento: texto

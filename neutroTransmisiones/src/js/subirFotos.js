@@ -9,13 +9,13 @@ export const subirFotos = async (idOrden, numeroFolio, archivos) => {
   }
 
   try {
-    const { data: OT_bitacora } = await supabase
-      .from('OT_bitacora')
+    const { data: ot_bitacora } = await supabase
+      .from('ot_bitacora')
       .select('*')
       .eq('id', idOrden)
       .single()
     
-    if (!OT_bitacora) {
+    if (!ot_bitacora) {
       throw new Error('Orden de trabajo no encontrada')
     }
     const promesas = archivos.map(async (archivo, index) => {
@@ -48,7 +48,7 @@ export const subirFotos = async (idOrden, numeroFolio, archivos) => {
     const resultados = await Promise.all(promesas)
 
     const registros = resultados.map(data => ({
-      id_OT_bitacora: idOrden,
+      id_ot_bitacora: idOrden,
       url: data.url
     }))
 

@@ -36,7 +36,7 @@ const descuentoCantidad = computed(() => {
 const datosEmpresa = ref({})
 
 const traerDatosEmpresa = async () => {
-  const {data, error} = await supabase.from('neutro-t').select('*').single()
+  const {data, error} = await supabase.from('neutro_t').select('*').single()
   if (data) {
     datosEmpresa.value = data
   }
@@ -46,7 +46,7 @@ const traerDatosEmpresa = async () => {
 }
 
 const traerEmail = async () => {
-  const {data, error} = await supabase.from('neutro-email').select('*').eq('prioritario',true).single()
+  const {data, error} = await supabase.from('neutro_email').select('*').eq('prioritario',true).single()
   if (data) {
     datosEmpresa.value.email = data.email
   }
@@ -56,7 +56,7 @@ const traerEmail = async () => {
 }
 
 const traerTelefono = async () => {
-  const {data,error} = await supabase.from('neutro-telefono').select('*').eq('prioritario',true).maybeSingle()
+  const {data,error} = await supabase.from('neutro_telefono').select('*').eq('prioritario',true).maybeSingle()
   if (data) {
     datosEmpresa.value.telefono = data.telefono || ''
   }

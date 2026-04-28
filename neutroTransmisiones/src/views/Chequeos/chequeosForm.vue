@@ -141,7 +141,7 @@ const guardarChequeo = async () => {
 
     const payload = {
       ot_id: otId.value ? Number(otId.value) : null,
-      trabajador_id: userStore.user.id,
+      //trabajador_id: userStore.user.id,
       datos_chequeo: datosChequeo,
       observaciones: observacionesGenerales.value
     }

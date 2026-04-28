@@ -23,31 +23,15 @@ const correo = ref("");
 const codigoPais = ref("56") 
 
 const clienteSeleccionado = ref(null)
-const tallerSeleccionado = ref('')
 const motivoIngreso = ref('')
 const origenIngreso = ref('cliente')
 const fechaPromesa = ref('')
 const loading = ref(false)
 
 // 2. Variables del autocompletado
-const talleres = ref([])
 const clientesSugeridos = ref([])
 const clienteAutocompletado = ref(false)
 let clienteTimeout = null
-
-// 3. Carga inicial
-const cargarDatosBase = async () => {
-  interfaz.showLoading()
-  try {
-    const { data: dataTalleres } = await supabase.from('NeutroTransmisiones_taller').select('id, nombre')
-    talleres.value = dataTalleres || []
-    if (talleres.value.length > 0) tallerSeleccionado.value = talleres.value[0].id
-  } catch (error) {
-    console.error("Error al cargar datos:", error)
-  } finally {
-    interfaz.hideLoading()
-  }
-}
 
 // 4. Lógica del autocompletado de clientes
 const buscarClientes = (e) => {
@@ -158,7 +142,6 @@ const guardarNuevaFicha = async () => {
       .from('ficha_de_trabajo')
       .insert({
         id_cliente: idDelClienteFinal,
-        id_taller: tallerSeleccionado.value || null,
         motivo_ingreso: motivoIngreso.value,
         origen_ingreso: origenIngreso.value,
         fecha_promesa: fechaPromesa.value || null,
@@ -181,9 +164,6 @@ const guardarNuevaFicha = async () => {
   }
 }
 
-onMounted(() => {
-  cargarDatosBase()
-})
 </script>
 
 <template>

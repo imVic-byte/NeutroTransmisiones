@@ -15,9 +15,10 @@ const chequeoId = ref(route.params.id)
 const chequeo = ref(null)
 const ot = ref(null)
 const fotoExpandida = ref(null)
+
 const Creador = computed(() => {
   if (chequeo.value) {
-    return chequeo.value.trabajador_id === userStore.user.id ? true : false
+    return true
   }
   return false
 })
