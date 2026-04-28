@@ -174,7 +174,7 @@ const guardarCuenta = async () => {
   }
   if (cuentaEditando.value) payload.id = cuentaEditando.value
   const { error } = await supabase
-    .from('neutro-cuentas')
+    .from('neutro_cuentas')
     .upsert(payload)
   if (error) {
     console.error('Error al guardar cuenta bancaria:', error)
@@ -186,7 +186,7 @@ const guardarCuenta = async () => {
 const eliminarCuenta = async (id) => {
   if (!confirm('¿Eliminar esta cuenta bancaria?')) return
   const { error } = await supabase
-    .from('neutro-cuentas')
+    .from('neutro_cuentas')
     .delete()
     .eq('id', id)
   if (error) {
@@ -207,7 +207,7 @@ const formatoMoneda = (valor) => {
 const obtenerDatosEmpresa = async () => {
   // Datos principales
   const { data, error } = await supabase
-    .from('neutro-t')
+    .from('neutro_t')
     .select('*')
   if (error) {
     console.error('Error al obtener los datos de la empresa:', error)
@@ -257,7 +257,7 @@ const obtenerDatosEmpresa = async () => {
 const guardarEmpresa = async () => {
   editandoEmpresa.value = false
   const { data, error } = await supabase
-    .from('neutro-t')
+    .from('neutro_t')
     .update({
         rut: empresa.value.rut,
         nombre_fantasia: empresa.value.nombre_fantasia,
