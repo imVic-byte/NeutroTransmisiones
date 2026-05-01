@@ -210,9 +210,9 @@ onMounted(async () => {
     interfaz.hideLoading();
 
     const { data: cuentas } = await supabase
-      .from('NeutroTransmisiones_cuenta')
+      .from('neutro_cuentas')
       .select('*')
-      .eq('id_NeutroTransmisiones', 1)
+      
     if (cuentas && cuentas.length > 0) {
       cuentasBancarias.value = cuentas
       cuentaSeleccionada.value = cuentas[0]

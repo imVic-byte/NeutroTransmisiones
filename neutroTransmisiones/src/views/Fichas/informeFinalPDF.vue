@@ -16,7 +16,7 @@ const enviandoCorreo = ref(false);
 const datosEmpresa = ref({})
 
 const traerDatosEmpresa = async () => {
-  const {data, error} = await supabase.from('NeutroTransmisiones').select('*').eq('id', 1).single()
+  const {data, error} = await supabase.from('neutro_t').select('*').eq('id', 1).single()
   if (data) {
     datosEmpresa.value = data
   }
@@ -26,7 +26,7 @@ const traerDatosEmpresa = async () => {
 }
 
 const traerEmail = async () => {
-  const {data, error} = await supabase.from('NeutroTransmisiones_email').select('*').eq('id_NeutroTransmisiones', 1).eq('prioritario',true).single()
+  const {data, error} = await supabase.from('neutro_email').select('*').eq('prioritario',true).single()
   if (data) {
     datosEmpresa.value.email = data.email
   }
@@ -36,7 +36,7 @@ const traerEmail = async () => {
 }
 
 const traerTelefono = async () => {
-  const {data,error} = await supabase.from('NeutroTransmisiones_telefono').select('*').eq('id_NeutroTransmisiones', 1).eq('prioritario',true).maybeSingle()
+  const {data,error} = await supabase.from('neutro_telefono').select('*').eq('prioritario',true).maybeSingle()
   if (data) {
     datosEmpresa.value.telefono = data.telefono || ''
   }
@@ -121,7 +121,7 @@ const ficha = ref(null)
 const cargarDatos = async () => {
     const {data, error} = await supabase
     .from('ficha_de_trabajo')
-    .select(`*, informe_final(*),cliente (*),orden_trabajo (*, trabajadores(*),vehiculo(*,cliente(*)), OT_bitacora(*), OT_fotos_ingreso(*)))`) 
+    .select(`*, informe_final(*),cliente (*),orden_trabajo (*, trabajadores(*),vehiculo(*,cliente(*)), ot_bitacora(*), ot_fotos_ingreso(*)))`) 
     .eq('id', route.params.id)
     .single()
 
@@ -131,12 +131,12 @@ const cargarDatos = async () => {
       
       // Fetch bitácora photos
       for (const ot of ficha.value.orden_trabajo) {
-        if (ot.OT_bitacora) {
-          for (const entry of ot.OT_bitacora) {
+        if (ot.ot_bitacora) {
+          for (const entry of ot.ot_bitacora) {
             const { data: fotos } = await supabase
               .from('OT_Fotos')
               .select('*')
-              .eq('id_OT_bitacora', entry.id);
+              .eq('id_ot_bitacora', entry.id);
             entry.fotos = fotos || [];
           }
         }
@@ -167,14 +167,14 @@ const procesarImagenesParaPDF = async () => {
   
   for (const ot of ficha.value.orden_trabajo) {
     // 1. Fotos de ingreso
-    if (ot.OT_fotos_ingreso) {
-      for (const item of ot.OT_fotos_ingreso) {
+    if (ot.ot_fotos_ingreso) {
+      for (const item of ot.ot_fotos_ingreso) {
         if (item.url) item.url = await convertirImagenABase64(item.url);
       }
     }
     // 2. Fotos de bitácora
-    if (ot.OT_bitacora) {
-      for (const entry of ot.OT_bitacora) {
+    if (ot.ot_bitacora) {
+      for (const entry of ot.ot_bitacora) {
         if (entry.fotos) {
           for (const foto of entry.fotos) {
             if (foto.url) foto.url = await convertirImagenABase64(foto.url);
@@ -414,10 +414,10 @@ onMounted(async () => {
                      </div>
                   </div>
 
-                  <div v-if="ot.OT_fotos_ingreso && ot.OT_fotos_ingreso.length > 0">
+                  <div v-if="ot.ot_fotos_ingreso && ot.ot_fotos_ingreso.length > 0">
                      <h4 class="font-bold uppercase text-[10px] mb-1 text-[#1f3d64]">Registro Fotográfico de Ingreso</h4>
                      <div class="flex gap-2 overflow-hidden h-24 p-1 rounded border bg-[#f1f5f9] border-[#e2e8f0]">
-                        <div v-for="(item, index) in ot.OT_fotos_ingreso.slice(0, 3)" :key="index" class="relative w-1/3 h-full">
+                        <div v-for="(item, index) in ot.ot_fotos_ingreso.slice(0, 3)" :key="index" class="relative w-1/3 h-full">
                            <img :src="item.url" class="absolute inset-0 w-full h-full object-cover rounded-sm border border-[#cbd5e1]">
                         </div>
                      </div>
@@ -433,11 +433,11 @@ onMounted(async () => {
                     Bitácora de hallazgos
                  </h3>
 
-                 <div v-if="ot.OT_bitacora && ot.OT_bitacora.length > 0">
-                    <div v-for="(item, index) in ot.OT_bitacora.filter(e => e.observacion)" :key="index" class="flex gap-3 mb-4 break-inside-avoid">
+                 <div v-if="ot.ot_bitacora && ot.ot_bitacora.length > 0">
+                    <div v-for="(item, index) in ot.ot_bitacora.filter(e => e.observacion)" :key="index" class="flex gap-3 mb-4 break-inside-avoid">
                        <div class="flex flex-col items-center">
                           <div class="w-2 h-2 rounded-full mt-2 bg-[#1f3d64]"></div>
-                          <div class="w-px flex-grow my-1 bg-[#e2e8f0]" v-if="index !== ot.OT_bitacora.length - 1"></div>
+                          <div class="w-px flex-grow my-1 bg-[#e2e8f0]" v-if="index !== ot.ot_bitacora.length - 1"></div>
                        </div>
                        <div class="flex-1 border border-l-4 p-3 rounded shadow-sm bg-white border-[#f3f4f6] border-l-[#1f3d64]">
                           <div class="flex justify-between items-start mb-2">

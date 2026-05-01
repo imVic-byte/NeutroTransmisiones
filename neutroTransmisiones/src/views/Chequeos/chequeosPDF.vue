@@ -41,13 +41,13 @@ const formatoFechaYHora = (fecha) => {
 }
 
 const traerDatosEmpresa = async () => {
-  const { data } = await supabase.from('NeutroTransmisiones').select('*').eq('id', 1).single()
+  const { data } = await supabase.from('neutro_t').select('*').eq('id', 1).single()
   if (data) datosEmpresa.value = data
 
-  const { data: emailData } = await supabase.from('NeutroTransmisiones_email').select('*').eq('id_NeutroTransmisiones', 1).eq('prioritario', true).single()
+  const { data: emailData } = await supabase.from('neutro_email').select('*').eq('prioritario', true).single()
   if (emailData) datosEmpresa.value.email = emailData.email
 
-  const { data: telData } = await supabase.from('NeutroTransmisiones_telefono').select('*').eq('id_NeutroTransmisiones', 1).eq('prioritario', true).maybeSingle()
+  const { data: telData } = await supabase.from('neutro_telefono').select('*').eq('prioritario', true).maybeSingle()
   if (telData) datosEmpresa.value.telefono = telData.telefono || ''
 }
 

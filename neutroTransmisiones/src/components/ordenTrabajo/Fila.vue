@@ -57,7 +57,7 @@ const asignarOrden = async () => {
         .eq('id', props.orden.id);
     
     const { error2 } = await supabase
-        .from('OT_bitacora')
+        .from('ot_bitacora')
         .insert({
             ot_id: props.orden.id,
             nuevo_estado_id:10,

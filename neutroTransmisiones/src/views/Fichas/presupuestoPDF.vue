@@ -34,7 +34,7 @@ const TotalItem = (item) => {
 const datosEmpresa = ref({})
 
 const traerDatosEmpresa = async () => {
-  const {data, error} = await supabase.from('NeutroTransmisiones').select('*').eq('id', 1).single()
+  const {data, error} = await supabase.from('neutro_t').select('*').eq('id', 1).single()
   if (data) {
     datosEmpresa.value = data
   }
@@ -44,7 +44,7 @@ const traerDatosEmpresa = async () => {
 }
 
 const traerEmail = async () => {
-  const {data, error} = await supabase.from('NeutroTransmisiones_email').select('*').eq('id_NeutroTransmisiones', 1).eq('prioritario',true).single()
+  const {data, error} = await supabase.from('neutro_email').select('*').eq('prioritario',true).single()
   if (data) {
     datosEmpresa.value.email = data.email
   }
@@ -54,7 +54,7 @@ const traerEmail = async () => {
 }
 
 const traerTelefono = async () => {
-  const {data,error} = await supabase.from('NeutroTransmisiones_telefono').select('*').eq('id_NeutroTransmisiones', 1).eq('prioritario',true).maybeSingle()
+  const {data,error} = await supabase.from('neutro_telefono').select('*').eq('prioritario',true).maybeSingle()
   if (data) {
     datosEmpresa.value.telefono = data.telefono || ''
   }

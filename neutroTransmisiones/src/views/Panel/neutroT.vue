@@ -140,7 +140,7 @@ const bancos = [
 
 const obtenerCuentas = async () => {
   const { data, error } = await supabase
-    .from('neutro-cuentas')
+    .from('neutro_cuentas')
     .select('*')
     .order('banco', { ascending: true })
   if (error) {
@@ -174,7 +174,7 @@ const guardarCuenta = async () => {
   }
   if (cuentaEditando.value) payload.id = cuentaEditando.value
   const { error } = await supabase
-    .from('neutro-cuentas')
+    .from('neutro_cuentas')
     .upsert(payload)
   if (error) {
     console.error('Error al guardar cuenta bancaria:', error)
@@ -186,7 +186,7 @@ const guardarCuenta = async () => {
 const eliminarCuenta = async (id) => {
   if (!confirm('¿Eliminar esta cuenta bancaria?')) return
   const { error } = await supabase
-    .from('neutro-cuentas')
+    .from('neutro_cuentas')
     .delete()
     .eq('id', id)
   if (error) {
@@ -207,7 +207,7 @@ const formatoMoneda = (valor) => {
 const obtenerDatosEmpresa = async () => {
   // Datos principales
   const { data, error } = await supabase
-    .from('neutro-t')
+    .from('neutro_t')
     .select('*')
   if (error) {
     console.error('Error al obtener los datos de la empresa:', error)
@@ -227,7 +227,7 @@ const obtenerDatosEmpresa = async () => {
 
   // Emails
   const { data: emails } = await supabase
-    .from('neutro-email')
+    .from('neutro_email')
     .select('*')
   if (emails && emails.length > 0) {
     empresa.value.emails = emails.map(e => ({
@@ -241,7 +241,7 @@ const obtenerDatosEmpresa = async () => {
 
   // Teléfonos
   const { data: tels } = await supabase
-    .from('neutro-telefono')
+    .from('neutro_telefono')
     .select('*')
   if (tels && tels.length > 0) {
     empresa.value.telefonos = tels.map(t => ({
@@ -257,7 +257,7 @@ const obtenerDatosEmpresa = async () => {
 const guardarEmpresa = async () => {
   editandoEmpresa.value = false
   const { data, error } = await supabase
-    .from('neutro-t')
+    .from('neutro_t')
     .update({
         rut: empresa.value.rut,
         nombre_fantasia: empresa.value.nombre_fantasia,
@@ -279,7 +279,7 @@ const guardarEmpresa = async () => {
 
 const guardarEmails = async () => {
   // Borrar los existentes
-  await supabase.from('neutro-email').delete().neq('id', 0)
+  await supabase.from('neutro_email').delete().neq('id', 0)
   // Insertar los que tengan valor
   const emailsValidos = empresa.value.emails.filter(e => e.valor.trim() !== '')
   if (emailsValidos.length === 0) return
@@ -289,13 +289,13 @@ const guardarEmails = async () => {
     email: e.valor,
     prioritario: e.prioritario
   }))
-  const { error } = await supabase.from('neutro-email').insert(filas)
+  const { error } = await supabase.from('neutro_email').insert(filas)
   if (error) console.error('Error al guardar los emails:', error)
 }
 
 const guardarTelefonos = async () => {
   // Borrar los existentes
-  await supabase.from('neutro-telefono').delete().neq('id', 0)
+  await supabase.from('neutro_telefono').delete().neq('id', 0)
   // Insertar los que tengan valor
   const telsValidos = empresa.value.telefonos.filter(t => t.valor.trim() !== '')
   if (telsValidos.length === 0) return
@@ -305,7 +305,7 @@ const guardarTelefonos = async () => {
     telefono: t.valor.replace(/\D/g, '').slice(-8),
     prioritario: t.prioritario
   }))
-  const { error } = await supabase.from('neutro-telefono').insert(filas)
+  const { error } = await supabase.from('neutro_telefono').insert(filas)
   if (error) console.error('Error al guardar los telefonos:', error)
 }
 
@@ -325,7 +325,7 @@ const eliminarTelefono = async (index) => {
   const era_prioritario = tel.prioritario
   // Si tiene id de BD, eliminar de Supabase
   if (tel.id) {
-    const { error } = await supabase.from('neutro-telefono').delete().eq('id', tel.id)
+    const { error } = await supabase.from('neutro_telefono').delete().eq('id', tel.id)
     if (error) console.error('Error al eliminar el teléfono:', error)
   }
   empresa.value.telefonos.splice(index, 1)
@@ -347,7 +347,7 @@ const eliminarEmail = async (index) => {
   const era_prioritario = em.prioritario
   // Si tiene id de BD, eliminar de Supabase
   if (em.id) {
-    const { error } = await supabase.from('neutro-email').delete().eq('id', em.id)
+    const { error } = await supabase.from('neutro_email').delete().eq('id', em.id)
     if (error) console.error('Error al eliminar el email:', error)
   }
   empresa.value.emails.splice(index, 1)

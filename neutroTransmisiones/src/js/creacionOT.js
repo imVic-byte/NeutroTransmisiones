@@ -19,7 +19,7 @@ export const creacionOT = async (ficha_id, trabajador_id, vehiculo_id) => {
         console.error('OT no creada')
         return false
     }
-    const {data:bitacora, error:errorBitacora} = await supabase.from('OT_bitacora')
+    const {data:bitacora, error:errorBitacora} = await supabase.from('ot_bitacora')
     .insert({
         ot_id: OTData.id,
         nuevo_estado_id: 10,
@@ -40,7 +40,7 @@ export const creacionOT = async (ficha_id, trabajador_id, vehiculo_id) => {
         console.error('Trabajador no encontrado')
         return false
     }
-    const {data:Bitacora2, error:errorBitacora2} = await supabase.from('OT_bitacora').insert({
+    const {data:Bitacora2, error:errorBitacora2} = await supabase.from('ot_bitacora').insert({
         ot_id:OTData.id,
         tipo_evento:'Asignado a ' + trabajador.nombre + ' ' + trabajador.apellido,
     })
