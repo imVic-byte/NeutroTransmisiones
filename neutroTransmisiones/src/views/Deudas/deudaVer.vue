@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { supabase } from '../../lib/supabaseClient.js';
 import navbar from '../../components/componentes/navbar.vue';
 import { formatearFecha } from '@/js/formateadores.js';
-
+import volver from '@/components/componentes/volver.vue';
 const router = useRouter();
 
 const deudas = ref([]);
@@ -157,9 +157,15 @@ onMounted(() => {
 <template>
   <div class="min-h-screen neutro-background pb-12 font-sans text-white">
     <navbar titulo="NeutroTransmisiones" subtitulo="Deudas y Abonos" class="navbar" />
-
+    
     <div class="max-w-7xl mx-auto px-4 py-8">
-
+<button @click="router.push('/configuracion')"
+          class="mb-4 flex items-center gap-1 text-sm neutro-font hover:opacity-80 transition cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Volver
+      </button>
       <!-- Tabs Ocultar -->
       <div class="flex gap-1 mb-6 neutro-secondary rounded-xl p-1 shadow-sm dark:border border-gray-700 w-fit">
         <button

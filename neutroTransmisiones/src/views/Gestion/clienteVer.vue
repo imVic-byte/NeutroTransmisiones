@@ -131,7 +131,7 @@ onMounted(async () => {
             <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
               <div class="neutro-primary p-6 flex flex-col items-center relative">
                 <div
-                  class="w-20 h-20 rounded-full neutro-background flex items-center justify-center text-green-900 text-2xl font-bold mb-3">
+                  class="w-20 h-20 rounded-full text-white neutro-background flex items-center justify-center text-green-900 text-2xl font-bold mb-3">
                   {{ iniciales(cliente.nombre, cliente.apellido) }}
                 </div>
                 <h1 class="text-xl font-bold text-white text-center">

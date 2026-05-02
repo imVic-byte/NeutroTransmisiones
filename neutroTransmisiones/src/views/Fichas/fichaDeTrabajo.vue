@@ -7,10 +7,16 @@ import {creacionOT} from '../../js/creacionOT.js'
 import OTcard from "../../components/ordenTrabajo/ordendetrabajoCard.vue";
 import volver from "../../components/componentes/volveraListaFicha.vue";
 import {useInterfaz} from '../../stores/interfaz.js'
-import {useUserStore} from '../../stores/user.js'
+import {traerTrabajadores} from './traerTrabajadores.js'
+import {traerEstadosJS} from './traerEstadosJS.js'
+import {traerEstadosFichaJS} from './traerEstadosFichaJS.js'
+import {bloquearFichaJS} from './bloquearFichaJS.js'
+import {desbloquearFichaJS} from './desbloquearFichaJS.js'
+import {actualizarEstadoEstacionamientoJS} from './actualizarEstacionamiento.js'
+import {handleVehiculo} from '../../js/handleVehiculo.js'
+import {traerVehiculos} from './traerVehiculos.js'
 
-const userStore = useUserStore()
-const tienePrivilegios = computed(() => true)
+
 const router = useRouter()
 const route = useRoute()
 const interfaz = useInterfaz()
@@ -28,6 +34,7 @@ const vehiculo = ref(null)
 const ordenesTrabajo = ref([])
 const cotizacionesCliente = ref([])
 
+const estadosFicha = ref([])
 // Estado para el modal de Crear OT
 const mostrarModalOT = ref(false)
 const listaTrabajadores = ref([])
@@ -54,8 +61,7 @@ const procesandoEstadoFicha = ref(false)
 const desbloqueoEmergencia = ref(false)
 
 const isFichaBloqueada = computed(() => {
-  if (desbloqueoEmergencia.value) return false
-  return ficha.value && (Number(ficha.value.estado) === 6 || Number(ficha.value.estado) === 7)
+    return ficha.value && ficha.value.bloqueada
 })
 
 const diasEstacionamiento = computed(() => {
@@ -68,26 +74,19 @@ const diasEstacionamiento = computed(() => {
 })
 
 const totalCargoEstacionamiento = computed(() => {
-  const dias = diasEstacionamiento.value
-  if (dias > 0) {
-    if (isFichaBloqueada.value) {
-      return
-    }else{
-      actualizarEstadoEstacionamiento()
-    }
+  return diasEstacionamiento.value * 5000
+})  
+
+watch(diasEstacionamiento, (dias) => {
+  if (dias > 0 && !isFichaBloqueada.value) {
+    actualizarEstadoEstacionamiento()
   }
-  return dias * 5000
 })
 
-const actualizarEstadoEstacionamiento = async()=>{
+const actualizarEstadoEstacionamiento = () => {
   if (!ficha.value) return
-  const {error} = await supabase
-    .from('ficha_de_trabajo')
-    .update({
-      estado: 5
-    })
-    .eq('id', ficha.value.id)
-  if (error) throw error
+  ficha.value.estado = 4
+  actualizarEstadoEstacionamientoJS(ficha.value.id)
 }
 
 const goBack = () => {
@@ -97,25 +96,6 @@ const goBack = () => {
 const irAVerCotizacion = (id) => {
   if (isFichaBloqueada.value) return
   router.push({ name: 'ver-cotizacion', params: { id } })
-}
-
-const irAVerOT = (id) => {
-  if (isFichaBloqueada.value) return
-  router.push({ name: 'orden-trabajo-ver', params: { id } })
-}
-
-const obtenerTrabajadores = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('trabajadores')
-      .select('*')
-      .eq('activo', true)
-    
-    if (error) throw error
-    listaTrabajadores.value = data || []
-  } catch (err) {
-    console.error("Error al cargar trabajadores:", err)
-  }
 }
 
 const abrirModalOT = async () => {
@@ -136,7 +116,7 @@ const abrirModalOT = async () => {
         }
     }
 
-    await obtenerTrabajadores()
+    listaTrabajadores.value = await traerTrabajadores()
     mostrarModalOT.value = true
 }
 
@@ -168,61 +148,20 @@ const confirmarCreacionOT = async () => {
     if (!otPatenteIngresada.value) {
         errorModal.value = 'Debes ingresar una patente.'
         return
-    } 
-    handleVehiculos()
-    let vehiculoId = null
-    
-    // Normalizar patente
-    const patenteBuscada = otPatenteIngresada.value.trim().toUpperCase()
-
-    if (vehiculos.value) {
-         if (Array.isArray(vehiculos.value)) {
-             const v = vehiculos.value.find(v => v.patente.toUpperCase() === patenteBuscada)
-             if (v) vehiculoId = v.id
-         } else if (vehiculos.value.patente && vehiculos.value.patente.toUpperCase() === patenteBuscada) {
-             vehiculoId = vehiculos.value.id
-         }
     }
-    
-    // Si no existe, lo creamos
-    if (!vehiculoId) {
-        if (!otMarcaIngresada.value || !otModeloIngresado.value) {
-            errorModal.value = 'El vehículo no está registrado. Debes ingresar Marca y Modelo para crearlo.'
-            return
-        }
-
-        try {
-            const { data: newVehiculo, error: errVehiculo } = await supabase
-                .from('vehiculo')
-                .insert({
-                    patente: patenteBuscada,
-                    marca: otMarcaIngresada.value,
-                    modelo: otModeloIngresado.value,
-                    id_cliente: ficha.value.cliente?.id || null,
-                })
-                .select()
-                .single()
-            if (errVehiculo) throw errVehiculo
-            vehiculoId = newVehiculo.id
-        } catch (error) {
-            console.error('Error al crear vehiculo:', error)
-            errorModal.value = 'Error al registrar el nuevo vehículo.'
-            return
-        }
+    if (!otModeloIngresado.value) {
+        errorModal.value = 'Debes ingresar un modelo.'
+        return
     }
-
-    creandoOT.value = true
+    if (!otMarcaIngresada.value) {
+        errorModal.value = 'Debes ingresar una marca.'
+        return
+    }
+    const vehiculo = await handleVehiculo(ficha.value.cliente.id, otPatenteIngresada.value.toUpperCase(), otMarcaIngresada.value, otModeloIngresado.value)
     try {
-        const resultado = await creacionOT(ficha.value.id, otTrabajadorSeleccionado.value, vehiculoId)
+        const resultado = await creacionOT(ficha.value.id, otTrabajadorSeleccionado.value, vehiculo.id)
         
         if (resultado) {
-          const { error: errorFicha } = await supabase
-              .from('ficha_de_trabajo')
-              .update({ id_vehiculo: vehiculoId })
-              .eq('id', ficha.value.id);
-              if (errorFicha) {
-              console.error("Error al vincular el vehículo a la ficha:", errorFicha);
-            }
             await cargarDatos()
             cerrarModalOT()
         } else {
@@ -234,54 +173,6 @@ const confirmarCreacionOT = async () => {
         } finally {
             creandoOT.value = false
         }
-    }
-    
-    const abrirModalCotizacion = (cotizacion) => {
-      if (Number(cotizacion.estado) !== 1) {
-        irAVerCotizacion(cotizacion.id)
-        return
-      }
-      cotizacionSeleccionada.value = cotizacion
-      errorModalCotizacion.value = ''
-      mostrarModalCotizacion.value = true
-    }
-    
-    const cerrarModalCotizacion = () => {
-      mostrarModalCotizacion.value = false
-      cotizacionSeleccionada.value = null
-    }
-    
-    const actualizarEstadoCotizacion = async (nuevoEstado) => {
-      if (!cotizacionSeleccionada.value) return
-    
-      procesandoEstadoCotizacion.value = true
-      errorModalCotizacion.value = ''
-      
-      try {
-        const { error } = await supabase
-          .from('cotizaciones_ficha')
-          .update({ estado: nuevoEstado })
-          .eq('id', cotizacionSeleccionada.value.id)
-    
-        if (error) throw error
-    
-        await cargarDatos()
-        cerrarModalCotizacion()
-    
-      } catch (err) {
-        console.error('Error al actualizar estado:', err)
-        errorModalCotizacion.value = 'No se pudo actualizar el estado. Inténtalo de nuevo.'
-      } finally {
-        procesandoEstadoCotizacion.value = false
-      }
-    }
-    
-    
-    const irAConvertir = (idCotizacion) => {
-  router.push({ 
-    name: 'nuevo-presupuesto', 
-    params: { id: idCotizacion } 
-  })
 }
 
 // Formateadores
@@ -336,12 +227,11 @@ const cargarDatos = async () => {
   try {
     const { data: dataFicha, error: errorFicha } = await supabase
       .from('ficha_de_trabajo')
-      .select(`*, cliente (*),orden_trabajo (*, trabajadores(*),vehiculo(*,cliente(*))),cotizaciones_ficha(*,detalle_cotizaciones_ficha(*),neutro_cuentas(*))`) 
+      .select(`*, cliente(*),orden_trabajo (*, trabajadores(*),vehiculo(*,cliente(*))),cotizaciones_ficha(*,detalle_cotizaciones_ficha(*),neutro_cuentas(*))`) 
       .eq('id', fichaId)
       .single()
     if (errorFicha) throw errorFicha
     ficha.value = dataFicha
-    //tallerSeleccionado.value = ficha.value.id_taller
     cotizaciones.value = dataFicha.cotizaciones_ficha
     cotizacionConfirmada.value = dataFicha.cotizaciones_ficha.find(c => c.estado === 2)
 
@@ -388,17 +278,7 @@ const cargarDatos = async () => {
 const estados = ref([])
 
 const traerEstados = async () => {
-  try {
-    const{data,error} = await supabase
-    .from('tabla_estados')
-    .select('*')
-    if(error) throw error
-    estados.value = data
-  }
-  catch(err){
-    console.error("Error al cargar los estados:", err)
-    error.value = "No se pudo cargar la información de los estados. Revisa la conexión."
-  }
+ estados.value = await traerEstadosJS()
 }
 
 const handleEstados = (estado) => {
@@ -471,11 +351,6 @@ const irAInforme = async () => {
   router.push({name: 'ver-informe-ficha-de-trabajo', params: {id: fichaId}})
 }
 
-//const talleres = ref([])
-
-//const tallerSeleccionado = ref(null)
-
-// Autosave watchers
 watch(() => ficha.value?.origen_ingreso, (newVal, oldVal) => {
   if (oldVal !== undefined && newVal !== oldVal && !cargando.value) debouncedGuardarFicha()
 })
@@ -485,41 +360,18 @@ watch(() => ficha.value?.fecha_ingreso, (newVal, oldVal) => {
 watch(() => ficha.value?.fecha_promesa, (newVal, oldVal) => {
   if (oldVal !== undefined && newVal !== oldVal && !cargando.value) debouncedGuardarFicha()
 })
-//watch(tallerSeleccionado, (newVal, oldVal) => {
-//  if (oldVal !== undefined && newVal !== oldVal && !cargando.value) debouncedGuardarFicha()
-//})
 
-const estadosFicha = ref([])
 
 const cargarEstados = async () => {
-  try{
-    const {data,error} = await supabase
-    .from('tabla_estados_ficha')
-    .select('*')
-    .order('orden')
-    if(error) throw error
-    estadosFicha.value = data
-  }
-  catch(err){
-    console.error("Error al cargar los estados:", err)
-  }
+  estadosFicha.value = await traerEstadosFichaJS()
 }
 
-
 const cambiarEstadoFicha = async (estado) => {
-  if (isFichaBloqueada.value) return // No permitir cambios si ya está bloqueada
-  if (estado === 5) {
-    return
-  }
-  if (ficha.value.estado >= 4 && estado < ficha.value.estado){
-    return
-  }
+  if (isFichaBloqueada.value) return
   if (estado === 4) {
-    estadoTemporal.value = estado
-    mostrarModalListoEntrega.value = true
     return
   }
-  if (Number(estado) === 6 || Number(estado) === 7) {
+  if (Number(estado) === 6 || Number(estado) === 5) {
     estadoTemporal.value = estado
     mostrarModalAdvertencia.value = true
     return
@@ -527,11 +379,19 @@ const cambiarEstadoFicha = async (estado) => {
   ejecutarCambioEstado(estado)
 }
 
+const desbloquearFicha = (id) => {
+  ficha.value.bloqueada = false
+  desbloqueoEmergencia.value = false
+  desbloquearFichaJS(id)
+}
+
 const ejecutarCambioEstado = async (estado) => {
   procesandoEstadoFicha.value = true
   try {
     const updates = { estado: estado }
-    if (estado === 6 || estado === 7) {
+    if (estado === 5 || estado === 6) {
+      bloquearFichaJS(ficha.value.id)
+      ficha.value.bloqueada = true
       const hoy = new Date()
       const tzOffset = hoy.getTimezoneOffset() * 60000
       const localISOTime = (new Date(hoy.getTime() - tzOffset)).toISOString().slice(0, -1)
@@ -557,30 +417,12 @@ const ejecutarCambioEstado = async (estado) => {
       ficha.value.fecha_entrega = updates.fecha_entrega
     }
     mostrarModalAdvertencia.value = false
-    // Si el estado es 6 (Entregado) y no tiene presupuesto, mostrar modal para generar presupuesto
-    if (estado === 6 && !ficha.value.presupuesto) {
+    if (estado === 5 && !ficha.value.presupuesto) {
       mostrarModalGenerarPresupuestoAuto.value = true
     }
   }
   catch (err) {
     console.error("Error al cambiar el estado de la ficha:", err)
-  } finally {
-    procesandoEstadoFicha.value = false
-  }
-}
-
-const desbloquearFicha = async () => {
-  procesandoEstadoFicha.value = true
-  try {
-    const { error } = await supabase
-      .from('ficha_de_trabajo')
-      .update({ estado: 3 })
-      .eq('id', fichaId)
-    if (error) throw error
-    ficha.value.estado = 3
-    desbloqueoEmergencia.value = false
-  } catch (err) {
-    console.error('Error al desbloquear la ficha:', err)
   } finally {
     procesandoEstadoFicha.value = false
   }
@@ -596,7 +438,6 @@ const confirmarListoEntrega = async () => {
   procesandoEstadoFicha.value = true
   try {
     const hoy = new Date()
-    // Sumar 3 días
     hoy.setDate(hoy.getDate() + 3)
     const tzOffset = hoy.getTimezoneOffset() * 60000
     const localISOTime = new Date(hoy.getTime() - tzOffset).toISOString().slice(0, -1)
@@ -604,14 +445,14 @@ const confirmarListoEntrega = async () => {
     const { error } = await supabase
       .from('ficha_de_trabajo')
       .update({ 
-        estado: 4,
+        estado: 3,
         fecha_estacionamiento: localISOTime
       })
       .eq('id', fichaId)
     
       if (error) throw error
       
-    ficha.value.estado = 4
+    ficha.value.estado = 3
     ficha.value.fecha_estacionamiento = localISOTime
     mostrarModalListoEntrega.value = false
   } catch (err) {
@@ -628,7 +469,6 @@ onMounted(async () => {
     await cargarDatos()
     await traerEstados()
     await cargarEstados()
-    //await cargarTalleres()
   } else {
     error.value = "ID de ficha no proporcionado."
     cargando.value = false
@@ -660,13 +500,7 @@ onMounted(async () => {
           </div>
         </div>
       </div>
-      <div v-if="isFichaBloqueada" class="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 rounded shadow-sm flex items-center gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-        </svg>
-        <p class="font-bold">No tienes permisos para editar esta ficha. Modo solo lectura.</p>
-      </div>
-      <div v-else-if="isFichaBloqueada" class="mb-6 p-4 bg-blue-100 border-l-4 border-blue-600 text-blue-800 rounded shadow-sm flex items-center justify-between">
+      <div v-if="isFichaBloqueada" class="mb-6 p-4 bg-blue-100 border-l-4 border-blue-600 text-blue-800 rounded shadow-sm flex items-center justify-between">
         <div class="flex items-center gap-3">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -695,7 +529,7 @@ onMounted(async () => {
             <button @click="desbloqueoEmergencia = false" class="px-3 py-1.5 text-xs font-medium text-red-700 border border-red-300 hover:bg-red-100 rounded-lg transition-colors">
               Cancelar
             </button>
-            <button @click="desbloquearFicha" :disabled="procesandoEstadoFicha" class="px-3 py-1.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-70">
+            <button @click="desbloquearFicha(ficha.id)" :disabled="procesandoEstadoFicha" class="px-3 py-1.5 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-70">
               <svg v-if="procesandoEstadoFicha" class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
               Confirmar Desbloqueo
             </button>
@@ -763,20 +597,12 @@ onMounted(async () => {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="w-full">
                     <label class="block text-xs font-bold neutro-font uppercase tracking-wider mb-1">Origen Ingreso</label>
-                    <select :disabled="isFichaBloqueada" class="neutro-font font-medium border border-gray-100 rounded-lg p-2 w-full disabled:cursor-not-allowed" v-model="ficha.origen_ingreso">
+                    <select :disabled="isFichaBloqueada" class="text-white neutro-secondary font-medium border border-gray-100 rounded-lg p-2 w-full disabled:cursor-not-allowed" v-model="ficha.origen_ingreso">
                       <option value="cliente">Conducido por Cliente</option>
                       <option value="grua">Grúa / Remolque</option>
                       <option value="tercero">Chofer / Tercero</option>
                     </select>
                   </div>
-                  <!--  
-                  <div class="w-full">
-                    <label class="block text-xs font-bold neutro-font uppercase tracking-wider mb-1">Taller</label>
-                    <select :disabled="isFichaBloqueada" class="neutro-font font-medium border border-gray-100 rounded-lg p-2 w-full disabled:cursor-not-allowed" v-model="tallerSeleccionado">
-                      <option v-for="taller in talleres" :key="taller.id" :value="taller.id">{{ taller.nombre }}</option>
-                    </select>
-                  </div>
-                  -->
                 <div class="w-full">
                   <label class="block text-xs font-bold neutro-font uppercase tracking-wider mb-1">Motivo de Ingreso</label>
                   <p class="neutro-font font-medium">{{ ficha.motivo_ingreso || 'Sin información registrada.' }}</p>
@@ -817,7 +643,7 @@ onMounted(async () => {
               </button>
             </div>
             <div class="p-6">
-              <div v-if="ficha.orden_trabajo" class="flex flex-row" :class="{ 'pointer-events-none opacity-80': isFichaBloqueada }">
+              <div v-if="ficha.orden_trabajo" class="flex flex-col" :class="{ 'pointer-events-none opacity-80': isFichaBloqueada }">
                 <OTcard v-for="(orden, i) in ficha.orden_trabajo" :key="orden.id" :orden="orden" :index="i" :estado="handleEstados(orden.estado_actual_id)" />
               </div>
               <p v-else class="text-sm neutro-font italic text-center py-4 neutro-secondary rounded-lg border border-dashed border-gray-200">
@@ -841,15 +667,15 @@ onMounted(async () => {
                 class="p-4  hover:neutro-font transition-colors cursor-pointer group flex justify-between items-center"
                 >
                 <div>
-                  <p class="font-bold text-gray-800 text-sm group-hover:text-blue-600 transition-colors">
+                  <p class="font-bold text-gray-100 text-sm group-hover:text-blue-600 transition-colors">
                     <span v-if="cotizacion.folio_aceptacion" class="text-blue-600 dark:text-blue-400">
                       Folio N°{{ cotizacion.folio_aceptacion }}
                     </span>
-                    <span v-else class="text-gray-500">
+                    <span v-else class="text-gray-100">
                       Cotización #{{ cotizacion.id }}
                     </span>
                   </p>
-                  <p class="text-xs text-gray-500">{{ formatFecha(cotizacion.created_at) }}</p>
+                  <p class="text-xs text-gray-100">{{ formatFecha(cotizacion.created_at) }}</p>
                 </div>
                 <div class="text-right flex items-end gap-1 align-center justify-center">
                   <div class="flex flex-col items-center justify-center align-center">
@@ -989,7 +815,7 @@ onMounted(async () => {
 
         <div class="p-6 space-y-4">
             <p class="neutro-font font-medium">
-              Al cambiar el estado a <span class="font-bold underline">{{ estadoTemporal === 6 ? 'Entregado' : 'Cancelado' }}</span>, la ficha se bloqueará PERMANENTEMENTE y no se podrán realizar más cambios.
+              Al cambiar el estado a <span class="font-bold underline">{{ estadoTemporal === 5 ? 'Entregado' : 'Cancelado' }}</span>, la ficha se bloqueará PERMANENTEMENTE y no se podrán realizar más cambios.
             </p>
             <p class="text-sm neutro-font">
               ¿Estás seguro de que deseas continuar con esta acción?
@@ -1055,49 +881,6 @@ onMounted(async () => {
                 Generar Presupuesto
             </button>
         </div>
-      </div>
-    </div>
-
-    <!-- Modal de Confirmación Listo para Entrega -->
-    <div v-if="mostrarModalListoEntrega" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity">
-      <div class="neutro-background rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
-        
-        <div class="neutro-primary px-6 py-4 flex justify-between items-center text-white">
-            <h3 class="text-lg font-bold flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              Listo para Entrega
-            </h3>
-            <button @click="mostrarModalListoEntrega = false" class="text-white hover:text-blue-100 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-
-        <div class="p-6 space-y-4">
-            <p class="neutro-font font-medium">
-              ¿Confirmas que el vehículo está <span class="font-bold text-blue-600">Listo para Entrega</span>?
-            </p>
-            <p class="text-sm neutro-font">
-              Esta acción establecerá la fecha de inicio de estacionamiento para dentro de 3 días.
-            </p>
-        </div>
-
-        <div class="neutro-primary px-6 py-4 flex justify-end gap-3 border-t border-gray-100">
-            <button @click="mostrarModalListoEntrega = false" class="px-4 py-2 text-sm font-medium text-white hover:bg-gray-200 rounded-lg transition-colors">
-                Cancelar
-            </button>
-            <button 
-                @click="confirmarListoEntrega" 
-                :disabled="procesandoEstadoFicha"
-                class="px-5 py-2 text-sm font-bold neutro-font neutro-font rounded-lg shadow-md transition-all flex items-center gap-2 disabled:opacity-70">
-                <svg v-if="procesandoEstadoFicha" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                Confirmar
-            </button>
-        </div>
-
       </div>
     </div>
     <!-- Modal de Confirmación Generar Presupuesto -->

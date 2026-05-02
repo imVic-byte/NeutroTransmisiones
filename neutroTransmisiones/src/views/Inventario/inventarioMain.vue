@@ -703,8 +703,8 @@ onMounted(() => {
    PRODUCT LIST
    ═══════════════════════════════════════ */
 .product-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 
@@ -718,6 +718,8 @@ onMounted(() => {
   border: 1px solid rgba(0, 0, 0, 0.04);
   cursor: pointer;
   transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .dark .product-card {
@@ -815,6 +817,7 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 12px;
   margin-bottom: 10px;
+  flex: 1;
 }
 
 .detail-item {
@@ -908,6 +911,7 @@ onMounted(() => {
   justify-content: center;
   padding: 3rem 1rem;
   text-align: center;
+  grid-column: 1 / -1;
 }
 
 .empty-icon {
@@ -1178,6 +1182,10 @@ onMounted(() => {
     grid-template-columns: repeat(4, 1fr);
   }
 
+  .product-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .modal-overlay {
     align-items: center;
     padding: 1rem;
@@ -1186,6 +1194,12 @@ onMounted(() => {
   .modal-card {
     border-radius: 24px;
     max-width: 480px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-list {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
