@@ -13,30 +13,50 @@ let searchTimeout = null;
 
 const cotizaciones = ref([]);
 const cotizacionesOriginales = ref([]);
+const filtroEstado = ref(null);
+const textoBusqueda = ref('');
+
+const estadosCotizacion = [
+  { id: 1, estado: 'Pendiente', color: '#eab308' },
+  { id: 2, estado: 'Confirmada', color: '#22c55e' },
+  { id: 3, estado: 'Rechazada', color: '#ef4444' },
+];
 
 const handleBusqueda = (texto) => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
-    if (!texto) {
-      cotizaciones.value = [...cotizacionesOriginales.value]; 
-    } else {
-      const textoLower = texto.toLowerCase().trim();
-      
-      cotizaciones.value = cotizacionesOriginales.value.filter(c => {
-        //nombre
-        const nombreCompleto = `${c.nombre || ''} ${c.apellido || ''}`.toLowerCase();
-        
-        // vehiculo
-        const vehiculosArray = obtenerVehiculos(c);
-        const patenteCoincide = vehiculosArray.some(v => v.patente?.toLowerCase().includes(textoLower));
-        const diagnostico = c.diagnostico?.toLowerCase() || '';
-        
-        return nombreCompleto.includes(textoLower) || 
-               patenteCoincide ||
-               diagnostico.includes(textoLower);
-      });
-    }
+    textoBusqueda.value = texto;
+    aplicarFiltros();
   }, 300);
+};
+
+const handleFiltroEstado = (estado) => {
+  filtroEstado.value = estado;
+  aplicarFiltros();
+};
+
+const aplicarFiltros = () => {
+  let resultado = [...cotizacionesOriginales.value];
+
+  // Filtro por estado
+  if (filtroEstado.value !== null) {
+    resultado = resultado.filter(c => c.estado === filtroEstado.value);
+  }
+
+  // Filtro por búsqueda
+  if (textoBusqueda.value && textoBusqueda.value.trim() !== '') {
+    const busqueda = textoBusqueda.value.toLowerCase().trim();
+    resultado = resultado.filter(c => {
+      const idCoincide = c.id?.toString().includes(busqueda);
+      const nombreCompleto = `${c.nombre || ''} ${c.apellido || ''}`.toLowerCase();
+      const vehiculosArray = obtenerVehiculos(c);
+      const patenteCoincide = vehiculosArray.some(v => v.patente?.toLowerCase().includes(busqueda));
+      const diagnostico = c.diagnostico?.toLowerCase() || '';
+      return idCoincide || nombreCompleto.includes(busqueda) || patenteCoincide || diagnostico.includes(busqueda);
+    });
+  }
+
+  cotizaciones.value = resultado;
 };
 
 const irACrear = () => {
@@ -154,19 +174,19 @@ onMounted( async () => {
     />
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="hidden md:grid md:grid-cols-4 gap-4 mb-8">
-        <div class="neutro-primary p-4 rounded-xl shadow-sm border border-gray-700">
+        <div class="neutro-secondary p-4 rounded-xl shadow-sm border border-gray-700">
             <p class="text-xs text-white uppercase font-bold">Total / mes</p>
             <p class="text-2xl font-bold text-white">{{ stats.total }}</p>
         </div>
-        <div class="neutro-primary p-4 rounded-xl shadow-sm border border-gray-700">
+        <div class="neutro-secondary p-4 rounded-xl shadow-sm border border-gray-700">
             <p class="text-xs text-white uppercase font-bold">Pendientes / mes</p>
             <p class="text-2xl font-bold text-yellow-600">{{ stats.pendientes }}</p>
         </div>
-        <div class="neutro-primary p-4 rounded-xl shadow-sm border border-gray-700">
+        <div class="neutro-secondary p-4 rounded-xl shadow-sm border border-gray-700">
             <p class="text-xs text-white uppercase font-bold">Aprobadas / mes</p>
             <p class="text-2xl font-bold text-green-600">{{ stats.aprobadas }}</p>
         </div>
-        <div class="neutro-primary p-4 rounded-xl shadow-sm border border-gray-700">
+        <div class="neutro-secondary p-4 rounded-xl shadow-sm border border-gray-700">
             <p class="text-xs text-white uppercase font-bold">Monto Total / mes</p>
             <p class="text-lg font-bold text-white">{{ formatearDinero(stats.montoTotal) }}</p>
         </div>
@@ -175,19 +195,19 @@ onMounted( async () => {
       <!-- Stats Mobile -->
       <Transition name="slide-stats">
         <div v-show="showStats" class="md:hidden grid grid-cols-2 gap-3 mb-6">
-          <div class="neutro-primary p-3 rounded-xl shadow-sm border border-gray-700">
+          <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-700">
               <p class="text-xs text-white uppercase font-bold">Total / mes</p>
               <p class="text-xl font-bold text-white">{{ stats.total }}</p>
           </div>
-          <div class="neutro-primary p-3 rounded-xl shadow-sm border border-gray-700">
+          <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-700">
               <p class="text-xs text-white uppercase font-bold">Pendientes / mes</p>
               <p class="text-xl font-bold text-yellow-600">{{ stats.pendientes }}</p>
           </div>
-          <div class="neutro-primary p-3 rounded-xl shadow-sm border border-gray-700">
+          <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-700">
               <p class="text-xs text-white uppercase font-bold">Aprobadas / mes</p>
               <p class="text-xl font-bold text-green-600">{{ stats.aprobadas }}</p>
           </div>
-          <div class="neutro-primary p-3 rounded-xl shadow-sm border border-gray-700">
+          <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-700">
               <p class="text-xs text-white uppercase font-bold">Monto Total / mes</p>
               <p class="text-lg font-bold text-white">{{ formatearDinero(stats.montoTotal) }}</p>
           </div>
@@ -204,7 +224,7 @@ onMounted( async () => {
           <!-- Botón toggle stats mobile -->
           <button 
             @click="showStats = !showStats" 
-            class="md:hidden neutro-primary text-white font-bold py-2 px-4 rounded-lg shadow-sm border border-gray-700 hover:opacity-80 transition-all flex items-center gap-2"
+            class="md:hidden neutro-secondary text-white font-bold py-2 px-4 rounded-lg shadow-sm border border-gray-700 hover:opacity-80 transition-all flex items-center gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -224,7 +244,7 @@ onMounted( async () => {
           <!-- Botón nueva cotización -->
           <button 
             @click="irACrear" 
-            class="text-white neutro-primary font-bold py-2 px-6 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center gap-2"
+            class="text-white neutro-secondary font-bold py-2 px-6 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center gap-2"
           >
             <span class="text-xl leading-none mb-1">+</span>
             <span class="hidden sm:inline">Nueva Cotización Inicial</span>
@@ -232,14 +252,33 @@ onMounted( async () => {
         </div>
       </div>
 
-      <!-- Tabla Desktop -->
+      <!-- Filtro por Estado -->
+      <div class="flex flex-wrap items-center gap-2 mb-6">
+        <button
+          @click="handleFiltroEstado(null)"
+          class="px-3 py-1.5 rounded-full text-xs font-bold transition-all border"
+          :class="filtroEstado === null ? 'neutro-primary text-white border-transparent shadow-sm' : 'neutro-secondary neutro-font border-gray-700 hover:opacity-80'"
+        >
+          Todos
+        </button>
+        <button
+          v-for="estado in estadosCotizacion"
+          :key="estado.id"
+          @click="handleFiltroEstado(estado.id)"
+          class="px-3 py-1.5 rounded-full text-xs font-bold transition-all border"
+          :class="filtroEstado === estado.id ? 'text-white border-transparent shadow-sm' : 'neutro-secondary neutro-font border-gray-700 hover:opacity-80'"
+          :style="filtroEstado === estado.id ? { backgroundColor: estado.color } : {}"
+        >
+          {{ estado.estado }}
+        </button>
+      </div>
       <div class="hidden md:block neutro-secondary rounded-xl shadow-sm overflow-hidden">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="neutro-primary text-white text-xs uppercase tracking-wider border-b border-gray-100">
+            <tr class="neutro-primary text-white text-xs uppercase tracking-wider">
               <th class="p-4 font-semibold">Cliente</th>
-              <th class="p-4 font-semibold">Vehículo</th>
               <th class="p-4 font-semibold">Diagnostico</th>
+              <th class="p-4 font-semibold text-center">Estado</th>
               <th class="p-4 font-semibold text-center">Emisión</th>
               <th class="p-4 font-semibold text-right">Monto Total</th>
               <th class="p-4 font-semibold text-center">Acción</th>
@@ -253,16 +292,10 @@ onMounted( async () => {
                 <div class="font-medium">{{ camelCase(item.nombre) }} {{ camelCase(item.apellido) }}</div>
               </td>
               <td class="p-4 text-white">
-                <div v-if="obtenerVehiculos(item).length > 0">
-                <div v-for="veh in obtenerVehiculos(item)" :key="veh.id" class="mb-2">
-                  <div class="font-medium">{{ camelCase(veh.marca) }} {{ camelCase(veh.modelo) }}</div>
-                  <div class="text-xs text-gray-500 uppercase font-bold">{{ veh.patente }}</div>
-                </div>
-                 </div>
-                <div v-else class="text-gray-400 italic text-sm">Sin vehículo</div>
-              </td>
-              <td class="p-4 text-white">
                 <span class="block max-w-[200px] truncate" :title="item.diagnostico">{{ camelCase(item.diagnostico) }}</span>
+              </td>
+              <td class="p-4 text-center">
+                <span class="estado-badge" :class="claseEstadoCard(item.estado).clase">{{ claseEstadoCard(item.estado).texto }}</span>
               </td>
               <td class="p-4 text-center whitespace-nowrap">
                 <span class="text-white">{{ formatearFecha(item.created_at) }}</span>
@@ -298,7 +331,7 @@ onMounted( async () => {
           v-for="item in cotizaciones" 
           :key="item.id"
           :to="{ name: 'ver-cotizacion', params: { id: item.id } }" 
-          class="card-container neutro-primary text-white"
+          class="card-container neutro-secondary text-white"
           :class="claseEstadoCard(item.estado).contenedor"
         >
           <div class="card-body text-white">
@@ -461,6 +494,18 @@ onMounted( async () => {
   color: #ffffff;
   border-radius: 4px;
   text-transform: uppercase;
+}
+
+/* Estado badge para tabla desktop */
+.estado-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
 }
 
 .info-row {

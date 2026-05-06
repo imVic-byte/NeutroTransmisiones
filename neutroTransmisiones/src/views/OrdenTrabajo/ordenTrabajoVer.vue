@@ -4,19 +4,20 @@ import { supabase } from "../../lib/supabaseClient.js";
 import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 import navbar from "../../components/componentes/navbar.vue";
 import modal from "../../components/componentes/modal.vue";
-import medidorCombustible from "../../components/ordenTrabajo/medidorCombustible.vue"; 
-import {subirFotos} from "../../js/subirFotos.js";
-import {comprimirImagen} from "../../js/comprimirFotos.js";
+import medidorCombustible from "../../components/ordenTrabajo/medidorCombustible.vue";
+import { subirFotos } from "../../js/subirFotos.js";
+import { comprimirImagen } from "../../js/comprimirFotos.js";
 import { useInterfaz } from "@/stores/interfaz.js";
 import { useUserStore } from "../../stores/user.js";
 import volver from "../../components/componentes/volver.vue";
 import { formatearFecha } from "../../js/formateadores.js";
+import { obtenerEstadosJS } from "./traerEstadosJS.js";
+import { traerFotosRecepcionJS } from "./traerFotosRecepcionJS.js";
+import { traerObservacionesJS } from "./traerObservacionesJS.js";
+import Otavanzada from "./ordenTrabajoDetalle.vue"
 
 const userStore = useUserStore();
 const soloLectura = computed(() => false);
-
-
-
 
 const fechaToDatetimeLocal = (fechaStr) => {
   if (!fechaStr) return '';
@@ -34,6 +35,7 @@ const mostrarModalSalir = ref(false);
 let resolverNavegacion = null;
 let debounceTimer = null;
 const datosCargados = ref(false);
+const tabActiva = ref('general');
 const modalState = ref({ visible: false, titulo: "", mensaje: "", exito: true });
 const redirigir = () => { modalState.value.visible = false; };
 const interfaz = useInterfaz();
@@ -51,8 +53,40 @@ const observaciones = ref([]);
 const fechaIngreso = ref(null);
 const nivelCombustible = ref(0);
 const fotosRecepcion = ref([]);
-const talleres = ref([]);
 const chequeo = ref(false)
+
+const traerFotosRecepcion = async () => {
+  fotosRecepcion.value = await traerFotosRecepcionJS(route.params.id);
+};
+
+const manejarBloqueo = (estado) => {
+  loading.value = estado;
+};
+
+const obtenerEstados = async () => {
+  estados.value = await obtenerEstadosJS();
+};
+
+const traerObservaciones = async () => {
+  observaciones.value = await traerObservacionesJS(route.params.id);
+};
+
+const handleIsCerrado = () => {
+  const estadoActual = estados.value.find(e => e.id === orden.value?.estado_actual_id)
+  isCerrado.value = estadoActual?.finaliza
+}
+
+const verificarEstadoCerrado = () => {
+  if (isCerrado.value) {
+    modalState.value = {
+      visible: true,
+      titulo: "Acción no permitida",
+      mensaje: "Orden cerrada. No se permiten cambios.",
+      exito: false,
+    };
+    return true;
+  }
+}
 
 const activarInput = (index, tipo) => {
   const id = tipo === 'camara' ? `input-camara-${index}` : `input-galeria-${index}`;
@@ -129,26 +163,6 @@ const removerFotoRecepcion = (index) => {
   fotosRecepcion.value.splice(index, 1);
 };
 
-const redirigirInformeFinal = () => {
-  router.push({ name: 'ver-informe-final', params: { id: orden.value.id } });
-};
-
-const manejarBloqueo = (estado) => {
-  loading.value = estado;
-};
-
-const verificarEstadoCerrado = () => {
-  if (isCerrado.value) {
-    modalState.value = {
-      visible: true,
-      titulo: "Acción no permitida",
-      mensaje: "Orden cerrada. No se permiten cambios.",
-      exito: false,
-    };
-    return true;
-  }
-}
-
 const agregarObservacion = () => {
   if (verificarEstadoCerrado()) return;
   observaciones.value.push({
@@ -168,7 +182,6 @@ const eliminarObservacion = (index) => {
 const guardarCambios = async () => {
   if (verificarEstadoCerrado()) return;
 
-  // Validaciones
   const errores = [];
 
   if (orden.value.kilometraje_inicial !== null && orden.value.kilometraje_inicial !== undefined && orden.value.kilometraje_inicial < 0) {
@@ -203,6 +216,7 @@ const guardarCambios = async () => {
 
   manejarBloqueo(true);
   interfaz.showLoadingOverlay();
+
   const { error } = await supabase
     .from("orden_trabajo")
     .update({
@@ -233,11 +247,11 @@ const guardarCambios = async () => {
         .single();
       if (obsError) {
         console.error("Error guardando observación:", obsError);
-        continue; 
+        continue;
       }
       if (obs.fotos && obs.fotos.length > 0 && obsData) {
         const resultado = await subirFotos(obsData.id, orden.value.ficha_de_trabajo.id, obs.fotos);
-       if (!resultado.exito) {
+        if (!resultado.exito) {
           console.error("Error subiendo fotos:", resultado.error);
         }
         else {
@@ -251,11 +265,11 @@ const guardarCambios = async () => {
   }
   const fotosNuevas = fotosRecepcion.value.filter(f => f.isNew);
   if (fotosNuevas.length > 0) {
-    const WORKER_URL = 'https://upload.soporte-NeutroTransmisiones.workers.dev/';
+    const WORKER_URL = 'https://upload.neutrotransmisiones.workers.dev/';
     const registros = [];
     for (const foto of fotosNuevas) {
       const archivoReal = foto.file || foto;
-      const nombreLimpio = archivoReal.name.replace(/[^a-zA-Z0-9.-]/g, '_');  
+      const nombreLimpio = archivoReal.name.replace(/[^a-zA-Z0-9.-]/g, '_');
       const formData = new FormData();
       const nombreUnico = `OT-${orden.value.ficha_de_trabajo.id}-recepcion-${Date.now()}-${nombreLimpio}`;
       formData.append('file', archivoReal, nombreUnico);
@@ -275,10 +289,10 @@ const guardarCambios = async () => {
       if (errorFotos) console.error('Error guardando fotos de recepción:', errorFotos);
     }
   }
-  if(!error) {
-     await traerObservaciones();
-     await traerFotosRecepcion();
-     interfaz.hideLoadingOverlay();
+  if (!error) {
+    await traerObservaciones();
+    await traerFotosRecepcion();
+    interfaz.hideLoadingOverlay();
   }
   modalState.value = {
     visible: true,
@@ -289,65 +303,6 @@ const guardarCambios = async () => {
     exito: !error,
   };
   manejarBloqueo(false);
-};
-
-const traerObservaciones = async () => {
-  const { data } = await supabase
-    .from("ot_bitacora")
-    .select("*")
-    .eq("ot_id", route.params.id)
-    .eq("tipo_evento", "observacion")
-    .order("created_at", { ascending: true });
-  if (data) {
-    observaciones.value = data.map((obs) => ({
-      id: obs.id,
-      texto: obs.observacion,
-      fecha: obs.created_at,
-      isNew: false,
-      fotos: []
-    }));
-    for (const obs of observaciones.value) {
-      const { data } = await supabase
-        .from("OT_Fotos")
-        .select("*")
-        .eq("id_ot_bitacora", obs.id);
-      if (data) {
-        obs.fotos = data;
-      }
-    }
-  }
-  interfaz.hideLoading();
-};
-
-const traerFotosRecepcion = async () => {
-  const { data } = await supabase
-    .from('ot_fotos_ingreso')
-    .select('*')
-    .eq('id_ot', route.params.id);
-  if (data) {
-    fotosRecepcion.value = data.map(f => ({
-      url: f.url,
-      isNew: false
-    }));
-  }
-};
-
-const handleIsCerrado = async (estado_actual_id) => {
-  const { data } = await supabase
-    .from('tabla_estados')
-    .select('*')
-    .eq('id', estado_actual_id);
-  if (data && data.length > 0) {
-    isCerrado.value = data[0].finaliza;
-  }
-}
-
-const obtenerTalleres = async () => {
-  const { data } = await supabase
-    .from('neutro_taller')
-    .select('*')
-    .order('id', { ascending: true });
-  if (data) talleres.value = data;
 };
 
 const obtenerOrden = async () => {
@@ -368,22 +323,10 @@ const obtenerOrden = async () => {
     chequeo.value = data.chequeo;
   }
   manejarBloqueo(false);
-  await handleIsCerrado(orden.value.estado_actual_id);
-  // Bloquear si la ficha tiene estado >= 5 (entregada, cancelada, etc.)
-  if (orden.value.ficha_de_trabajo?.estado >= 5) {
-    isCerrado.value = true;
-  }
 };
 
-const obtenerEstados = async () => {
-  const { data } = await supabase
-    .from("tabla_estados")
-    .select("*")
-    .order("orden");
-  if (data) {
-    estados.value = data;
-  }
-};
+
+
 const openModal = (estado) => {
   selectedEstado.value = estado;
   showModal.value = true;
@@ -393,19 +336,15 @@ const cambiarEstadoDirecto = async (estado) => {
   if (estado.id === orden.value.estado_actual_id) return;
   if (verificarEstadoCerrado()) return;
   selectedEstado.value = estado;
-  manejarBloqueo(true);
-  interfaz.showLoadingOverlay();
   const { error: errorBitacora } = await supabase.from("ot_bitacora").insert({
     ot_id: route.params.id,
     nuevo_estado_id: estado.id,
-    tipo_evento: "cambio_estado",
+    tipo_evento: `Cambio de estado a ${estado.estado}`,
   });
   if (errorBitacora) {
     console.error(errorBitacora);
   }
-  await obtenerOrden();
-  interfaz.hideLoadingOverlay();
-  manejarBloqueo(false);
+  orden.value.estado_actual_id = estado.id;
   selectedEstado.value = null;
 }
 
@@ -413,13 +352,13 @@ const trabajadores = ref([])
 const showCambiarTrabajador = ref(false)
 
 const handleTrabajadores = async () => {
- const {data,error} = await supabase.from('trabajadores').select('*').eq('activo', true)
- if (data) {
-  trabajadores.value = data
- }
- else {
-  trabajadores.value = []
- } 
+  const { data, error } = await supabase.from('trabajadores').select('*').eq('activo', true)
+  if (data) {
+    trabajadores.value = data
+  }
+  else {
+    trabajadores.value = []
+  }
 }
 
 const cambiarTrabajador = async (nuevoId) => {
@@ -546,11 +485,11 @@ const irACrearChequeo = () => {
   if (!soloLectura.value && !isCerrado.value) {
     router.push({ name: 'crear-chequeo', query: { ot_id: route.params.id } });
   }
-};  
+};
 
 const irAVerChequeo = async () => {
   if (!soloLectura.value && !isCerrado.value) {
-    const {data,error} = await supabase
+    const { data, error } = await supabase
       .from('chequeos')
       .select('id')
       .eq('ot_id', route.params.id)
@@ -559,52 +498,60 @@ const irAVerChequeo = async () => {
       router.push({ name: 'ver-chequeo', params: { id: data[0].id } });
     }
   }
-};  
+};
 
 onMounted(async () => {
   interfaz.showLoading();
-  await obtenerTalleres();
   await obtenerOrden();
-  obtenerEstados();
-  traerObservaciones();
-  traerFotosRecepcion();
-  if (userStore.havePrivileges) handleTrabajadores();
-  // Marcar datos como cargados para habilitar autosave
+  await obtenerEstados();
+  await handleIsCerrado();
+  await traerObservaciones();
+  await traerFotosRecepcion();
+  interfaz.hideLoading();
   setTimeout(() => { datosCargados.value = true; }, 500);
 });
 </script>
 
 <template>
   <div class="min-h-screen neutro-background pb-12">
-    <navbar titulo="NeutroTransmisiones" :subtitulo="'OT # ' + orden.id" class="sticky top-0 z-40 navbar" searchInput="false" />
-    
+    <navbar titulo="NeutroTransmisiones" :subtitulo="'OT # ' + orden.id" class="sticky top-0 z-40 navbar"
+      searchInput="false" />
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 pb-15">
       <volver />
-      <div v-if="isCerrado" class="mb-6 p-4 bg-blue-100 border-l-4 border-blue-600 text-blue-800 rounded shadow-sm flex items-center gap-3">
+      <div v-if="isCerrado"
+        class="mb-6 p-4 bg-blue-100 border-l-4 border-blue-600 text-blue-800 rounded shadow-sm flex items-center gap-3">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
         <p class="font-bold">La orden de trabajo está cerrada. Modo solo lectura.</p>
       </div>
 
-      <div v-if="soloLectura && !isCerrado" class="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 rounded shadow-sm flex items-center gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      <div v-if="soloLectura && !isCerrado"
+        class="mb-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 rounded shadow-sm flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
         </svg>
         <p class="font-bold">No eres el técnico asignado. Modo solo lectura.</p>
       </div>
 
       <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 p-4 mb-6 overflow-x-auto">
-        <div class="flex flex-nowrap md:flex-wrap items-center justify-start md:justify-center gap-2 min-w-max md:min-w-0">
+        <div
+          class="flex flex-nowrap md:flex-wrap items-center justify-start md:justify-center gap-2 min-w-max md:min-w-0">
           <div v-for="estado in estados" :key="estado.id" class="flex flex-col items-center group">
-            <div v-if="estado.id !== 1 && estado.id !== 8 && estado.id !== 7 && estado.id !== 9 && estado.id !== 11" @click="cambiarEstadoDirecto(estado)"
+            <div @click="cambiarEstadoDirecto(estado)"
               class="relative px-6 py-2 cursor-pointer transition-transform hover:scale-105 active:scale-95"
               :class="{ 'opacity-50 hover:opacity-100': estado.id !== orden.estado_actual_id }">
-              <div class="absolute inset-0 transform -skew-x-12 rounded shadow-sm" :style="{ backgroundColor: estado.color }"></div>
+              <div class="absolute inset-0 transform -skew-x-12 rounded shadow-sm"
+                :style="{ backgroundColor: estado.color }"></div>
               <span class="relative z-10 font-bold text-white text-sm whitespace-nowrap">{{ estado.estado }}</span>
             </div>
             <div v-if="estado.id === orden.estado_actual_id" class="mt-2 text-blue-600 animate-bounce">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
               </svg>
             </div>
@@ -612,23 +559,75 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Tabs General / Avanzado -->
+      <div class="flex gap-1 mb-6 neutro-secondary rounded-xl p-1 shadow-sm dark:border border-gray-700 w-fit">
+        <button @click="tabActiva = 'general'" :class="[
+          'px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200',
+          tabActiva === 'general'
+            ? 'neutro-primary text-white shadow-sm'
+            : 'text-gray-400 hover:text-white'
+        ]">General</button>
+        <button @click="tabActiva = 'avanzado'" :class="[
+          'px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200',
+          tabActiva === 'avanzado'
+            ? 'neutro-primary text-white shadow-sm'
+            : 'text-gray-400 hover:text-white'
+        ]">Avanzado</button>
+      </div>
+
+      <!-- Tab: General -->
+      <div v-show="tabActiva === 'general'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         <div class="lg:col-span-2 space-y-6">
-          
+
           <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="neutro-primary px-6 py-4 flex justify-between items-center">
               <h1 class="neutro-font font-bold text-lg tracking-wide">INFORMACIÓN GENERAL</h1>
             </div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="space-y-1"><label class="text-xs font-bold neutro-font uppercase tracking-wider">Patente</label><p class="neutro-font">{{ orden.vehiculo?.patente }}</p></div>
-              <div class="space-y-1"><label class="text-xs font-bold neutro-font uppercase tracking-wider">Modelo</label><p class="neutro-font">{{ orden.vehiculo?.marca }} {{ orden.vehiculo?.modelo }}</p></div>
-              <div class="space-y-1"><label class="text-xs font-bold neutro-font uppercase tracking-wider">Cliente</label><p class="neutro-font">{{ orden.ficha_de_trabajo?.cliente?.nombre + ' ' + orden.ficha_de_trabajo?.cliente?.apellido }}</p></div>
-              <div class="space-y-1"><label class="text-xs font-bold neutro-font uppercase tracking-wider">Teléfono</label><p class="neutro-font">+{{ orden.ficha_de_trabajo?.cliente?.codigo_pais }} {{ orden.ficha_de_trabajo?.cliente?.telefono }}</p></div>
-              <div class="space-y-1"><label class="text-xs font-bold neutro-font uppercase tracking-wider">Email</label><p class="neutro-font">{{ orden.ficha_de_trabajo?.cliente?.email || 'No registrado' }}</p></div>
-              <div class="space-y-1"><label class="text-xs font-bold neutro-font uppercase tracking-wider">Motivo de Ingreso</label><p class="neutro-font">{{ orden.ficha_de_trabajo?.motivo_ingreso }}</p></div>
-              <div class="space-y-1"><label class="text-xs font-bold neutro-font uppercase tracking-wider">Responsable</label><div class="flex items-center gap-2"><p class="neutro-font">{{ orden.trabajadores?.nombre ? orden.trabajadores?.nombre + ' ' + orden.trabajadores?.apellido : 'No asignado' }}</p><button v-if="userStore.havePrivileges" @click="showCambiarTrabajador = true" class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-lg transition-colors border border-blue-200 cursor-pointer" title="Cambiar trabajador asignado"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg> Cambiar</button></div></div>
-              <div class="space-y-1"><label class="text-xs font-bold neutro-font uppercase tracking-wider">Fecha de Ingreso</label><p class="neutro-font">{{ formatearFecha(orden.ficha_de_trabajo?.fecha_ingreso)|| 'No registrado' }}</p></div>
+              <div class="space-y-1"><label
+                  class="text-xs font-bold neutro-font uppercase tracking-wider">Patente</label>
+                <p class="neutro-font">{{ orden.vehiculo?.patente }}</p>
+              </div>
+              <div class="space-y-1"><label
+                  class="text-xs font-bold neutro-font uppercase tracking-wider">Modelo</label>
+                <p class="neutro-font">{{ orden.vehiculo?.marca }} {{ orden.vehiculo?.modelo }}</p>
+              </div>
+              <div class="space-y-1"><label
+                  class="text-xs font-bold neutro-font uppercase tracking-wider">Cliente</label>
+                <p class="neutro-font">{{ orden.ficha_de_trabajo?.cliente?.nombre + ' ' +
+                  orden.ficha_de_trabajo?.cliente?.apellido }}</p>
+              </div>
+              <div class="space-y-1"><label
+                  class="text-xs font-bold neutro-font uppercase tracking-wider">Teléfono</label>
+                <p class="neutro-font">+{{ orden.ficha_de_trabajo?.cliente?.codigo_pais }} {{
+                  orden.ficha_de_trabajo?.cliente?.telefono }}</p>
+              </div>
+              <div class="space-y-1"><label class="text-xs font-bold neutro-font uppercase tracking-wider">Email</label>
+                <p class="neutro-font">{{ orden.ficha_de_trabajo?.cliente?.email || 'No registrado' }}</p>
+              </div>
+              <div class="space-y-1"><label class="text-xs font-bold neutro-font uppercase tracking-wider">Motivo de
+                  Ingreso</label>
+                <p class="neutro-font">{{ orden.ficha_de_trabajo?.motivo_ingreso }}</p>
+              </div>
+              <div class="space-y-1"><label
+                  class="text-xs font-bold neutro-font uppercase tracking-wider">Responsable</label>
+                <div class="flex items-center gap-2">
+                  <p class="neutro-font">{{ orden.trabajadores?.nombre ? orden.trabajadores?.nombre + ' ' +
+                    orden.trabajadores?.apellido : 'No asignado' }}</p><button v-if="userStore.havePrivileges"
+                    @click="showCambiarTrabajador = true"
+                    class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-lg transition-colors border border-blue-200 cursor-pointer"
+                    title="Cambiar trabajador asignado"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline"
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg> Cambiar</button>
+                </div>
+              </div>
+              <div class="space-y-1"><label class="text-xs font-bold neutro-font uppercase tracking-wider">Fecha de
+                  Ingreso</label>
+                <p class="neutro-font">{{ formatearFecha(orden.ficha_de_trabajo?.fecha_ingreso) || 'No registrado' }}</p>
+              </div>
             </div>
           </div>
 
@@ -638,11 +637,20 @@ onMounted(async () => {
               <div class="flex items-center gap-2 min-h-[32px]">
                 <transition name="fade">
                   <span v-if="autoGuardando" class="text-white text-xs flex items-center gap-1 animate-pulse">
-                    <svg class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <svg class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                      viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                      </path>
+                    </svg>
                     Guardando...
                   </span>
                   <span v-else-if="autoGuardadoExito" class="text-green-300 text-xs flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor" stroke-width="2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
                     Guardado
                   </span>
                 </transition>
@@ -654,7 +662,9 @@ onMounted(async () => {
                 <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
                   <div class="space-y-1">
                     <label class="text-xs font-bold neutro-font uppercase tracking-wider">Prioridad</label>
-                    <select class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" v-model="orden.prioridad" :disabled="soloLectura || isCerrado">
+                    <select
+                      class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                      v-model="orden.prioridad" :disabled="soloLectura || isCerrado">
                       <option value="1">Alta (Urgencia)</option>
                       <option value="2">Media (Normal)</option>
                       <option value="3">Baja (Proyecto)</option>
@@ -664,19 +674,27 @@ onMounted(async () => {
                 <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
                   <div class="space-y-1">
                     <label class="text-xs font-bold neutro-font uppercase tracking-wider">Tipo de Trabajo</label>
-                    <input class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" type="text" placeholder="Ej: Mantención 10.000km" v-model="orden.tipo_trabajo" :disabled="soloLectura || isCerrado" />
+                    <input
+                      class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                      type="text" placeholder="Ej: Mantención 10.000km" v-model="orden.tipo_trabajo"
+                      :disabled="soloLectura || isCerrado" />
                   </div>
                 </div>
                 <div class="space-y-1">
                   <label class="text-xs font-bold neutro-font uppercase tracking-wider">Kilometraje Actual</label>
                   <div class="relative">
-                    <input class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium pl-4" type="number" v-model="orden.kilometraje_inicial" :disabled="soloLectura || isCerrado" />
+                    <input
+                      class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium pl-4"
+                      type="number" v-model="orden.kilometraje_inicial" :disabled="soloLectura || isCerrado" />
                     <span class="absolute right-4 top-2.5 neutro-font text-sm font-bold">KM</span>
                   </div>
                 </div>
                 <div class="space-y-1 flex-row">
                   <label class="text-xs font-bold neutro-font uppercase tracking-wider">Diagnóstico</label>
-                  <textarea class="w-full h-32 neutro-secondary border border-gray-100 neutro-font rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500 font-medium resize-none" placeholder="Describa el problema encontrado" v-model="orden.diagnostico" :disabled="soloLectura || isCerrado"></textarea>
+                  <textarea
+                    class="w-full h-32 neutro-secondary border border-gray-100 neutro-font rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500 font-medium resize-none"
+                    placeholder="Describa el problema encontrado" v-model="orden.diagnostico"
+                    :disabled="soloLectura || isCerrado"></textarea>
                 </div>
               </div>
 
@@ -688,30 +706,46 @@ onMounted(async () => {
                   <medidorCombustible v-model="nivelCombustible" />
                 </div>
                 <div class="neutro-secondary p-4 rounded-xl border border-gray-100">
-                  <label class="text-xs font-bold neutro-font uppercase tracking-wider mb-3 block">Inventario Rápido</label>
+                  <label class="text-xs font-bold neutro-font uppercase tracking-wider mb-3 block">Inventario
+                    Rápido</label>
                   <div class="grid grid-cols-2 gap-3">
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
-                      <input type="checkbox" v-model="orden.trae_documentos" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" :disabled="soloLectura || isCerrado">
+                    <label
+                      class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
+                      <input type="checkbox" v-model="orden.trae_documentos"
+                        class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" :disabled="soloLectura || isCerrado">
                       <span class="text-sm font-medium neutro-font">Documentos</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
-                      <input type="checkbox" v-model="orden.trae_llaves" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" :disabled="soloLectura || isCerrado">
+                    <label
+                      class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
+                      <input type="checkbox" v-model="orden.trae_llaves"
+                        class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" :disabled="soloLectura || isCerrado">
                       <span class="text-sm font-medium neutro-font">Llaves</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
-                      <input type="checkbox" v-model="orden.trae_candado_seguridad" class="w-4 h-4 text-blue-600 rounded-full focus:ring-blue-500" :disabled="soloLectura || isCerrado">
+                    <label
+                      class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
+                      <input type="checkbox" v-model="orden.trae_candado_seguridad"
+                        class="w-4 h-4 text-blue-600 rounded-full focus:ring-blue-500"
+                        :disabled="soloLectura || isCerrado">
                       <span class="text-xs font-medium neutro-font">Tuerca Seguridad</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
-                      <input type="checkbox" v-model="orden.trae_panel_radio" class="w-4 h-4 text-blue-600 rounded-full focus:ring-blue-500" :disabled="soloLectura || isCerrado">
+                    <label
+                      class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
+                      <input type="checkbox" v-model="orden.trae_panel_radio"
+                        class="w-4 h-4 text-blue-600 rounded-full focus:ring-blue-500"
+                        :disabled="soloLectura || isCerrado">
                       <span class="text-sm font-medium neutro-font">Panel Radio</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
-                      <input type="checkbox" v-model="orden.trae_rueda_repuesto" class="w-4 h-4 text-blue-600 rounded-full focus:ring-blue-500" :disabled="soloLectura || isCerrado">
+                    <label
+                      class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
+                      <input type="checkbox" v-model="orden.trae_rueda_repuesto"
+                        class="w-4 h-4 text-blue-600 rounded-full focus:ring-blue-500"
+                        :disabled="soloLectura || isCerrado">
                       <span class="text-sm font-medium neutro-font">Rueda Repuesto</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
-                      <input type="checkbox" v-model="orden.trae_encendedor" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" :disabled="soloLectura || isCerrado">
+                    <label
+                      class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
+                      <input type="checkbox" v-model="orden.trae_encendedor"
+                        class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" :disabled="soloLectura || isCerrado">
                       <span class="text-sm font-medium neutro-font">Encendedor</span>
                     </label>
                   </div>
@@ -729,65 +763,62 @@ onMounted(async () => {
             <div class="p-6">
               <!-- Upload buttons -->
               <div v-if="!soloLectura && !isCerrado" class="flex gap-3 mb-5">
-                <input 
-                  type="file" 
-                  id="input-camara-recepcion" 
-                  class="hidden" 
-                  accept="image/*" 
-                  capture="environment"
-                  @change="(e) => procesarFotosRecepcion(e)"
-                />
-                <input 
-                  type="file" 
-                  id="input-galeria-recepcion" 
-                  class="hidden" 
-                  accept="image/*" 
-                  multiple
-                  @change="(e) => procesarFotosRecepcion(e)"
-                />
+                <input type="file" id="input-camara-recepcion" class="hidden" accept="image/*" capture="environment"
+                  @change="(e) => procesarFotosRecepcion(e)" />
+                <input type="file" id="input-galeria-recepcion" class="hidden" accept="image/*" multiple
+                  @change="(e) => procesarFotosRecepcion(e)" />
 
-                <button 
-                  @click="activarInputRecepcion('camara')"
+                <button @click="activarInputRecepcion('camara')"
                   class="flex items-center gap-2 text-sm font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-4 py-2.5 rounded-lg transition-colors border border-blue-200 cursor-pointer"
-                  title="Tomar foto ahora"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  title="Tomar foto ahora">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   Cámara
                 </button>
 
-                <button 
-                  @click="activarInputRecepcion('galeria')"
+                <button @click="activarInputRecepcion('galeria')"
                   class="flex items-center gap-2 text-sm font-bold neutro-font neutro-secondary hover:opacity-80 px-4 py-2.5 rounded-lg transition-colors border border-gray-100 cursor-pointer"
-                  title="Seleccionar de galería"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  title="Seleccionar de galería">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   Galería
                 </button>
               </div>
 
               <!-- Photo grid -->
-              <div v-if="fotosRecepcion && fotosRecepcion.length > 0" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                <div v-for="(foto, fIndex) in fotosRecepcion" :key="fIndex" class="relative aspect-square rounded-xl overflow-hidden border border-gray-100 group shadow-sm hover:shadow-md transition-shadow">
+              <div v-if="fotosRecepcion && fotosRecepcion.length > 0"
+                class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                <div v-for="(foto, fIndex) in fotosRecepcion" :key="fIndex"
+                  class="relative aspect-square rounded-xl overflow-hidden border border-gray-100 group shadow-sm hover:shadow-md transition-shadow">
                   <a :href="foto.url" target="_blank">
                     <img :src="foto.url" class="w-full h-full object-cover" />
                   </a>
-                  <button @click="removerFotoRecepcion(fIndex)" class="absolute top-1.5 right-1.5 bg-red-500 hover:bg-red-600 text-white p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                  <button @click="removerFotoRecepcion(fIndex)"
+                    class="absolute top-1.5 right-1.5 bg-red-500 hover:bg-red-600 text-white p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                      <path fill-rule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd" />
                     </svg>
                   </button>
                 </div>
               </div>
 
               <!-- Empty state -->
-              <div v-else class="flex flex-col items-center justify-center py-10 neutro-font neutro-secondary rounded-xl border border-dashed border-gray-100">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <div v-else
+                class="flex flex-col items-center justify-center py-10 neutro-font neutro-secondary rounded-xl border border-dashed border-gray-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2 opacity-50" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 <p class="text-sm font-medium">No hay fotos de recepción</p>
                 <p class="text-xs mt-1">Use los botones de arriba para agregar fotos</p>
@@ -798,17 +829,23 @@ onMounted(async () => {
           <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="neutro-primary px-6 py-4 flex justify-between items-center">
               <h3 class="neutro-font font-bold text-lg tracking-wide uppercase">Bitácora de hallazgos</h3>
-              <button v-if="!soloLectura && !isCerrado" @click="agregarObservacion" class="neutro-font text-blue-900 font-bold p-2 rounded-full shadow-md transition-all transform hover:scale-105" title="Agregar Observación">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <button v-if="!soloLectura && !isCerrado" @click="agregarObservacion"
+                class="neutro-font text-blue-900 font-bold p-2 rounded-full shadow-md transition-all transform hover:scale-105"
+                title="Agregar Observación">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
               </button>
             </div>
 
             <div class="p-6 neutro-secondary min-h-[200px] max-h-[500px] overflow-y-auto">
-              <div v-if="observaciones.length === 0" class="flex flex-col items-center justify-center py-10 neutro-font">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              <div v-if="observaciones.length === 0"
+                class="flex flex-col items-center justify-center py-10 neutro-font">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2 opacity-50" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
                 <p class="text-sm">No hay hallazgos registrados</p>
               </div>
@@ -816,78 +853,82 @@ onMounted(async () => {
               <div class="space-y-4">
                 <div v-for="(observacion, index) in observaciones" :key="observacion.id" class="flex gap-4 group">
                   <div class="flex-shrink-0 mt-1">
-                    <div class="w-8 h-8 rounded-full neutro-primary flex items-center justify-center text-yellow-400 font-bold text-xs">
+                    <div
+                      class="w-8 h-8 rounded-full neutro-primary flex items-center justify-center text-yellow-400 font-bold text-xs">
                       {{ index + 1 }}
                     </div>
                   </div>
                   <div class="flex-grow">
-                    <div class="relative neutro-secondary border border-gray-100 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm hover:shadow-md transition-shadow">
+                    <div
+                      class="relative neutro-secondary border border-gray-100 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm hover:shadow-md transition-shadow">
                       <div class="flex justify-between items-start mb-2">
-                        <span class="text-xs neutro-font font-semibold">{{ new Date(observacion.fecha).toLocaleDateString() }}</span>
-                        <button v-if="observacion.isNew" @click="eliminarObservacion(index)" class="text-red-400 hover:text-red-600">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <span class="text-xs neutro-font font-semibold">{{ new
+                          Date(observacion.fecha).toLocaleDateString() }}</span>
+                        <button v-if="observacion.isNew" @click="eliminarObservacion(index)"
+                          class="text-red-400 hover:text-red-600">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
                         </button>
                       </div>
-                      <textarea v-model="observacion.texto" placeholder="Escriba los detalles aquí..." class="w-full neutro-font bg-transparent border-0 p-0 focus:ring-0 resize-none text-sm leading-relaxed mb-3" rows="2"></textarea>
-                      
+                      <textarea v-model="observacion.texto" placeholder="Escriba los detalles aquí..."
+                        class="w-full neutro-font bg-transparent border-0 p-0 focus:ring-0 resize-none text-sm leading-relaxed mb-3"
+                        rows="2"></textarea>
+
                       <div class="flex flex-col gap-3 mt-2 border-t pt-2 border-gray-100">
                         <div v-if="observacion.fotos && observacion.fotos.length > 0" class="flex flex-wrap gap-2">
-                          <div v-for="(foto, fIndex) in observacion.fotos" :key="fIndex" class="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-100 group/foto">
-                            <img :src="foto.url" class="w-full h-full object-cover" />
-                            <button @click="removerFotoObservacion(index, fIndex)" class="absolute top-0 right-0 bg-red-500 text-white p-0.5 rounded-bl-lg opacity-0 group-hover/foto:opacity-100 transition-opacity">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                          <div v-for="(foto, fIndex) in observacion.fotos" :key="fIndex"
+                            class="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-100 group/foto">
+                            <a :href="foto.url" target="_blank">
+                              <img :src="foto.url" class="w-full h-full object-cover" />
+                            </a>
+                            <button v-if="observacion.isNew" @click="removerFotoObservacion(index, fIndex)"
+                              class="absolute top-0 right-0 bg-red-500 text-white p-0.5 rounded-bl-lg opacity-100 group-hover/foto:opacity-100 transition-opacity">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                  clip-rule="evenodd" />
                               </svg>
                             </button>
                           </div>
                         </div>
 
                         <div v-if="observacion.isNew" class="flex gap-2 mt-2">
-  
-  <input 
-    type="file" 
-    :id="`input-camara-${index}`" 
-    class="hidden" 
-    accept="image/*" 
-    capture="environment"
-    @change="(e) => procesarFotos(e, index)"
-  />
-  
-  <input 
-    type="file" 
-    :id="`input-galeria-${index}`" 
-    class="hidden" 
-    accept="image/*" 
-    multiple
-    @change="(e) => procesarFotos(e, index)"
-  />
-  
-  <button 
-    @click="activarInput(index, 'camara')"
-    class="flex items-center gap-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg transition-colors border border-blue-200"
-    title="Tomar foto ahora"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-    Cámara
-  </button>
 
-  <button 
-    @click="activarInput(index, 'galeria')"
-    class="flex items-center gap-2 text-xs font-bold neutro-font neutro-secondary hover:opacity-80 px-3 py-2 rounded-lg transition-colors border border-gray-100"
-    title="Seleccionar de galería"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-    </svg>
-    Galería
-  </button>
+                          <input type="file" :id="`input-camara-${index}`" class="hidden" accept="image/*"
+                            capture="environment" @change="(e) => procesarFotos(e, index)" />
 
-</div>
+                          <input type="file" :id="`input-galeria-${index}`" class="hidden" accept="image/*" multiple
+                            @change="(e) => procesarFotos(e, index)" />
+
+                          <button @click="activarInput(index, 'camara')"
+                            class="flex items-center gap-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg transition-colors border border-blue-200"
+                            title="Tomar foto ahora">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                              stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Cámara
+                          </button>
+
+                          <button @click="activarInput(index, 'galeria')"
+                            class="flex items-center gap-2 text-xs font-bold neutro-font neutro-secondary hover:opacity-80 px-3 py-2 rounded-lg transition-colors border border-gray-100"
+                            title="Seleccionar de galería">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                              stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Galería
+                          </button>
+
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -901,29 +942,41 @@ onMounted(async () => {
           <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 p-4">
             <h3 class="text-xs font-bold neutro-font uppercase tracking-wider mb-4 border-b pb-2">Acciones</h3>
             <div class="flex flex-col gap-3">
-              <button v-if="!soloLectura && !isCerrado && !chequeo" @click="irACrearChequeo" class="w-full neutro-font neutro-secondary py-3 px-4 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+              <button v-if="!soloLectura && !isCerrado && !chequeo" @click="irACrearChequeo"
+                class="w-full neutro-font neutro-secondary py-3 px-4 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                 </svg>
                 Realizar Chequeo Completo
               </button>
-              <button v-if="!soloLectura && !isCerrado && chequeo" @click="irAVerChequeo()" class="w-full neutro-font neutro-secondary py-3 px-4 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+              <button v-if="!soloLectura && !isCerrado && chequeo" @click="irAVerChequeo()"
+                class="w-full neutro-font neutro-secondary py-3 px-4 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                 </svg>
                 Ver Chequeo
               </button>
-              <button v-if="!soloLectura && !isCerrado" @click="guardarCambios()" class="w-full neutro-font neutro-secondary py-3 px-4 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+              <button v-if="!soloLectura && !isCerrado" @click="guardarCambios()"
+                class="w-full neutro-font neutro-secondary py-3 px-4 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                 </svg>
                 Guardar Observaciones y Fotos
               </button>
-              <p v-if="!soloLectura && !isCerrado" class="text-xs neutro-font text-center mt-1 opacity-70">Los demás campos se guardan automáticamente</p>
+              <p v-if="!soloLectura && !isCerrado" class="text-xs neutro-font text-center mt-1 opacity-70">Los demás
+                campos se guardan automáticamente</p>
 
               <div v-if="soloLectura" class="text-center py-3 text-sm neutro-font font-medium">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto mb-1" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
                 Solo lectura
               </div>
@@ -932,42 +985,62 @@ onMounted(async () => {
         </div>
 
       </div>
+
+      <!-- Tab: Avanzado -->
+      <div v-show="tabActiva === 'avanzado'">
+        <Otavanzada :otId="route.params.id" />
+      </div>
+
     </div>
 
 
-    <div v-if="showCambiarTrabajador" class="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/60 backdrop-blur-sm">
+    <div v-if="showCambiarTrabajador"
+      class="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/60 backdrop-blur-sm">
       <div class="neutro-background neutro-font rounded-lg p-6 max-w-sm w-full shadow-2xl">
         <h3 class="text-xl font-bold neutro-font mb-4">Cambiar Responsable</h3>
         <div class="max-h-64 overflow-y-auto space-y-2">
-          <button v-for="t in trabajadores" :key="t.id" @click="cambiarTrabajador(t.id)" class="w-full text-left px-4 py-3 rounded-lg border border-gray-100 hover:bg-blue-900 hover:border-blue-300 hover:text-white transition-colors flex items-center gap-3 cursor-pointer" :class="{ 'bg-blue-900 border-blue-400 text-white': t.id === orden.id_empleado }">
-            <div class="w-8 h-8 rounded-full neutro-primary flex items-center justify-center text-yellow-400 font-bold text-xs">{{ t.nombre?.charAt(0) }}{{ t.apellido?.charAt(0) }}</div>
+          <button v-for="t in trabajadores" :key="t.id" @click="cambiarTrabajador(t.id)"
+            class="w-full text-left px-4 py-3 rounded-lg border border-gray-100 hover:bg-blue-900 hover:border-blue-300 hover:text-white transition-colors flex items-center gap-3 cursor-pointer"
+            :class="{ 'bg-blue-900 border-blue-400 text-white': t.id === orden.id_empleado }">
+            <div
+              class="w-8 h-8 rounded-full neutro-primary flex items-center justify-center text-yellow-400 font-bold text-xs">
+              {{ t.nombre?.charAt(0) }}{{ t.apellido?.charAt(0) }}</div>
             <div>
               <p class="font-bold text-sm">{{ t.nombre }} {{ t.apellido }}</p>
               <p class="text-xs opacity-70">{{ t.rol }}</p>
             </div>
-            <svg v-if="t.id === orden.id_empleado" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-auto text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+            <svg v-if="t.id === orden.id_empleado" xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 ml-auto text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
           </button>
         </div>
         <div class="flex justify-end mt-4">
-          <button @click="showCambiarTrabajador = false" class="px-4 py-2 neutro-font hover:opacity-80 rounded-md font-medium cursor-pointer">Cancelar</button>
+          <button @click="showCambiarTrabajador = false"
+            class="px-4 py-2 neutro-font hover:opacity-80 rounded-md font-medium cursor-pointer">Cancelar</button>
         </div>
       </div>
     </div>
 
-    <modal v-if="modalState.visible" :titulo="modalState.titulo" :mensaje="modalState.mensaje" :exito="modalState.exito" @cerrar="redirigir" />
+    <modal v-if="modalState.visible" :titulo="modalState.titulo" :mensaje="modalState.mensaje" :exito="modalState.exito"
+      @cerrar="redirigir" />
 
     <!-- Modal: Cambios pendientes al salir -->
-    <div v-if="mostrarModalSalir" class="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/60 backdrop-blur-sm">
+    <div v-if="mostrarModalSalir"
+      class="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/60 backdrop-blur-sm">
       <div class="neutro-background rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
         <div class="bg-amber-500 px-6 py-4 flex justify-between items-center text-white">
           <h3 class="text-lg font-bold flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+              stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
             </svg>
             Cambios sin guardar
           </h3>
           <button @click="cancelarSalir" class="text-white hover:text-amber-100 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+              stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -977,8 +1050,11 @@ onMounted(async () => {
           <p class="text-sm neutro-font">Si sales ahora, se perderán estos datos. ¿Deseas continuar?</p>
         </div>
         <div class="neutro-primary px-6 py-4 flex justify-end gap-3 border-t border-gray-100">
-          <button @click="cancelarSalir" class="px-4 py-2 text-sm font-medium text-white hover:bg-gray-200 hover:text-gray-800 rounded-lg transition-colors">Quedarme</button>
-          <button @click="confirmarSalir" class="px-5 py-2 text-sm font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-md transition-all">Salir sin guardar</button>
+          <button @click="cancelarSalir"
+            class="px-4 py-2 text-sm font-medium text-white hover:bg-gray-200 hover:text-gray-800 rounded-lg transition-colors">Quedarme</button>
+          <button @click="confirmarSalir"
+            class="px-5 py-2 text-sm font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-md transition-all">Salir
+            sin guardar</button>
         </div>
       </div>
     </div>

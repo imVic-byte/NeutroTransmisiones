@@ -22,7 +22,7 @@ export const creacionOT = async (ficha_id, trabajador_id, vehiculo_id) => {
     const {data:bitacora, error:errorBitacora} = await supabase.from('ot_bitacora')
     .insert({
         ot_id: OTData.id,
-        nuevo_estado_id: 10,
+        nuevo_estado_id: 1,
         tipo_evento:'Creacion de OT',
     })
     .select()

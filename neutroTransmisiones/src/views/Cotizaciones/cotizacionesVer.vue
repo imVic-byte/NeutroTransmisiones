@@ -147,6 +147,12 @@ const generarFicha = async () => {
           console.error('Error al insertar detalle de cotización:', detalleError)
         }
       }
+      const { error: estadoError } = await supabase
+        .from('cotizacion')
+        .update({
+          estado: 2
+        })
+        .eq('id', cotizacion.value.id)
       modalState.value.visible = true;
       modalState.value.titulo = "Exito";
       modalState.value.mensaje = mensaje;
@@ -291,8 +297,8 @@ onMounted(async () => {
                             <span class="font-medium">{{ formatearDinero(cotizacion.subtotal || 0) }}</span>
                         </div>
                         <div class="flex justify-between items-center text-sm text-white">
-                            <span>Descuento</span>
-                            <span class="text-green-600 font-medium">- {{ cotizacion.descuento || '0' }}%</span>
+                            <span>Descuento ({{ cotizacion.descuento || 0 }}%)</span>
+                            <span class="text-green-400 font-medium">- {{ formatearDinero((cotizacion.subtotal || 0) * (cotizacion.descuento || 0) / 100) }}</span>
                         </div>
                         <div class="flex justify-between items-center text-sm text-white">
                             <span>Neto</span>
@@ -390,7 +396,7 @@ onMounted(async () => {
               <!-- Resumen de Cotización -->
               <div>
                 <h3 class="text-xs font-semibold text-white uppercase tracking-wider mb-3">Resumen de la Cotización</h3>
-                <div class="rounded-lg border border-gray-200 overflow-hidden">
+                <div class="rounded-lg border border-gray-200/20 overflow-hidden">
                   <div class="px-4 py-3 space-y-2 text-sm text-white">
                     <p class="flex justify-between">
                       <span class="font-semibold">Cliente</span>
@@ -402,17 +408,43 @@ onMounted(async () => {
                     </p>
                   </div>
                   
-                  <div v-if="cotizacion.detalle_cotizacion && cotizacion.detalle_cotizacion.length > 0" class="border-t border-gray-200">
+                  <!-- Servicios detallados -->
+                  <div v-if="cotizacion.detalle_cotizacion && cotizacion.detalle_cotizacion.length > 0" class="border-t border-gray-200/20">
                     <div class="px-4 py-2 text-xs font-semibold text-white uppercase tracking-wider">Servicios</div>
-                    <div v-for="det in cotizacion.detalle_cotizacion" :key="det.id" class="px-4 py-2 flex justify-between text-sm text-white border-t border-gray-100">
-                      <span>{{ camelCase(det.descripcion) }}</span>
-                      <span class="font-medium">{{ formatearDinero(det.monto * det.cantidad) }}</span>
+                    <div v-for="det in cotizacion.detalle_cotizacion" :key="det.id" class="px-4 py-2 border-t border-gray-200/10">
+                      <div class="flex justify-between text-sm text-white">
+                        <span>{{ camelCase(det.descripcion) }}</span>
+                        <span class="font-medium">{{ formatearDinero(det.monto * det.cantidad) }}</span>
+                      </div>
+                      <div class="text-xs text-white/50 mt-0.5">
+                        {{ formatearDinero(det.monto) }} × {{ det.cantidad }} {{ det.cantidad === 1 ? 'unidad' : 'unidades' }}
+                      </div>
                     </div>
                   </div>
 
-                  <div class="px-4 py-3 border-t border-gray-200 flex justify-between font-bold text-white">
-                    <span>Total</span>
-                    <span>{{ formatearDinero(cotizacion.total_final || 0) }}</span>
+                  <!-- Desglose financiero -->
+                  <div class="border-t border-gray-200/20 px-4 py-3 space-y-2 text-sm text-white">
+                    <div class="flex justify-between">
+                      <span>Subtotal</span>
+                      <span class="font-medium">{{ formatearDinero(cotizacion.subtotal || 0) }}</span>
+                    </div>
+                    <div v-if="cotizacion.descuento" class="flex justify-between">
+                      <span>Descuento ({{ cotizacion.descuento }}%)</span>
+                      <span class="text-green-400 font-medium">- {{ formatearDinero((cotizacion.subtotal || 0) * (cotizacion.descuento || 0) / 100) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>Neto</span>
+                      <span class="font-medium">{{ formatearDinero(cotizacion.total_neto || 0) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span>IVA (19%)</span>
+                      <span class="font-medium">{{ formatearDinero(cotizacion.iva || 0) }}</span>
+                    </div>
+                  </div>
+
+                  <div class="px-4 py-3 border-t border-gray-200/20 flex justify-between font-bold text-white">
+                    <span class="text-base">TOTAL</span>
+                    <span class="text-lg">{{ formatearDinero(cotizacion.total_final || 0) }}</span>
                   </div>
                 </div>
               </div>

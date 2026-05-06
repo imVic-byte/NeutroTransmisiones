@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabaseClient'
 
-const WORKER_URL = 'https://upload.soporte-NeutroTransmisiones.workers.dev/' 
+const WORKER_URL = 'https://upload.neutrotransmisiones.workers.dev/' 
 
 export const subirFotos = async (idOrden, numeroFolio, archivos) => {
 
@@ -53,7 +53,7 @@ export const subirFotos = async (idOrden, numeroFolio, archivos) => {
     }))
 
     const { error } = await supabase
-      .from('OT_Fotos')
+      .from('ot_fotos')
       .insert(registros)
 
     if (error) {

@@ -3,8 +3,10 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useInterfaz } from '@/stores/interfaz.js'
 import { onMounted } from 'vue'
+import activarNotificaciones from '@/components/componentes/ActivarNotificaciones.vue'
 import cambiarTema from '@/components/componentes/cambiarTema.vue'
 import navbar from '@/components/componentes/navbar.vue'
+
 const userStore = useUserStore()
 const router = useRouter()
 const uiStore = useInterfaz()
@@ -42,7 +44,10 @@ const menu = [
       <div class="mb-8">
         <h2 class="text-2xl font-bold neutro-font">Bienvenido Jeremy</h2>
         <p class="neutro-font">¿Qué deseas administrar hoy?</p>
-        <cambiarTema />
+        <div class="flex flex-row gap-2">
+          <cambiarTema class="neutro-secondary text-white" />
+          <activarNotificaciones class="neutro-secondary text-white py-1 px-2 rounded-xl" />
+        </div>
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

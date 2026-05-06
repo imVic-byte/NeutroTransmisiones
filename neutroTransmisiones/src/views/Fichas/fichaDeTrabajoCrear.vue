@@ -144,8 +144,7 @@ const guardarNuevaFicha = async () => {
         id_cliente: idDelClienteFinal,
         motivo_ingreso: motivoIngreso.value,
         origen_ingreso: origenIngreso.value,
-        fecha_promesa: fechaPromesa.value || null,
-        estado: 1
+        fecha_promesa: fechaPromesa.value || null
       })
       .select()
       .single()

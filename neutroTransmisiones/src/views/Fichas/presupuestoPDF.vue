@@ -1,16 +1,14 @@
 <script setup>
 import { ref, onMounted, computed, nextTick } from 'vue';
 import { supabase } from '@/lib/supabaseClient';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { useInterfaz } from '@/stores/interfaz';
 import Navbar from '@/components/componentes/navbar.vue';
 import html2pdf from 'html2pdf.js';
 import Volver from '@/components/componentes/volver.vue';
 import { subirFacturas } from '@/js/subirFacturas.js';
 const route = useRoute()
-const router = useRouter()
 const interfaz = useInterfaz()
-
 
 const formatoPesos = (valor) => {
   if (valor === undefined || valor === null) return '$0';
@@ -32,6 +30,9 @@ const TotalItem = (item) => {
 };
 
 const datosEmpresa = ref({})
+const datosFicha = ref({})
+const cotizaciones = ref({})
+const presupuesto = ref({})
 
 const traerDatosEmpresa = async () => {
   const {data, error} = await supabase.from('neutro_t').select('*').eq('id', 1).single()
@@ -63,70 +64,83 @@ const traerTelefono = async () => {
   }
 }
 
-const cuentaSeleccionada = computed(() => {
-  if (!cotizaciones.value || cotizaciones.value.length === 0) return null
-  return cotizaciones.value[0]?.NeutroTransmisiones_cuenta || null
-})
-
-const diasEstacionamientoPDF = computed(() => {
-  if (!ficha.value || !ficha.value.fecha_estacionamiento) return 0
-  const inicio = new Date(ficha.value.fecha_estacionamiento)
-  const fin = ficha.value.fecha_termino_estacionamiento ? new Date(ficha.value.fecha_termino_estacionamiento) : new Date()
-  const diffTime = fin - inicio
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-  return diffDays > 0 ? diffDays : 0
-})
-
-const totalCargoEstacionamientoPDF = computed(() => {
-  return diasEstacionamientoPDF.value * 5000
-})
-
-const subtotalAgregado = computed(() => {
-  if (!cotizaciones.value) return 0
-  return cotizaciones.value.reduce((sum, c) => sum + (c.subtotal || 0), 0)
-})
-
-const totalNetoAgregado = computed(() => {
-  if (!cotizaciones.value) return 0
-  return cotizaciones.value.reduce((sum, c) => sum + (c.total_neto || 0), 0)
-})
-
-const ivaAgregado = computed(() => {
-  if (!cotizaciones.value) return 0
-  return cotizaciones.value.reduce((sum, c) => sum + (c.iva || 0), 0)
-})
-
-const totalFinalAgregado = computed(() => {
-  if (!cotizaciones.value) return 0
-  return cotizaciones.value.reduce((sum, c) => sum + (c.total_final || 0), 0)
-})
-
-const totalFinalFinal = computed(() => {
-  let total = totalFinalAgregado.value
-  if (diasEstacionamientoPDF.value > 1) {
-    total += totalCargoEstacionamientoPDF.value
+const traerCuenta = async () => {
+  const {data,error} = await supabase.from('neutro_cuentas').select('*').eq('favorito',true).maybeSingle()
+  if (data) {
+    datosEmpresa.value.cuenta = data
   }
-  return total
-})
+  if (error) {
+    datosEmpresa.value.cuenta = null
+  }
+}
+
+const traerFicha = async () => {
+  const {data, error} = await supabase.from('ficha_de_trabajo').select('*,orden_trabajo(*,vehiculo(*))').eq('id', route.params.id).single()
+  if (data) {
+    datosFicha.value = data
+  }
+  if (error) {
+    console.error('Error al traer datos de la ficha:', error)
+  }
+}
+
+const traerCliente = async () => {
+  const {data, error} = await supabase.from('cliente').select('*').eq('id', datosFicha.value?.id_cliente).single()
+  if (data) {
+    datosFicha.value.cliente = data
+  }
+  if (error) {
+    console.error('Error al traer datos del cliente:', error)
+  }
+}
+
+const traerCotizaciones = async () => {
+  const {data, error} = await supabase.from('cotizaciones_ficha').select('*,detalle_cotizaciones_ficha(*)').eq('ficha_id', datosFicha.value?.id)
+  if (data) {
+    cotizaciones.value = data
+  }
+  if (error) {
+    console.error('Error al traer datos de las cotizaciones:', error)
+  }
+}
+
+const traerPresupuesto = async () => {
+  const {data, error} = await supabase.from('presupuesto_ficha').select('*').eq('id_ficha', datosFicha.value?.id).maybeSingle()
+  if (data) {
+    presupuesto.value = data
+  }
+  if (error) {
+    console.error('Error al traer datos del presupuesto:', error)
+  }
+}
+
+const subtotalAgregado = ref(0)
+const totalNetoAgregado = ref(0)
+const ivaAgregado = ref(0)
+const totalFinalAgregado = ref(0)
+const totalFinalFinal = ref(0)
+
+const cargarTotales = async() => {
+  await nextTick()
+  subtotalAgregado.value = cotizaciones.value.reduce((sum, c) => sum + (c.subtotal || 0), 0)
+  totalNetoAgregado.value = cotizaciones.value.reduce((sum, c) => sum + (c.total_neto || 0), 0)
+  ivaAgregado.value = cotizaciones.value.reduce((sum, c) => sum + (c.iva || 0), 0)
+  totalFinalAgregado.value = cotizaciones.value.reduce((sum, c) => sum + (c.total_final || 0), 0)
+  totalFinalFinal.value = totalFinalAgregado.value
+}
 
 const generarPresupuesto = async () => {
-  const yaExiste = await handleVerificarPresupuesto()
-  if (yaExiste) {
-    console.log('Ya existe un presupuesto para esta ficha')
+  if (!datosFicha.value || !cotizaciones.value || cotizaciones.value.length === 0) {
     return
   }
-  if (!ficha.value || !cotizaciones.value || cotizaciones.value.length === 0) {
-    return
-  }
-  const primeraCotizacion = cotizaciones.value[0]
   const {data, error} = await supabase
     .from('presupuesto_ficha')
     .insert({
       total_final: totalFinalFinal.value,
-      id_ficha: ficha.value.id,
-      id_cuenta: primeraCotizacion.NeutroTransmisiones_cuenta?.id,
-      id_cotizacion: primeraCotizacion.id,
-    })
+      id_ficha: datosFicha.value.id,
+      id_cuenta: datosEmpresa.value.cuenta?.id,
+      total_final: totalFinalFinal.value
+      })  
     .select()
     .single()
   if (error) {
@@ -137,8 +151,8 @@ const generarPresupuesto = async () => {
   await supabase
     .from('ficha_de_trabajo')
     .update({presupuesto:true})
-    .eq('id', ficha.value.id)
-  const folio = ficha.value?.numero_folio || ficha.value?.id || 'sin-folio';
+    .eq('id', datosFicha.value.id)
+  const folio = datosFicha.value?.numero_folio || datosFicha.value?.id || 'sin-folio';
   const opciones = {
     margin:       0,
     filename:     `Presupuesto_Folio_${folio}.pdf`,
@@ -155,13 +169,13 @@ const generarPresupuesto = async () => {
     console.error('Error al subir la factura:', errorFactura)
     return
   }
-  if (ficha.value.cliente?.email && url) {
+  if (datosFicha.value.cliente?.email && url) {
     try {
       await supabase.functions.invoke('enviar-presupuesto', {
         body: {
-          emailCliente: ficha.value.cliente.email,
-          nombreCliente: ficha.value.cliente.nombre,
-          apellidoCliente: ficha.value.cliente.apellido,
+          emailCliente: datosFicha.value.cliente.email,
+          nombreCliente: datosFicha.value.cliente.nombre,
+          apellidoCliente: datosFicha.value.cliente.apellido,
           urlPdf: url,
           folio: folio
         }
@@ -171,26 +185,8 @@ const generarPresupuesto = async () => {
   }
 }
 
-const presupuesto = ref(null)
-const ficha = ref(null)
-const cotizaciones = ref([])
-
-const cargarDatos = async () => {
-    const {data, error} = await supabase
-    .from('ficha_de_trabajo')
-    .select(`*, presupuesto_ficha(*), cliente (*),orden_trabajo (*, trabajadores(*),vehiculo(*,cliente(*))),cotizaciones_ficha(*,detalle_cotizaciones_ficha(*),NeutroTransmisiones_cuenta(*))`) 
-    .eq('id', route.params.id)
-    .single()
-
-    if (data) {
-      ficha.value = data
-      presupuesto.value = data.presupuesto_ficha
-      cotizaciones.value = data.cotizaciones_ficha?.filter(c => Number(c.estado) === 2) || []
-    }
-
-    if (error) {
-      console.error('Error al traer datos de la ficha:', error)
-    }
+const generarPDF = () => {
+  window.print()
 }
 
 const handleVerificarPresupuesto = async () => {
@@ -202,20 +198,24 @@ const handleVerificarPresupuesto = async () => {
   return data && data.length > 0
 }
 
-const generarPDF = () => {
-  window.print()
-}
-
+const datosCargados = ref(false)
 
 onMounted(async () => {
   interfaz.showLoading()
   await traerDatosEmpresa()
   await traerEmail()
   await traerTelefono()
-  await cargarDatos()
-  if (route.query.generar === 'true') {
+  await traerCuenta()
+  await traerFicha()
+  await traerCliente()
+  await traerCotizaciones()
+  await cargarTotales()
+  const existe = await handleVerificarPresupuesto()
+  if (!existe) {
     await generarPresupuesto()
   }
+  await traerPresupuesto()
+  datosCargados.value = true
   interfaz.hideLoading()
 })
 </script>
@@ -223,38 +223,37 @@ onMounted(async () => {
 <template>
   <div class="neutro-background min-h-screen font-sans">
     <div class="print:hidden mb-10">
-    <Navbar :titulo="'Ficha N°' + (ficha?.id || '...')" subtitulo="Presupuesto" class="navbar" />
+    <Navbar :titulo="'Ficha N°' + (datosFicha?.id || '...')" subtitulo="Presupuesto" class="navbar"/>
     <div class="mt-4 flex w-[70%] mx-auto justify-between">
       <Volver />
-      <button @click="generarPDF" class="ml-4 px-4 py-2 bg-[#1f3d64] text-white rounded-lg hover:bg-[#1f3d64]/80 transition-colors">
+      <button @click="generarPDF" class="ml-4 px-4 py-2 bg-[#234723] text-white rounded-lg hover:bg-[#234723]/80 transition-colors">
         Generar PDF
       </button>
     </div>
     </div>
-  <div class="mx-auto">
+  <div v-if="datosCargados" class="mx-auto ">
   <div 
     id="elemento-a-imprimir" 
-    class="bg-[#ffffff] text-[#000000] max-w-[21cm] mx-auto text-xs font-sans leading-normal"
+    class="bg-[#ffffff] text-[#000000] max-w-[21cm] p-2 mx-auto text-xs font-sans leading-normal"
     style="background-color: #ffffff;"
   >
-    
     <!-- Header -->
-    <div class="flex justify-between border-b-4 border-[#1f3d64] pb-4 mb-2">
+    <div class="flex justify-between border-b-4 border-[#234723] pb-4 mb-2">
       
       <div class="flex items-center gap-2">
         <span class="w-24 h-24 rounded-full overflow-hidden border border-[#e5e7eb]">
-            <img class="w-full h-full object-cover" src="../../img/Logo.jpg" alt="Logo">
+            <img class="w-[85%] h-[85%] object-contain" src="../../img/Logo.jpg" alt="Logo">
         </span>
         <div>
-            <h1 class="text-2xl font-black text-[#1f3d64] tracking-tighter italic">NeutroTransmisiones</h1>
+            <h1 class="text-2xl font-black text-[#234723] tracking-tighter italic">NeutroTransmisiones</h1>
             <p class="text-[#4b5563] font-bold uppercase text-[11px] tracking-widest mt-1">Servicios Mecánicos</p>
         </div>
       </div>
 
       <div class="text-right">
-        <h2 class="text-lg font-bold text-[#1f3d64]">Presupuesto</h2>
+        <h2 class="text-lg font-bold text-[#234723]">Presupuesto</h2>
         <p class="text-md font-mono text-[#dc2626] font-bold">
-            N° {{ ficha?.numero_folio || '---' }}
+           Folio N° {{ presupuesto?.numero_folio || '---' }}
         </p>
         <p class="text-[#6b7280] mt-1 text-[11px]">
             Fecha: {{ formatoFecha(presupuesto?.created_at) }}
@@ -267,9 +266,9 @@ onMounted(async () => {
     </div>
     <div v-else class="grid grid-cols-2 gap-10 mb-8">
       <div>
-        <h3 class="font-bold text-[#1f3d64] border-b border-[#cbd5e1] mb-2 pb-1 text-[11px] uppercase">De: NeutroTransmisiones</h3>
+        <h3 class="font-bold text-[#234723] border-b border-[#cbd5e1] mb-2 pb-1 text-[11px] uppercase">De: NeutroTransmisiones</h3>
         <ul class="text-[#374151] space-y-1">
-          <li><span class="font-bold text-[#111827]">Dirección:</span> {{ datosEmpresa?.dirección || '...' }}</li>
+          <li><span class="font-bold text-[#111827]">Dirección:</span> {{ datosEmpresa?.direccion || '...' }}</li>
           <li><span class="font-bold text-[#111827]">Ciudad:</span> {{ datosEmpresa?.ciudad || '...' }}</li>
           <li><span class="font-bold text-[#111827]">Teléfono:</span> {{ datosEmpresa?.telefono || 'Sin Teléfono' }}</li>
           <li><span class="font-bold text-[#111827]">Email:</span> {{ datosEmpresa?.email || '...' }}</li>
@@ -277,41 +276,41 @@ onMounted(async () => {
       </div>
 
       <div>
-        <h3 class="font-bold text-[#1f3d64] border-b border-[#cbd5e1] mb-2 pb-1 text-[11px] uppercase">Para: Cliente</h3>
+        <h3 class="font-bold text-[#234723] border-b border-[#cbd5e1] mb-2 pb-1 text-[11px] uppercase">Para: Cliente</h3>
         <ul class="text-[#374151] space-y-1">
           <li>
             <span class="font-bold text-[#111827]">Cliente:</span> 
-            {{ ficha?.cliente ? (ficha.cliente.nombre + ' ' + ficha.cliente.apellido) : 'Sin Nombre' }}
+            {{ datosFicha?.cliente ? (datosFicha.cliente.nombre + ' ' + datosFicha.cliente.apellido) : 'Sin Nombre' }}
           </li>
           <li>
             <span class="font-bold text-[#111827]">Teléfono:</span> 
-            {{ ficha?.cliente ? ('+' + ficha.cliente.codigo_pais + ' ' + ficha.cliente.telefono) : 'Sin Teléfono' }}
+            {{ datosFicha?.cliente ? ('+' + datosFicha.cliente.codigo_pais + ' ' + datosFicha.cliente.telefono) : 'Sin Teléfono' }}
           </li>
           <li>
             <span class="font-bold text-[#111827]">Email:</span> 
-            {{ ficha?.cliente?.email || 'Sin Email' }}
+            {{ datosFicha?.cliente?.email || 'Sin Email' }}
           </li>
         </ul>
       </div>
     </div>
-    <h3 v-if="cotizaciones.length > 0" class="font-bold text-[#1f3d64] border-b border-[#cbd5e1] mb-2 pb-1 text-[11px] uppercase">Resumen</h3>
+    <h3 v-if="cotizaciones.length > 0" class="font-bold text-[#234723] border-b border-[#cbd5e1] mb-2 pb-1 text-[11px] uppercase">Resumen</h3>
     <div v-if="cotizaciones.length > 0" class="mb-4 flex justify-between">
       <ul class="text-[#374151] flex-row w-full">
         <li class="w-[53%]">
           <span class="font-bold text-left align-left text-[#111827] text-start">Motivo Ingreso:</span> 
-          <p>{{ ficha?.motivo_ingreso || '---' }}</p>
+          <p>{{ datosFicha?.motivo_ingreso || '---' }}</p>
         </li>
         <li>
           <span class="font-bold text-left align-left text-[#111827] text-start">Fecha Ingreso:</span> 
-          <p>{{ formatoFechaYHora(ficha?.fecha_ingreso) }}</p>
+          <p>{{ formatoFechaYHora(datosFicha?.fecha_ingreso) }}</p>
         </li>
       </ul>
       <ul class="text-[#374151] flex-row w-full h-full align-top">
         <li>
           <span class="font-bold text-left align-left text-[#111827] text-start">Lista de vehiculos:</span> 
-          <p class="mt-1 uppercase" v-for="orden in ficha?.orden_trabajo" :key="orden.id">
+          <p class="mt-1 uppercase" v-for="orden in datosFicha?.orden_trabajo" :key="orden.id">
             - {{ orden.vehiculo.marca }} {{ orden.vehiculo.modelo }} 
-            <span class="p-1 mt-1 font-bold text-[#1f3d64] rounded-lg"> {{ orden.vehiculo.patente }} </span>
+            <span class="p-1 mt-1 font-bold text-[#234723] rounded-lg"> {{ orden.vehiculo.patente }} </span>
           </p>
         </li>
       </ul>
@@ -321,7 +320,7 @@ onMounted(async () => {
     <div v-if="cotizaciones.length > 0" class="mb-8 border border-[#e5e7eb] rounded-lg overflow-hidden">
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="bg-[#1f3d64] text-[#ffffff] text-[10px] uppercase tracking-wider">
+          <tr class="bg-[#234723] text-[#ffffff] text-[10px] uppercase tracking-wider">
             <th class="p-3 font-semibold">Descripción del Servicio / Repuesto</th>
             <th class="p-3 text-right w-28">Precio Unitario</th>
             <th class="p-3 text-right w-28">Cantidad</th>
@@ -329,10 +328,10 @@ onMounted(async () => {
           </tr>
         </thead>
         <tbody class="text-[#1f2937] text-[11px]">
-          <template v-for="(cot, ci) in cotizaciones" :key="cot.id">
+          <template v-for="(cot, i) in cotizaciones" :key="cot.id">
             <!-- Separador con título si hay más de una cotización -->
-            <tr v-if="cotizaciones.length > 0" class="bg-[#f1f5f9]">
-              <td colspan="4" class="p-2 font-bold text-[#1f3d64] text-[10px] uppercase tracking-wider">
+            <tr v-if="i >= 0" class="bg-[#f1f5f9]">
+              <td colspan="4" class="p-2 font-bold text-[#234723] text-[10px] uppercase tracking-wider">
                 Cotización N°{{ cot.id }}
                 <span v-if="cot.comentario" class="font-normal text-[#6b7280] ml-2">— {{ cot.comentario }}</span>
               </td>
@@ -340,34 +339,25 @@ onMounted(async () => {
             <tr 
               v-for="(item, index) in cot.detalle_cotizaciones_ficha || []" 
               :key="cot.id + '-' + index"
-              class="bg-[#ffffff] shadow-lg border-b border-[#1f3d64]"
+              class="bg-[#ffffff] shadow-lg border-b border-[#234723]"
             >
-              <td class="p-3 font-medium text-[#1f3d64]">{{ item.descripcion }}</td>
+              <td class="p-3 font-medium text-[#234723]">{{ item.descripcion }}</td>
               <td class="p-3 text-right font-bold">{{ formatoPesos(item.monto) }}</td>
               <td class="p-3 text-right font-bold">{{ item.cantidad }}</td>
               <td class="p-3 text-right font-bold">{{ TotalItem(item) }}</td>
             </tr>
           </template>
-          <!-- Anexo de Estacionamiento -->
-          <tr v-if="diasEstacionamientoPDF > 1" class="bg-amber-50 shadow-lg border-b border-[#1f3d64]">
-            <td class="p-3 font-medium text-[#1f3d64]">Servicio de Estacionamiento ({{ diasEstacionamientoPDF }} días)</td>
-            <td class="p-3 text-right font-bold">{{ formatoPesos(5000) }}</td>
-            <td class="p-3 text-right font-bold">{{ diasEstacionamientoPDF }}</td>
-            <td class="p-3 text-right font-bold">{{ formatoPesos(totalCargoEstacionamientoPDF) }}</td>
-          </tr>
-          <tr v-if="cotizaciones.reduce((sum, c) => sum + (c.detalle_cotizaciones_ficha?.length || 0), 0) < 5" class="h-24">
+          <tr v-if="cotizaciones.reduce((sum, c) => sum + (c.detalle_cotizaciones_datosFicha?.length || 0), 0) < 5" class="h-24">
             <td colspan="4"></td>
           </tr>
         </tbody>
       </table>
     </div>
-
-    <!-- Totales + cuenta bancaria -->
     <div v-if="cotizaciones.length > 0" class="flex justify-between items-start gap-8">
       
       <div v-if="cuentaSeleccionada" class="w-3/5 bg-[#f8fafc] p-4 rounded-lg border border-[#e2e8f0]">
-        <h4 class="font-bold text-[#1f3d64] uppercase text-[10px] mb-2 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#1f3d64]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+        <h4 class="font-bold text-[#234723] uppercase text-[10px] mb-2 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#234723]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
           Datos de Transferencia
         </h4>
         <div class="text-[10px] text-[#475569] grid grid-cols-2 gap-x-4 gap-y-1">
@@ -399,12 +389,7 @@ onMounted(async () => {
             <span>{{cotizacion.descuento}}%</span>
           </div>
         </div>
-        <div v-if="diasEstacionamientoPDF > 1" class="flex justify-between items-center py-2 border-b border-[#e5e7eb] text-[#374151]">
-          <span class="font-medium text-amber-600">Cargo Estacionamiento</span>
-          <span class="font-bold text-amber-600">+ {{ formatoPesos(totalCargoEstacionamientoPDF) }}</span>
-        </div>
-
-        <div class="flex justify-between items-center bg-[#1f3d64] text-[#ffffff] p-3 rounded mt-2">
+        <div class="flex justify-between items-center bg-[#234723] text-[#ffffff] p-3 rounded mt-2">
           <span class="font-bold text-md">TOTAL</span>
           <span class="font-bold text-md">{{ formatoPesos(totalFinalFinal) }}</span>
         </div>

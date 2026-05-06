@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { supabase } from '@/lib/supabaseClient';
+
 const props = defineProps({
   cotizacion: {
     type: Object,
@@ -30,10 +31,16 @@ const TotalItem = (item) => {
   return formatoPesos(Number(item.monto) * Number(item.cantidad))
 };
 
+const descuentoCantidad = computed(() => {
+  const subtotal = Number(props.cotizacion.subtotal) || 0
+  const porcentaje = Number(props.cotizacion.descuento) || 0
+  return Math.round(subtotal * (porcentaje / 100))
+})
+
 const datosEmpresa = ref({})
 
 const traerDatosEmpresa = async () => {
-  const {data, error} = await supabase.from('neutro_t').select('*').eq('id', 1).single()
+  const {data, error} = await supabase.from('neutro_t').select('*').single()
   if (data) {
     datosEmpresa.value = data
   }
@@ -66,8 +73,8 @@ onMounted(async () => {
   await traerDatosEmpresa()
   await traerEmail()
   await traerTelefono()
-  console.log(props.cotizacion)
 })
+
 </script>
 
 <template>
@@ -78,20 +85,20 @@ onMounted(async () => {
   >
     
     <!-- Header -->
-    <div class="flex justify-between border-b-4 border-[#1f3d64] pb-4 mb-2">
+    <div class="flex justify-between border-b-4 border-[#234723] pb-4 mb-2">
       
       <div class="flex items-center gap-2">
-        <span class="w-24 h-24 rounded-full overflow-hidden border border-[#e5e7eb]">
-            <img class="w-full h-full object-cover" src="../../img/Logo.jpg" alt="Logo">
+        <span class="w-24 h-24  overflow-hidden">
+            <img class="w-[85%] h-[85%] object-contain" src="@/img/Logo.jpg" alt="Logo">
         </span>
         <div>
-            <h1 class="text-2xl font-black text-[#1f3d64] tracking-tighter italic">NeutroTransmisiones</h1>
+            <h1 class="text-2xl font-black text-[#234723] tracking-tighter italic">NeutroTransmisiones</h1>
             <p class="text-[#4b5563] font-bold uppercase text-[11px] tracking-widest mt-1">Servicios Mecánicos</p>
         </div>
       </div>
 
       <div class="text-right">
-        <h2 class="text-lg font-bold text-[#1f3d64]">COTIZACIÓN</h2>
+        <h2 class="text-lg font-bold text-[#234723]">COTIZACIÓN</h2>
         <p class="text-md font-mono text-[#dc2626] font-bold">
             N° {{ cotizacion.id || '---' }}
         </p>
@@ -104,9 +111,9 @@ onMounted(async () => {
     <!-- Info empresa / cliente -->
     <div class="grid grid-cols-2 gap-10 mb-8">
       <div>
-        <h3 class="font-bold text-[#1f3d64] border-b border-[#cbd5e1] mb-2 pb-1 text-[11px] uppercase">De: NeutroTransmisiones</h3>
+        <h3 class="font-bold text-[#234723] border-b border-[#cbd5e1] mb-2 pb-1 text-[11px] uppercase">De: NeutroTransmisiones</h3>
         <ul class="text-[#374151] space-y-1">
-          <li><span class="font-bold text-[#111827]">Dirección:</span> {{ datosEmpresa.dirección }}</li>
+          <li><span class="font-bold text-[#111827]">Dirección:</span> {{ datosEmpresa.direccion }}</li>
           <li><span class="font-bold text-[#111827]">Ciudad:</span> {{ datosEmpresa.ciudad }}</li>
           <li><span class="font-bold text-[#111827]">Teléfono:</span> {{ datosEmpresa.telefono || 'Sin Teléfono' }}</li>
           <li><span class="font-bold text-[#111827]">Email:</span> {{ datosEmpresa.email }}</li>
@@ -114,7 +121,7 @@ onMounted(async () => {
       </div>
 
       <div>
-        <h3 class="font-bold text-[#1f3d64] border-b border-[#cbd5e1] mb-2 pb-1 text-[11px] uppercase">Para: Cliente</h3>
+        <h3 class="font-bold text-[#234723] border-b border-[#cbd5e1] mb-2 pb-1 text-[11px] uppercase">Para: Cliente</h3>
         <ul class="text-[#374151] space-y-1">
           <li>
             <span class="font-bold text-[#111827]">Cliente:</span> 
@@ -128,9 +135,9 @@ onMounted(async () => {
             <span class="font-bold text-[#111827]">Email:</span> 
             {{ cotizacion.ficha_de_trabajo.cliente.email || 'Sin Email' }}
           </li>
-          <li v-if="cotizacion.ficha_de_trabajo.diagnostico">
+          <li v-if="cotizacion.ficha_de_trabajo.motivo_ingreso">
             <span class="font-bold text-[#111827]">Descripción:</span> 
-            {{ cotizacion.ficha_de_trabajo.diagnostico }}
+            {{ cotizacion.ficha_de_trabajo.motivo_ingreso }}
           </li>
         </ul>
       </div>
@@ -140,7 +147,7 @@ onMounted(async () => {
     <div class="mb-8 border border-[#e5e7eb] rounded-lg overflow-hidden">
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="bg-[#1f3d64] text-[#ffffff] text-[10px] uppercase tracking-wider">
+          <tr class="bg-[#234723] text-[#ffffff] text-[10px] uppercase tracking-wider">
             <th class="p-3 font-semibold">Descripción del Servicio / Repuesto</th>
             <th class="p-3 text-right w-28">Precio Unitario</th>
             <th class="p-3 text-right w-28">Cantidad</th>
@@ -152,9 +159,9 @@ onMounted(async () => {
           <tr 
             v-for="(item, index) in cotizacion.detalle_cotizaciones_ficha" 
             :key="index"
-            class="bg-[#ffffff] shadow-lg border-b border-[#1f3d64] "
+            class="bg-[#ffffff] shadow-lg border-b border-[#234723] "
           >
-            <td class="p-3 font-medium text-[#1f3d64]">{{ item.descripcion }}</td>
+            <td class="p-3 font-medium text-[#234723]">{{ item.descripcion }}</td>
             <td class="p-3 text-right font-bold">{{ formatoPesos(item.monto) }}</td>
             <td class="p-3 text-right font-bold">{{ item.cantidad }}</td>
             <td class="p-3 text-right font-bold">{{ TotalItem(item) }}</td>
@@ -170,8 +177,8 @@ onMounted(async () => {
     <div class="flex justify-between items-start gap-8">
       
       <div v-if="cuentaSeleccionada" class="w-3/5 bg-[#f8fafc] p-4 rounded-lg border border-[#e2e8f0]">
-        <h4 class="font-bold text-[#1f3d64] uppercase text-[10px] mb-2 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#1f3d64]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+        <h4 class="font-bold text-[#234723] uppercase text-[10px] mb-2 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#234723]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
           Datos de Transferencia
         </h4>
         <div class="text-[10px] text-[#475569] grid grid-cols-2 gap-x-4 gap-y-1">
@@ -189,9 +196,13 @@ onMounted(async () => {
           <span>{{ formatoPesos(cotizacion.subtotal) }}</span>
         </div>
         
-        <div class="flex justify-between items-center py-2 border-b border-[#e5e7eb] text-[#16a34a]">
-          <span class="font-medium">Descuento</span>
+        <div v-if="cotizacion.descuento > 0" class="flex justify-between items-center py-2 border-b border-[#e5e7eb] text-[#16a34a]">
+          <span class="font-medium">Descuento (porcentaje)</span>
           <span>- {{ cotizacion.descuento }}%</span>
+        </div>
+        <div v-if="cotizacion.descuento > 0" class="flex justify-between items-center py-2 border-b border-[#e5e7eb] text-[#16a34a]">
+          <span class="font-medium">Descuento (cantidad)</span>
+          <span>- {{ formatoPesos(descuentoCantidad) }}</span>
         </div>
         <div class="flex justify-between items-center py-2 border-b border-[#e5e7eb] text-[#374151]">
           <span class="font-medium">Total Neto</span>
@@ -202,7 +213,7 @@ onMounted(async () => {
           <span>{{ formatoPesos(cotizacion.iva) }}</span>
         </div>
 
-        <div class="flex justify-between items-center bg-[#1f3d64] text-[#ffffff] p-3 rounded mt-2">
+        <div class="flex justify-between items-center bg-[#234723] text-[#ffffff] p-3 rounded mt-2">
           <span class="font-bold text-md">TOTAL</span>
           <span class="font-bold text-md">{{ formatoPesos(cotizacion.total_final) }}</span>
         </div>

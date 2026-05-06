@@ -237,19 +237,19 @@ onMounted(async () => {
 
       <Transition name="slide-stats">
         <div v-show="showStats" class="md:hidden grid grid-cols-2 gap-3 mb-6">
-          <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-100">
+          <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
               <p class="text-xs neutro-font uppercase font-bold">Total</p>
               <p class="text-xl font-bold neutro-font">{{ stats.total }}</p>
           </div>
-          <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-100">
+          <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
               <p class="text-xs neutro-font uppercase font-bold">Ingresadas</p>
               <p class="text-xl font-bold text-yellow-600">{{ stats.ingresadas }}</p>
           </div>
-          <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-100">
+          <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
               <p class="text-xs neutro-font uppercase font-bold">En Proceso</p>
               <p class="text-xl font-bold text-blue-600">{{ stats.enProceso }}</p>
           </div>
-          <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-100">
+          <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
               <p class="text-xs neutro-font uppercase font-bold">Terminadas</p>
               <p class="text-xl font-bold text-green-600">{{ stats.terminadas }}</p>
           </div>
@@ -273,7 +273,7 @@ onMounted(async () => {
 
           <button 
             @click="showStats = !showStats" 
-            class="md:hidden neutro-secondary neutro-font font-bold py-2 px-4 rounded-lg shadow-sm border border-gray-100 hover:opacity-80 transition-all flex items-center gap-2"
+            class="md:hidden neutro-secondary neutro-font font-bold py-2 px-4 rounded-lg shadow-sm dark:border border-gray-700 hover:opacity-80 transition-all flex items-center gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -297,7 +297,7 @@ onMounted(async () => {
         <button
           @click="handleFiltroEstado(null)"
           class="px-3 py-1.5 rounded-full text-xs font-bold transition-all border"
-          :class="filtroEstado === null ? 'neutro-primary text-white border-transparent shadow-sm' : 'neutro-secondary neutro-font border-gray-200 hover:opacity-80'"
+          :class="filtroEstado === null ? 'neutro-primary text-white border-transparent shadow-sm' : 'neutro-secondary neutro-font border-gray-700 hover:opacity-80'"
         >
           Todos
         </button>
@@ -306,7 +306,7 @@ onMounted(async () => {
           :key="estado.id"
           @click="handleFiltroEstado(estado.id)"
           class="px-3 py-1.5 rounded-full text-xs font-bold transition-all border"
-          :class="filtroEstado === estado.id ? 'text-white border-transparent shadow-sm' : 'neutro-secondary neutro-font border-gray-200 hover:opacity-80'"
+          :class="filtroEstado === estado.id ? 'text-white border-transparent shadow-sm' : 'neutro-secondary neutro-font border-gray-700 hover:opacity-80'"
           :style="filtroEstado === estado.id ? { backgroundColor: estado.color } : {}"
         >
           {{ estado.estado }}
@@ -316,7 +316,7 @@ onMounted(async () => {
       <div class="hidden md:block neutro-secondary rounded-xl shadow-sm overflow-hidden">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="neutro-primary neutro-font text-xs uppercase tracking-wider border-b border-gray-100">
+            <tr class="neutro-primary neutro-font text-xs uppercase tracking-wider border-b border-gray-700">
               <th class="p-4 font-semibold">Ficha N°</th>
               <th class="p-4 font-semibold">Cliente</th>
               <th class="p-4 font-semibold">Vehículo</th>
@@ -450,7 +450,7 @@ onMounted(async () => {
           </div>
         </div>
 
-      <div v-if="fichas.length === 0" class="neutro-secondary rounded-xl p-10 text-center shadow-sm border border-gray-100 md:hidden">
+      <div v-if="fichas.length === 0" class="neutro-secondary rounded-xl p-10 text-center shadow-sm dark:border border-gray-700 md:hidden">
         <div class="neutro-font mb-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
