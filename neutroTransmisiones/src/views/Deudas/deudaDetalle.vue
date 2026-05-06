@@ -6,6 +6,7 @@ import navbar from "../../components/componentes/navbar.vue";
 import modal from "../../components/componentes/modal.vue";
 import {useInterfaz} from '../../stores/interfaz'
 import { subirAbonos } from '../../js/subirAbonos'
+import { comprimirImagen } from '../../js/comprimirFotos'
 import volver from '../../components/componentes/volverListaDeudas.vue'
 import { formatearDinero, formatearFecha } from "@/js/formateadores.js";
 
@@ -159,7 +160,7 @@ const guardarConfigNotificacion = async () => {
 const buscarFichasDisponibles = async () => {
   const { data: disponibles, error: errDisponibles } = await supabase
     .from("ficha_de_trabajo")
-    .select("*, cliente(*), presupuesto_ficha(*)")
+    .select("id, cliente(nombre, apellido), presupuesto_ficha(total_final), orden_trabajo(id, vehiculo(id, patente))")
     .is("id_deuda", null)
     .eq('presupuesto',true)
     .order("id", { ascending: false });
@@ -172,6 +173,7 @@ const buscarFichasDisponibles = async () => {
     };
     return;
   }
+  console.log(disponibles)
   FichasDisponibles.value = disponibles || [];
 
   if (FichasDisponibles.value.length === 0) {
@@ -323,7 +325,24 @@ const registrarAbono = async () => {
     let urlUpload = null;
 
     if (archivoAbono.value) {
-      const resultado = await subirAbonos(deudaId, abonoId, archivoAbono.value);
+      let archivoParaSubir = archivoAbono.value;
+
+      if (archivoParaSubir.type.startsWith('image/')) {
+        try {
+          archivoParaSubir = await comprimirImagen(archivoParaSubir);
+        } catch (error) {
+          interfaz.hideLoadingOverlay();
+          modalState.value = {
+            visible: true,
+            titulo: "Error al comprimir",
+            mensaje: "No se pudo comprimir la imagen: " + error.message,
+            exito: false,
+          };
+          return;
+        }
+      }
+
+      const resultado = await subirAbonos(deudaId, abonoId, archivoParaSubir);
       if (!resultado.exito) {
         interfaz.hideLoadingOverlay();
         modalState.value = {
@@ -606,7 +625,7 @@ onMounted(cargarDatos);
         <!-- Config recordatorios -->
         <div v-if="showConfig" class="neutro-primary p-4 border-t border-white/10 flex items-center gap-4 animate-fadeIn">
           <span class="text-white font-bold text-sm">Recordarme cobrar cada:</span>
-          <select v-model="diasNotificacion" class="rounded-lg px-3 py-2 text-white text-white font-bold text-sm">
+          <select v-model="diasNotificacion" class="rounded-lg px-3 py-2 neutro-primary text-white font-bold text-sm">
             <option :value="0">Nunca</option>
             <option :value="5">5 días</option>
             <option :value="10">10 días</option>
@@ -721,31 +740,49 @@ onMounted(cargarDatos);
             agregar</div>
 
           <button v-for="ot in FichasDisponibles" :key="ot.id" type="button" @click="toggleSeleccionFicha(ot.id)"
-            class="w-full p-3 rounded-lg transition-all flex justify-between items-center text-left" :class="FichasSeleccionadas.includes(ot.id)
+            class="w-full p-3 rounded-lg transition-all text-left" :class="FichasSeleccionadas.includes(ot.id)
               ? 'bg-white/10 ring-2 ring-white/50'
               : 'text-white neutro-primary-font hover:opacity-90'
               ">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="w-5 h-5 rounded border flex items-center justify-center flex-shrink-0"
-                :class="FichasSeleccionadas.includes(ot.id) ? 'bg-white/20 border-white/50' : 'border-gray-300 bg-white'">
-                <svg v-if="FichasSeleccionadas.includes(ot.id)" xmlns="http://www.w3.org/2000/svg"
-                  class="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clip-rule="evenodd" />
-                </svg>
-              </div>
+            <div class="flex justify-between items-start gap-3">
+              <div class="flex items-start gap-3 min-w-0 flex-1">
+                <div class="w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 mt-0.5"
+                  :class="FichasSeleccionadas.includes(ot.id) ? 'bg-white/20 border-white/50' : 'border-gray-300 bg-white'">
+                  <svg v-if="FichasSeleccionadas.includes(ot.id)" xmlns="http://www.w3.org/2000/svg"
+                    class="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd" />
+                  </svg>
+                </div>
 
-              <div class="min-w-0">
-                <span class="font-bold block truncate"
-                  :class="FichasSeleccionadas.includes(ot.id) ? 'text-white' : 'text-white'">
-                  Ficha #{{ ot.id }}
-                </span>
+                <div class="min-w-0 flex-1">
+                  <span class="font-bold block text-white">Ficha #{{ ot.id }}</span>
+                  <!-- Cliente info -->
+                  <div v-if="ot.cliente" class="mt-1">
+                    <span class="text-xs text-white/80 block">
+                      {{ ot.cliente.nombre }} {{ ot.cliente.apellido }}
+                    </span>
+                    <span v-if="ot.cliente.telefono" class="text-[10px] text-white/60 flex items-center gap-1 mt-0.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3">
+                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                      </svg>
+                      +56 {{ ot.cliente.telefono }}
+                    </span>
+                  </div>
+                  <!-- Patentes de OTs -->
+                  <div v-if="ot.orden_trabajo && ot.orden_trabajo.length > 0" class="flex flex-wrap gap-1 mt-1.5">
+                    <span v-for="orden in ot.orden_trabajo" :key="orden.id"
+                      class="px-1.5 py-0.5 bg-white/10 border border-white/20 rounded text-[10px] font-black tracking-wider uppercase text-white/90">
+                      {{ orden.vehiculo.patente }}
+                    </span>
+                  </div>
+                </div>
               </div>
+              <span class="font-bold text-white text-sm whitespace-nowrap mt-0.5">
+                {{ formatearDinero(Array.isArray(ot.presupuesto_ficha) ? ot.presupuesto_ficha[0]?.total_final : ot.presupuesto_ficha?.total_final) }}
+              </span>
             </div>
-            <span class="font-bold block truncate" :class="FichasSeleccionadas.includes(ot.id) ? 'text-white' : 'text-white'">
-              {{ formatearDinero(Array.isArray(ot.presupuesto_ficha) ? ot.presupuesto_ficha[0]?.total_final : ot.presupuesto_ficha?.total_final) }}
-            </span>
           </button>
         </div>
 

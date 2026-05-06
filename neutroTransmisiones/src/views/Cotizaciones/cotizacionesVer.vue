@@ -147,6 +147,12 @@ const generarFicha = async () => {
           console.error('Error al insertar detalle de cotización:', detalleError)
         }
       }
+      const { error: estadoError } = await supabase
+        .from('cotizacion')
+        .update({
+          estado: 2
+        })
+        .eq('id', cotizacion.value.id)
       modalState.value.visible = true;
       modalState.value.titulo = "Exito";
       modalState.value.mensaje = mensaje;

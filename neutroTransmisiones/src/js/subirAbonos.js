@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabaseClient'
 
-const WORKER_URL = 'https://upload-pdf.soporte-NeutroTransmisiones.workers.dev/' 
+const WORKER_URL = 'https://upload.neutrotransmisiones.workers.dev/'
 
 export const subirAbonos = async (deuda_id, abono_id, pdf) => {
     if (!pdf || !deuda_id || !abono_id) {
@@ -30,8 +30,7 @@ export const subirAbonos = async (deuda_id, abono_id, pdf) => {
             return { exito: false, error: 'Deuda no encontrada' }
         }
         const formData = new FormData()
-        formData.append('file', pdf, 'factura_abono.pdf')
-        formData.append('numero_folio', deuda.nombre.trim())
+        formData.append('file', pdf, 'abono'+deuda.nombre.trim()+'.pdf')
         const res = await fetch(WORKER_URL, {
             method: 'POST',
             body: formData  

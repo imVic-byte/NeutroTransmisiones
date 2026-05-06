@@ -120,7 +120,8 @@ const ivaAgregado = ref(0)
 const totalFinalAgregado = ref(0)
 const totalFinalFinal = ref(0)
 
-const cargarTotales = () => {
+const cargarTotales = async() => {
+  await nextTick()
   subtotalAgregado.value = cotizaciones.value.reduce((sum, c) => sum + (c.subtotal || 0), 0)
   totalNetoAgregado.value = cotizaciones.value.reduce((sum, c) => sum + (c.total_neto || 0), 0)
   ivaAgregado.value = cotizaciones.value.reduce((sum, c) => sum + (c.iva || 0), 0)
@@ -137,7 +138,8 @@ const generarPresupuesto = async () => {
     .insert({
       total_final: totalFinalFinal.value,
       id_ficha: datosFicha.value.id,
-      id_cuenta: datosEmpresa.value.cuenta?.id
+      id_cuenta: datosEmpresa.value.cuenta?.id,
+      total_final: totalFinalFinal.value
       })  
     .select()
     .single()
@@ -207,23 +209,21 @@ onMounted(async () => {
   await traerFicha()
   await traerCliente()
   await traerCotizaciones()
-  await traerPresupuesto()
+  await cargarTotales()
   const existe = await handleVerificarPresupuesto()
-  if (route.query.generar === 'true' && !existe) {
+  if (!existe) {
     await generarPresupuesto()
   }
-  cargarTotales()
+  await traerPresupuesto()
   datosCargados.value = true
   interfaz.hideLoading()
-  console.log(presupuesto.value)
-  console.log(datosFicha.value)
 })
 </script>
 
 <template>
   <div class="neutro-background min-h-screen font-sans">
     <div class="print:hidden mb-10">
-    <Navbar :titulo="'Ficha N°' + (datosFicha?.id || '...')" subtitulo="Presupuesto" class="navbar" />
+    <Navbar :titulo="'Ficha N°' + (datosFicha?.id || '...')" subtitulo="Presupuesto" class="navbar"/>
     <div class="mt-4 flex w-[70%] mx-auto justify-between">
       <Volver />
       <button @click="generarPDF" class="ml-4 px-4 py-2 bg-[#234723] text-white rounded-lg hover:bg-[#234723]/80 transition-colors">
@@ -231,10 +231,10 @@ onMounted(async () => {
       </button>
     </div>
     </div>
-  <div v-if="datosCargados" class="mx-auto">
+  <div v-if="datosCargados" class="mx-auto ">
   <div 
     id="elemento-a-imprimir" 
-    class="bg-[#ffffff] text-[#000000] max-w-[21cm] mx-auto text-xs font-sans leading-normal"
+    class="bg-[#ffffff] text-[#000000] max-w-[21cm] p-2 mx-auto text-xs font-sans leading-normal"
     style="background-color: #ffffff;"
   >
     <!-- Header -->

@@ -251,31 +251,8 @@ const debouncedGuardarFicha = () => {
   }, 800)
 }
 
-
-const generarPresupuesto = async () => {
-  if (!cotizacionConfirmada.value){
-    alert('No se puede generar el presupuesto porque no existe una cotización aprobada')
-    return
-  }
-  mostrarModalConfirmarPresupuesto.value = true
-}
-
-const ejecutarGenerarPresupuesto = async () => {
-  mostrarModalConfirmarPresupuesto.value = false
-  ficha.value.presupuesto=true
-  router.push({name: 'ver-presupuesto-ficha-de-trabajo', params: {id: fichaId}, query: {generar: true}})
-}
-
 const irAPresupuesto = async () => {
   router.push({name: 'ver-presupuesto-ficha-de-trabajo', params: {id: fichaId}})
-}
-
-const GenerarInforme = async () => {
-  if (ficha.value.estado < 4){
-    alert('No se puede generar el informe porque la ficha no está lista')
-    return
-  }
-  router.push({name: 'ver-informe-ficha-de-trabajo', params: {id: fichaId}, query: {generar: true}})
 }
 
 const irAInforme = async () => {
@@ -569,17 +546,11 @@ onMounted(async () => {
                 <span class="text-sm font-bold text-white uppercase tracking-wider">Acciones</span>
              </div>
              <div class="p-4 grid grid-cols-1 gap-3">
-                <button v-if="ficha.presupuesto" @click="irAPresupuesto" class="w-full py-2.5 px-4 neutro-primary text-white rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-2 text-sm font-medium">
-                  ir al presupuesto
+                <button v-if="cotizacionConfirmada" @click="irAPresupuesto" class="w-full py-2.5 px-4 neutro-primary text-white rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-2 text-sm font-medium">
+                  Ir al presupuesto
                 </button>
-                <button v-else-if="cotizacionConfirmada" @click="generarPresupuesto" class="w-full py-2.5 px-4 neutro-primary text-white rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-2 text-sm font-medium">
-                  Generar presupuesto
-                </button>
-                <button v-if="!ficha.informe_final" @click="GenerarInforme" class="w-full py-2.5 px-4 neutro-primary text-white rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-2 text-sm font-medium">
-                  Generar informe
-                </button>
-                <button v-else-if="ficha.informe_final" @click="irAInforme" class="w-full py-2.5 px-4 neutro-primary text-white rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-2 text-sm font-medium">
-                  ir al informe
+                <button @click="irAInforme" class="w-full py-2.5 px-4 neutro-primary text-white rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center gap-2 text-sm font-medium">
+                  Ir al informe
                 </button>
              </div>
           </div>

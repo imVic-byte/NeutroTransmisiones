@@ -12,8 +12,9 @@ const router = useRouter()
 const interfaz = useInterfaz()
 const loading = ref(true);
 const enviandoCorreo = ref(false);
-
 const datosEmpresa = ref({})
+const datosFicha = ref({})
+const informeFinal = ref({})
 
 const traerDatosEmpresa = async () => {
   const {data, error} = await supabase.from('neutro_t').select('*').eq('id', 1).single()
@@ -45,6 +46,48 @@ const traerTelefono = async () => {
   }
 }
 
+
+const traerCuenta = async () => {
+  const {data,error} = await supabase.from('neutro_cuentas').select('*').eq('favorito',true).maybeSingle()
+  if (data) {
+    datosEmpresa.value.cuenta = data
+  }
+  if (error) {
+    datosEmpresa.value.cuenta = null
+  }
+}
+
+const traerFicha = async () => {
+  const {data, error} = await supabase.from('ficha_de_trabajo').select('*,orden_trabajo(*,vehiculo(*),ot_bitacora(*,ot_fotos(*)),ot_fotos_ingreso(*))').eq('id', route.params.id).single()
+  if (data) {
+    datosFicha.value = data
+  }
+  if (error) {
+    console.error('Error al traer datos de la ficha:', error)
+  }
+}
+
+const traerCliente = async () => {
+  const {data, error} = await supabase.from('cliente').select('*').eq('id', datosFicha.value?.id_cliente).single()
+  if (data) {
+    datosFicha.value.cliente = data
+  }
+  if (error) {
+    console.error('Error al traer datos del cliente:', error)
+  }
+}
+
+const traerInformeFinal = async () => {
+  const {data, error} = await supabase.from('informe_final').select('*').eq('id_ficha', datosFicha.value?.id).single()
+  if (data) {
+    informeFinal.value = data
+  }
+  if (error) {
+    console.error('Error al traer datos del informe final:', error)
+  }
+}
+
+
 const formatoFecha = (fecha) => {
   if (!fecha) return '---';
   return new Date(fecha).toLocaleDateString('es-CL');
@@ -61,7 +104,7 @@ const generarYsubir = async () => {
   if (!elemento) return
   const opciones = {
     margin: [10, 10, 10, 10],
-    filename: `InformeFinal_${ficha.value?.numero_folio}.pdf`,
+    filename: `InformeFinal_${datosFicha.value?.numero_folio}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, useCORS: true, scrollY: 0 }, // El scale 2 evita que se vea borroso
     pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }, // Esta línea es CLAVE
@@ -69,9 +112,11 @@ const generarYsubir = async () => {
   };
   try {
     const pdfBlob = await html2pdf().set(opciones).from(elemento).output('blob');
-    const {exito,error} = await enviarInformeFinal(ficha.value.cliente.id,informeFinal.value.id, ficha.value.numero_folio, pdfBlob)
-    if (error) {
-      console.error('Error al subir el informe final:', error)
+    if (datosFicha.value?.cliente?.email) {
+      const {exito,error} = await enviarInformeFinal(datosFicha.value.cliente.id,informeFinal.value.id, datosFicha.value.numero_folio, pdfBlob)
+      if (error) {
+        console.error('Error al subir el informe final:', error)
+      }
     }
   } catch (error) {
     console.error('Error al generar el informe final:', error)
@@ -81,23 +126,16 @@ const generarYsubir = async () => {
 }
 
 const generarInformeFinal = async () => {
-  const yaExiste = await handleVerificarInformeFinal()
-  if (yaExiste) {
-    return
-  }
-  if (!ficha.value) {
+  if (!datosFicha.value) {
     console.error('Falta ficha para generar el informe final')
     return
   }
   const {data, error} = await supabase
     .from('informe_final')
     .insert({
-      cliente_nombre: ficha.value.cliente.nombre,
-      cliente_apellido: ficha.value.cliente.apellido,
-      cliente_telefono: ficha.value.cliente.telefono,
-      cliente_email: ficha.value.cliente.email,
-      cliente_codigo_pais: ficha.value.cliente.codigo_pais,
-      id_ficha: ficha.value.id,
+      id_cliente: datosFicha.value.cliente.id,
+      id_ficha: datosFicha.value.id,
+      numero_folio: datosFicha.value.numero_folio
     })
     .select()
     .single()
@@ -106,46 +144,14 @@ const generarInformeFinal = async () => {
   }
   if (data) {
     informeFinal.value = data
-    await generarYsubir()
+    if (datosFicha.value?.cliente?.email) {
+      await generarYsubir()
+    }
   }
-  const {error:errorInformeFinal} = await supabase.from('ficha_de_trabajo').update({informe_final:true}).eq('id',ficha.value.id)
+  const {error:errorInformeFinal} = await supabase.from('ficha_de_trabajo').update({informe_final:true}).eq('id',datosFicha.value.id)
   if (errorInformeFinal) {
     console.error('Error al generar informe final:', errorInformeFinal)
   }
-  await cargarDatos()
-}
-
-const informeFinal = ref(null)
-const ficha = ref(null)
-
-const cargarDatos = async () => {
-    const {data, error} = await supabase
-    .from('ficha_de_trabajo')
-    .select(`*, informe_final(*),cliente (*),orden_trabajo (*, trabajadores(*),vehiculo(*,cliente(*)), ot_bitacora(*), ot_fotos_ingreso(*)))`) 
-    .eq('id', route.params.id)
-    .single()
-
-    if (data) {
-      ficha.value = data
-      informeFinal.value = data.informe_final[0]
-      
-      // Fetch bitácora photos
-      for (const ot of ficha.value.orden_trabajo) {
-        if (ot.ot_bitacora) {
-          for (const entry of ot.ot_bitacora) {
-            const { data: fotos } = await supabase
-              .from('OT_Fotos')
-              .select('*')
-              .eq('id_ot_bitacora', entry.id);
-            entry.fotos = fotos || [];
-          }
-        }
-      }
-    }
-
-    if (error) {
-      console.error('Error al traer datos de la ficha:', error)
-    }
 }
 
 const convertirImagenABase64 = async (url) => {
@@ -163,9 +169,9 @@ const convertirImagenABase64 = async (url) => {
 };
 
 const procesarImagenesParaPDF = async () => {
-  if (!ficha.value || !ficha.value.orden_trabajo) return;
+  if (!datosFicha.value || !datosFicha.value.orden_trabajo) return;
   
-  for (const ot of ficha.value.orden_trabajo) {
+  for (const ot of datosFicha.value.orden_trabajo) {
     // 1. Fotos de ingreso
     if (ot.ot_fotos_ingreso) {
       for (const item of ot.ot_fotos_ingreso) {
@@ -217,28 +223,35 @@ const handleEstados = (estado) => {
   return estadoEncontrado ? {estado: estadoEncontrado.estado, color: estadoEncontrado.color} : {estado: 'Estado Desconocido', color: '#000000'}
 }
 
+const datosCargados = ref(false)
+
 onMounted(async () => {
   interfaz.showLoadingOverlay()
-  await cargarDatos()
   await traerDatosEmpresa()
   await traerEmail()
   await traerTelefono()
   await obtenerEstados()
-  await procesarImagenesParaPDF()
-  interfaz.hideLoadingOverlay();
-  if (route.query.generar === 'true') {
-    generarInformeFinal()
+  await traerCuenta()
+  await traerFicha()
+  await traerCliente()
+  const existeInformeFinal = await handleVerificarInformeFinal()
+  if (!existeInformeFinal) {
+    await generarInformeFinal()
   }
+  await traerInformeFinal()
+  await procesarImagenesParaPDF()
+  datosCargados.value = true
+  interfaz.hideLoadingOverlay();
 })
 </script>
 <template>
   <div class="min-h-screen pb-20 neutro-background font-sans print:absolute print:inset-0 print:z-[9999] print:bg-white">
     
     <div class="print:hidden">
-      <Navbar :titulo="'Ficha N°' + (ficha?.id || '...')" subtitulo="Informe Final" class="navbar" />
+      <Navbar :titulo="'Ficha N°' + (datosFicha?.numero_folio || '...')" subtitulo="Informe Final" class="navbar" />
       <div class="mt-4 flex w-[70%] mx-auto justify-between">
         <Volver />
-        <button @click="generarPDF" class="ml-4 px-4 py-2 bg-[#1f3d64] text-white rounded-lg transition-colors">
+        <button @click="generarPDF" class="ml-4 px-4 py-2 bg-[#234723] text-white rounded-lg transition-colors">
           Generar PDF
         </button>
       </div>
@@ -249,7 +262,7 @@ onMounted(async () => {
       <p class="font-bold text-lg">Generando y enviando informe...</p>
       <p class="text-sm opacity-80">Por favor espera un momento.</p>
     </div>
-    <div class="mx-auto">
+    <div  class="mx-auto mt-5">
     <div 
       id="elemento-a-imprimir" 
       class="mx-auto overflow-hidden max-w-[21cm] max-w-[21cm] bg-white print:w-full print:max-w-none print:m-0 print:border-none print:shadow-none"
@@ -258,55 +271,55 @@ onMounted(async () => {
         <div class="flex flex-col items-center justify-center min-h-[90vh] text-center">
           <!-- Logo y branding -->
           <div class="mb-8">
-            <span class="w-32 h-32 rounded-full overflow-hidden border-2 border-[#1f3d64] mx-auto block">
-              <img class="w-full h-full object-cover" src="@/img/Logo.jpg" alt="Logo">
+            <span class="w-32 h-32 rounded-full overflow-hidden mx-auto block">
+              <img class="w-full h-full object-contain" src="@/img/Logo.jpg" alt="Logo">
             </span>
-            <h1 class="text-4xl font-black tracking-tighter italic text-[#1f3d64] mt-4">NeutroTransmisiones</h1>
+            <h1 class="text-4xl font-black tracking-tighter italic text-[#234723] mt-4">NeutroTransmisiones</h1>
             <p class="font-bold uppercase text-[13px] tracking-[0.3em] text-[#4b5563] mt-1">Servicios Mecánicos</p>
           </div>
 
           <!-- Título del documento -->
           <div class="mb-8">
             <div class="inline-block text-white px-8 py-3 rounded-lg">
-              <h2 class="text-2xl font-bold tracking-wide uppercase text-[#1f3d64]">Informe Final</h2>
+              <h2 class="text-2xl font-bold tracking-wide uppercase text-[#234723]">Informe Final</h2>
             </div>
             <div class="mt-3">
-              <p class="text-lg font-mono font-bold text-[#dc2626]">Folio N° {{ ficha?.numero_folio || '---' }}</p>
+              <p class="text-lg font-mono font-bold text-[#dc2626]">Folio N° {{ datosFicha?.numero_folio || '...' }}</p>
               <p class="text-sm text-[#6b7280] mt-1">{{ formatoFecha(informeFinal?.created_at) }}</p>
-              <div :style="{backgroundColor: handleEstados(ficha?.estado).color}" class="mt-2 inline-block text-white px-3 py-1 rounded font-bold text-[11px] uppercase">
-                {{ handleEstados(ficha?.estado).estado }}
+              <div :style="{backgroundColor: handleEstados(datosFicha?.estado).color}" class="mt-2 inline-block text-white px-3 py-1 rounded font-bold text-[11px] uppercase">
+                {{ handleEstados(datosFicha?.estado).estado }}
               </div>
             </div>
           </div>
 
           <!-- Separador -->
-          <div class="w-24 h-1 bg-[#1f3d64] rounded mx-auto mb-8"></div>
+          <div class="w-24 h-1 bg-[#234723] rounded mx-auto mb-8"></div>
 
           <!-- Info empresa y cliente lado a lado -->
           <div class="grid grid-cols-2 gap-10 text-left w-full max-w-lg mx-auto mb-8">
             <div>
-              <h3 class="font-bold border-b-2 border-[#1f3d64] mb-2 pb-1 text-[11px] uppercase text-[#1f3d64]">De: NeutroTransmisiones</h3>
+              <h3 class="font-bold border-b-2 border-[#234723] mb-2 pb-1 text-[11px] uppercase text-[#234723]">De: NeutroTransmisiones</h3>
               <ul class="space-y-1 text-[#374151] text-xs">
-                <li><span class="font-bold text-[#111827]">Dirección:</span> {{ datosEmpresa?.dirección || '...' }}</li>
+                <li><span class="font-bold text-[#111827]">Dirección:</span> {{ datosEmpresa?.direccion || '...' }}</li>
                 <li><span class="font-bold text-[#111827]">Ciudad:</span> {{ datosEmpresa?.ciudad || '...' }}</li>
                 <li><span class="font-bold text-[#111827]">Teléfono:</span> {{ datosEmpresa?.telefono || 'Sin Teléfono' }}</li>
                 <li><span class="font-bold text-[#111827]">Email:</span> {{ datosEmpresa?.email || '...' }}</li>
               </ul>
             </div>
             <div>
-              <h3 class="font-bold border-b-2 border-[#1f3d64] mb-2 pb-1 text-[11px] uppercase text-[#1f3d64]">Para: Cliente</h3>
+              <h3 class="font-bold border-b-2 border-[#234723] mb-2 pb-1 text-[11px] uppercase text-[#234723]">Para: Cliente</h3>
               <ul class="space-y-1 text-[#374151] text-xs">
                 <li>
                   <span class="font-bold text-[#111827]">Cliente:</span>
-                  {{ ficha?.cliente ? (ficha.cliente.nombre + ' ' + ficha.cliente.apellido) : 'Sin Nombre' }}
+                  {{ datosFicha?.cliente ? (datosFicha.cliente.nombre + ' ' + datosFicha.cliente.apellido) : 'Sin Nombre' }}
                 </li>
                 <li>
                   <span class="font-bold text-[#111827]">Teléfono:</span>
-                  {{ ficha?.cliente ? ('+' + ficha.cliente.codigo_pais + ' ' + ficha.cliente.telefono) : 'Sin Teléfono' }}
+                  {{ datosFicha?.cliente ? ('+' + datosFicha.cliente.codigo_pais + ' ' + datosFicha.cliente.telefono) : 'Sin Teléfono' }}
                 </li>
                 <li>
                   <span class="font-bold text-[#111827]">Email:</span>
-                  {{ ficha?.cliente?.email || 'Sin Email' }}
+                  {{ datosFicha?.cliente?.email || 'Sin Email' }}
                 </li>
               </ul>
             </div>
@@ -314,17 +327,18 @@ onMounted(async () => {
 
           <!-- Motivo de ingreso -->
           <div class="w-full max-w-lg mx-auto text-left mb-6">
-            <h3 class="font-bold border-b-2 border-[#1f3d64] mb-2 pb-1 text-[11px] uppercase text-[#1f3d64]">Motivo de Ingreso</h3>
-            <p class="text-sm text-[#374151] leading-relaxed">{{ ficha?.motivo_ingreso || 'No especificado' }}</p>
-            <p class="text-xs text-[#6b7280] mt-1">Fecha de Ingreso: {{ formatoFechaYHora(ficha?.fecha_ingreso) }}</p>
+            <h3 class="font-bold border-b-2 border-[#234723] mb-2 pb-1 text-[11px] uppercase text-[#234723]">Motivo de Ingreso</h3>
+            <p class="text-sm text-[#374151] leading-relaxed">{{ datosFicha?.motivo_ingreso || 'No especificado' }}</p>
+            <p class="text-xs text-[#6b7280] mt-1">Fecha de Ingreso: {{ formatoFechaYHora(datosFicha?.fecha_ingreso) }}</p>
+            <p class="text-xs text-[#6b7280] mt-1">Origen: {{ datosFicha?.origen_ingreso || 'No especificado' }}</p>
           </div>
 
           <!-- Vehículos -->
           <div class="w-full max-w-lg mx-auto text-left mb-8">
-            <h3 class="font-bold border-b-2 border-[#1f3d64] mb-2 pb-1 text-[11px] uppercase text-[#1f3d64]">Vehículos</h3>
+            <h3 class="font-bold border-b-2 border-[#234723] mb-2 pb-1 text-[11px] uppercase text-[#234723]">Vehículos</h3>
             <div class="grid grid-cols-2 gap-3">
-              <div v-for="orden in ficha?.orden_trabajo" :key="orden.id" class="p-3 rounded-lg border border-[#e2e8f0] bg-[#f8fafc]">
-                <p class="font-bold uppercase text-sm text-[#1f3d64]">
+              <div v-for="orden in datosFicha?.orden_trabajo" :key="orden.id" class="p-3 rounded-lg border border-[#e2e8f0] bg-[#f8fafc]">
+                <p class="font-bold uppercase text-sm text-[#234723]">
                   {{ orden.vehiculo.marca }} {{ orden.vehiculo.modelo }} {{ orden.vehiculo.anio }}
                 </p>
                 <p class="text-xs mt-1 text-[#4b5563]">
@@ -353,14 +367,14 @@ onMounted(async () => {
             <p class="text-[9px] uppercase tracking-widest font-bold text-[#9ca3af]">NeutroTransmisiones • Soluciones Automotrices de Confianza</p>
           </div>
         </div>
-        <template v-for="ot in ficha?.orden_trabajo" :key="ot.id" >
+        <template v-for="ot in datosFicha?.orden_trabajo" :key="ot.id" >
           <div class="bg-white relative" style="page-break-before: always;">
-            <div class="w-full h-2 bg-[#1f3d64]"></div>
+            <div class="w-full h-2 bg-[#234723]"></div>
             
             <div class="p-5">
               <div class="flex justify-between items-end border-b border-[#e5e7eb] pb-2 mb-4">
                 <div>
-                   <h2 class="text-xl font-bold uppercase tracking-tight text-[#1f3d64]">Informe Técnico Detallado</h2>
+                   <h2 class="text-xl font-bold uppercase tracking-tight text-[#234723]">Informe Técnico Detallado</h2>
                    <p class="text-xs text-[#6b7280]">Anexo de inspección visual y bitácora de hallazgos</p>
                 </div>
                 <div class="text-right">
@@ -370,7 +384,7 @@ onMounted(async () => {
 
               <div class="grid grid-cols-12 gap-4 mb-6">
                 <div class="col-span-4 rounded-lg p-3 border shadow-sm break-inside-avoid bg-[#f8fafc] border-[#f1f5f9]">
-                   <h4 class="font-bold uppercase text-[10px] mb-2 border-b pb-1 text-[#1f3d64] border-[#e2e8f0]">Inventario & Accesorios</h4>
+                   <h4 class="font-bold uppercase text-[10px] mb-2 border-b pb-1 text-[#234723] border-[#e2e8f0]">Inventario & Accesorios</h4>
                    <ul class="space-y-1 text-[11px]">
                      <li class="flex justify-between items-center">
                         <span class="text-[#475569]">Documentos</span>
@@ -403,19 +417,19 @@ onMounted(async () => {
                   <div class="grid grid-cols-2 gap-4 mb-3">
                      <div class="border rounded shadow-sm text-center p-2 bg-[#f8fafc] border-[#f1f5f9]">
                         <span class="block text-[9px] font-bold uppercase tracking-widest text-[#94a3b8]">Kilometraje</span>
-                        <span class="block text-lg font-bold mt-0.5 text-[#1f3d64]">{{ ot.kilometraje_inicial || '0' }} km</span>
+                        <span class="block text-lg font-bold mt-0.5 text-[#234723]">{{ ot.kilometraje_inicial || '0' }} km</span>
                      </div>
                      <div class="border rounded shadow-sm text-center p-2 bg-[#f8fafc] border-[#f1f5f9]">
                         <span class="block text-[9px] font-bold uppercase tracking-widest text-[#94a3b8]">Combustible</span>
                         <div class="w-full rounded-full h-2 mt-1.5 mb-1 bg-[#e5e7eb]">
                           <div class="h-2 rounded-full bg-[#22c55e]" :style="{ width: (ot.combustible_inicial || 0) + '%' }"></div>
                         </div>
-                        <span class="block text-[11px] font-bold text-[#1f3d64]">{{ ot.combustible_inicial || '0' }}%</span>
+                        <span class="block text-[11px] font-bold text-[#234723]">{{ ot.combustible_inicial || '0' }}%</span>
                      </div>
                   </div>
 
                   <div v-if="ot.ot_fotos_ingreso && ot.ot_fotos_ingreso.length > 0">
-                     <h4 class="font-bold uppercase text-[10px] mb-1 text-[#1f3d64]">Registro Fotográfico de Ingreso</h4>
+                     <h4 class="font-bold uppercase text-[10px] mb-1 text-[#234723]">Registro Fotográfico de Ingreso</h4>
                      <div class="flex gap-2 overflow-hidden h-24 p-1 rounded border bg-[#f1f5f9] border-[#e2e8f0]">
                         <div v-for="(item, index) in ot.ot_fotos_ingreso.slice(0, 3)" :key="index" class="relative w-1/3 h-full">
                            <img :src="item.url" class="absolute inset-0 w-full h-full object-cover rounded-sm border border-[#cbd5e1]">
@@ -429,25 +443,25 @@ onMounted(async () => {
               </div>
 
               <div class="mt-4">
-                 <h3 class="flex items-center gap-3 text-sm font-bold uppercase border-b-2 pb-1 mb-3 break-inside-avoid text-[#1f3d64] border-[#1f3d64]">
+                 <h3 class="flex items-center gap-3 text-sm font-bold uppercase border-b-2 pb-1 mb-3 break-inside-avoid text-[#234723] border-[#234723]">
                     Bitácora de hallazgos
                  </h3>
 
                  <div v-if="ot.ot_bitacora && ot.ot_bitacora.length > 0">
                     <div v-for="(item, index) in ot.ot_bitacora.filter(e => e.observacion)" :key="index" class="flex gap-3 mb-4 break-inside-avoid">
                        <div class="flex flex-col items-center">
-                          <div class="w-2 h-2 rounded-full mt-2 bg-[#1f3d64]"></div>
+                          <div class="w-2 h-2 rounded-full mt-2 bg-[#234723]"></div>
                           <div class="w-px flex-grow my-1 bg-[#e2e8f0]" v-if="index !== ot.ot_bitacora.length - 1"></div>
                        </div>
-                       <div class="flex-1 border border-l-4 p-3 rounded shadow-sm bg-white border-[#f3f4f6] border-l-[#1f3d64]">
+                       <div class="flex-1 border border-l-4 p-3 rounded shadow-sm bg-white border-[#f3f4f6] border-l-[#234723]">
                           <div class="flex justify-between items-start mb-2">
                              <p class="text-[11px] font-bold uppercase text-[#1f2937]">Hallazgo {{ index + 1 }}</p>
                              <span class="text-[9px] px-2 py-0.5 rounded font-mono text-[#9ca3af] bg-[#f9fafb]">{{ formatoFecha(item.created_at) }}</span>
                           </div>
                           <p class="text-[11px] leading-snug mb-3 text-[#4b5563]">{{ item.observacion }}</p>
                           
-                          <div v-if="item.fotos && item.fotos.length > 0" class="flex gap-2 mt-1 pt-2 border-t border-dashed border-[#f3f4f6]">
-                             <img v-for="(foto, fIdx) in item.fotos" :key="fIdx" :src="foto.url" class="w-20 h-20 object-cover rounded border shadow-sm border-[#e5e7eb]">
+                          <div v-if="item.ot_fotos && item.ot_fotos.length > 0" class="flex gap-2 mt-1 pt-2 border-t border-dashed border-[#f3f4f6]">
+                             <img v-for="(foto, fIdx) in item.ot_fotos" :key="fIdx" :src="foto.url" class="w-20 h-20 object-cover rounded border shadow-sm border-[#e5e7eb]">
                           </div>
                        </div>
                     </div>

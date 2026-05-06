@@ -1,8 +1,8 @@
 import {supabase} from "../lib/supabaseClient.js";
 
-const WORKER_URL = "https://upload-informe.soporte-NeutroTransmisiones.workers.dev/";
+const WORKER_URL = "https://upload.neutrotransmisiones.workers.dev/";
 
-export const enviarInformeFinal = async (cliente_id,informeId, numeroFolio, pdf) => {
+export const enviarInformeFinal = async (cliente_id, informeId, numeroFolio, pdf) => {
     if (!informeId || !numeroFolio || !pdf) {
         return { exito: false, error: 'Faltan datos' }
     }
@@ -18,9 +18,7 @@ export const enviarInformeFinal = async (cliente_id,informeId, numeroFolio, pdf)
         
         }
         const formData = new FormData();
-        formData.append('file', pdf, 'Informe.pdf');
-        formData.append('numero_folio', numeroFolio);
-        console.log(formData.entries());
+        formData.append('file', pdf, `Informe-${numeroFolio}.pdf`);
         const response = await fetch(WORKER_URL, {
             method: 'POST',
             body: formData
@@ -30,10 +28,8 @@ export const enviarInformeFinal = async (cliente_id,informeId, numeroFolio, pdf)
         }
         if (response.ok) {
             console.log('Informe enviado correctamente');
-            console.log('ESTA SERÁ LA URL: ', response.url);
         }
         const informe = await response.json();
-        console.log(informe);
         const {data:enviado, error:errorEnvio} = await supabase
         .from('informe_final')
         .update({

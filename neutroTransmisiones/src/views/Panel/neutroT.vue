@@ -147,7 +147,14 @@ const obtenerCuentas = async () => {
     console.error('Error al obtener cuentas bancarias:', error)
     return
   }
-  if (data) cuentas.value = data
+  if (data) {
+    cuentas.value = data
+    // Garantizar que siempre haya una cuenta favorita
+    const hayFavorito = cuentas.value.some(c => c.favorito)
+    if (!hayFavorito && cuentas.value.length > 0) {
+      await setFavoritoCuenta(cuentas.value[0].id)
+    }
+  }
 }
 
 const abrirModalCuenta = (cuenta = null) => {
@@ -173,18 +180,49 @@ const guardarCuenta = async () => {
     rut_titular: nuevaCuenta.value.rut_titular,
   }
   if (cuentaEditando.value) payload.id = cuentaEditando.value
-  const { error } = await supabase
+  const { error, data } = await supabase
     .from('neutro_cuentas')
     .upsert(payload)
+    .select()
+    .single()
   if (error) {
     console.error('Error al guardar cuenta bancaria:', error)
     return
   }
   await obtenerCuentas()
+  // Si es la primera cuenta, marcarla como favorita automáticamente
+  if (cuentas.value.length === 1 && data) {
+    await setFavoritoCuenta(data.id)
+  }
   cerrarModalCuenta()
 }
+
+const setFavoritoCuenta = async (id) => {
+  // Quitar favorito de todas
+  const { error: errorReset } = await supabase
+    .from('neutro_cuentas')
+    .update({ favorito: false })
+    .neq('id', 0)
+  if (errorReset) {
+    console.error('Error al resetear favoritos:', errorReset)
+    return
+  }
+  // Marcar la seleccionada
+  const { error } = await supabase
+    .from('neutro_cuentas')
+    .update({ favorito: true })
+    .eq('id', id)
+  if (error) {
+    console.error('Error al marcar cuenta como favorita:', error)
+    return
+  }
+  // Actualizar estado local
+  cuentas.value.forEach(c => c.favorito = c.id === id)
+}
+
 const eliminarCuenta = async (id) => {
   if (!confirm('¿Eliminar esta cuenta bancaria?')) return
+  const eraFavorita = cuentas.value.find(c => c.id === id)?.favorito
   const { error } = await supabase
     .from('neutro_cuentas')
     .delete()
@@ -194,6 +232,10 @@ const eliminarCuenta = async (id) => {
     return
   }
   cuentas.value = cuentas.value.filter(c => c.id !== id)
+  // Si se eliminó la favorita, asignar la primera como favorita
+  if (eraFavorita && cuentas.value.length > 0) {
+    await setFavoritoCuenta(cuentas.value[0].id)
+  }
 }
 
 const formatoMoneda = (valor) => {
@@ -654,6 +696,7 @@ onMounted(async () => {
             <table class="min-w-full divide-y divide-gray-800 text-sm">
               <thead class="neutro-primary text-white">
                 <tr>
+                  <th class="px-6 py-3 text-center text-sm font-medium uppercase tracking-wider w-12">★</th>
                   <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Banco</th>
                   <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Tipo</th>
                   <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">N° Cuenta</th>
@@ -664,6 +707,16 @@ onMounted(async () => {
               </thead>
               <tbody class="neutro-secondary divide-y divide-gray-800">
                 <tr v-for="cuenta in cuentas" :key="cuenta.id" class="hover:opacity-80 transition-colors">
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <button
+                      @click="setFavoritoCuenta(cuenta.id)"
+                      class="cursor-pointer transition-all duration-200 text-xl"
+                      :class="cuenta.favorito ? 'text-yellow-400 scale-110' : 'text-gray-500 hover:text-yellow-300'"
+                      :title="cuenta.favorito ? 'Cuenta principal' : 'Marcar como principal'"
+                    >
+                      {{ cuenta.favorito ? '★' : '☆' }}
+                    </button>
+                  </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center gap-3">
                       <div class="p-2 bg-green-100 text-green-600 rounded-full shrink-0">

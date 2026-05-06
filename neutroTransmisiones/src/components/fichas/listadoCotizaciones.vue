@@ -13,6 +13,8 @@ const debounceBusqueda = usarDebounce();
 
 const cotizaciones = ref([]);
 const cotizacionesOriginales = ref([]);
+const filtroEstado = ref(null);
+const textoBusqueda = ref('');
 
 const props = defineProps({
   busqueda: {
@@ -26,14 +28,48 @@ watch(() => props.busqueda, (texto) => {
   handleBusqueda(texto);
 });
 
+const estadosCotizacion = [
+  { id: 4, estado: 'Inicial', color: '#3b82f6' },
+  { id: 1, estado: 'Pendiente', color: '#eab308' },
+  { id: 2, estado: 'Confirmada', color: '#22c55e' },
+  { id: 3, estado: 'Rechazada', color: '#ef4444' },
+];
+
 const handleBusqueda = (texto) => {
   debounceBusqueda(() => {
-    cotizaciones.value = filtrar(
-      cotizacionesOriginales.value, 
-      texto, 
-      obtenerVehiculos
-    );
+    textoBusqueda.value = texto;
+    aplicarFiltros();
   }, 300);
+};
+
+const handleFiltroEstado = (estado) => {
+  filtroEstado.value = estado;
+  aplicarFiltros();
+};
+
+const aplicarFiltros = () => {
+  let resultado = [...cotizacionesOriginales.value];
+
+  // Filtro por estado
+  if (filtroEstado.value !== null) {
+    resultado = resultado.filter(c => c.estado === filtroEstado.value);
+  }
+
+  // Filtro por búsqueda
+  if (textoBusqueda.value && textoBusqueda.value.trim() !== '') {
+    const busqueda = textoBusqueda.value.toLowerCase().trim();
+    resultado = resultado.filter(c => {
+      const idCoincide = c.id?.toString().includes(busqueda);
+      const nombreCompleto = `${c.ficha_de_trabajo?.cliente?.nombre || ''} ${c.ficha_de_trabajo?.cliente?.apellido || ''}`.toLowerCase();
+      const patenteCoincide = obtenerVehiculos(c).some(v =>
+        v.patente?.toLowerCase().includes(busqueda)
+      );
+      const comentarioCoincide = c.comentario?.toLowerCase().includes(busqueda);
+      return idCoincide || nombreCompleto.includes(busqueda) || patenteCoincide || comentarioCoincide;
+    });
+  }
+
+  cotizaciones.value = resultado;
 };
 
 const abrirListadoFichas=ref(false)
@@ -91,9 +127,10 @@ const stats = computed(() => {
 
 const claseEstadoCard = (estado) => {
   switch (estado) {
-    case 2: return { clase: "badge-aprobada", texto: "Aprobada", contenedor: "confirmado" };
+    case 2: return { clase: "badge-aprobada", texto: "Confirmada", contenedor: "confirmado" };
     case 3: return { clase: "badge-rechazada", texto: "Rechazada", contenedor: "descartado" };
     case 1: return { clase: "badge-pendiente", texto: "Pendiente", contenedor: "en-espera" };
+    case 4: return { clase: "badge-inicial", texto: "Inicial", contenedor: "inicial" };
     default: return { clase: "badge-cerrada", texto: "Cerrada", contenedor: "cerrado" };
   }
 };
@@ -134,19 +171,19 @@ onMounted( async () => {
   <div>
     <!-- Stats Desktop -->
     <div class="hidden md:grid md:grid-cols-4 gap-4 mb-8">
-      <div class="neutro-secondary p-4 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-4 rounded-xl shadow-sm dark:border border-gray-700">
           <p class="text-xs neutro-font uppercase font-bold">Total</p>
           <p class="text-2xl font-bold neutro-font">{{ stats.total }}</p>
       </div>
-      <div class="neutro-secondary p-4 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-4 rounded-xl shadow-sm dark:border border-gray-700">
           <p class="text-xs neutro-font uppercase font-bold">Pendientes</p>
           <p class="text-2xl font-bold text-yellow-600">{{ stats.pendientes }}</p>
       </div>
-      <div class="neutro-secondary p-4 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-4 rounded-xl shadow-sm dark:border border-gray-700">
           <p class="text-xs neutro-font uppercase font-bold">Aprobadas</p>
           <p class="text-2xl font-bold text-green-600">{{ stats.aprobadas }}</p>
       </div>
-      <div class="neutro-secondary p-4 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-4 rounded-xl shadow-sm dark:border border-gray-700">
           <p class="text-xs neutro-font uppercase font-bold">Monto Total</p>
           <p class="text-lg font-bold neutro-font">{{ formatearDinero(stats.montoTotal) }}</p>
       </div>
@@ -154,19 +191,19 @@ onMounted( async () => {
 
     <!-- Stats Mobile -->
     <div class="md:hidden grid grid-cols-2 gap-3 mb-6">
-      <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
           <p class="text-xs neutro-font uppercase font-bold">Total</p>
           <p class="text-xl font-bold neutro-font">{{ stats.total }}</p>
       </div>
-      <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
           <p class="text-xs neutro-font uppercase font-bold">Pendientes</p>
           <p class="text-xl font-bold text-yellow-600">{{ stats.pendientes }}</p>
       </div>
-      <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
           <p class="text-xs neutro-font uppercase font-bold">Aprobadas</p>
           <p class="text-xl font-bold text-green-600">{{ stats.aprobadas }}</p>
       </div>
-      <div class="neutro-secondary p-3 rounded-xl shadow-sm border border-gray-100">
+      <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
           <p class="text-xs neutro-font uppercase font-bold">Monto Total</p>
           <p class="text-lg font-bold neutro-font">{{ formatearDinero(stats.montoTotal) }}</p>
       </div>
@@ -175,8 +212,8 @@ onMounted( async () => {
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
       <div>
-          <h2 class="text-xl font-bold neutro-font">Listado de Cotizaciones Iniciales</h2>
-          <p class="text-sm neutro-font">Administra y revisa el estado de tus cotizaciones Iniciales</p>
+          <h2 class="text-xl font-bold neutro-font">Listado de Cotizaciones</h2>
+          <p class="text-sm neutro-font">Administra y revisa el estado de las cotizaciones</p>
       </div>
       <div class="flex items-center gap-2">
         <button 
@@ -188,6 +225,28 @@ onMounted( async () => {
         </button>
       </div>
     </div>
+
+    <!-- Filtro por Estado -->
+    <div class="flex flex-wrap items-center gap-2 mb-6">
+      <button
+        @click="handleFiltroEstado(null)"
+        class="px-3 py-1.5 rounded-full text-xs font-bold transition-all border"
+        :class="filtroEstado === null ? 'neutro-primary text-white border-transparent shadow-sm' : 'neutro-secondary neutro-font border-gray-200 hover:opacity-80'"
+      >
+        Todos
+      </button>
+      <button
+        v-for="estado in estadosCotizacion"
+        :key="estado.id"
+        @click="handleFiltroEstado(estado.id)"
+        class="px-3 py-1.5 rounded-full text-xs font-bold transition-all border"
+        :class="filtroEstado === estado.id ? 'text-white border-transparent shadow-sm' : 'neutro-secondary neutro-font border-gray-700 hover:opacity-80'"
+        :style="filtroEstado === estado.id ? { backgroundColor: estado.color } : {}"
+      >
+        {{ estado.estado }}
+      </button>
+    </div>
+
     <div v-if="loading" class="flex justify-center items-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-900"></div>
     </div>
@@ -195,11 +254,12 @@ onMounted( async () => {
     <div v-if="!loading" class="hidden md:block neutro-secondary rounded-xl shadow-sm overflow-hidden">
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="neutro-primary neutro-font text-xs uppercase tracking-wider border-b border-gray-100">
+          <tr class="neutro-primary neutro-font text-xs uppercase tracking-wider">
             <th class="p-4 font-semibold">N°</th>
             <th class="p-4 font-semibold">Cliente</th>
             <th class="p-4 font-semibold">Vehículo</th>
             <th class="p-4 font-semibold">Comentario</th>
+            <th class="p-4 font-semibold text-center">Estado</th>
             <th class="p-4 font-semibold text-center">Emisión</th>
             <th class="p-4 font-semibold text-right">Monto Total</th>
             <th class="p-4 font-semibold text-center">Acción</th>
@@ -217,15 +277,18 @@ onMounted( async () => {
             </td>
             <td class="p-4 neutro-font">
               <div v-if="obtenerVehiculos(item).length > 0">
-              <div v-for="(veh, index) in obtenerVehiculos(item)" :key="veh.id" class="mb-2">
+              <div v-for="(veh) in obtenerVehiculos(item)" :key="veh.id" class="mb-2">
                 <div class="font-medium">{{ camelCase(veh.marca) }} {{ camelCase(veh.modelo) }}</div>
-                <div class="text-xs text-gray-500 uppercase font-bold">{{ veh.patente }}</div>
+                <div class="text-xs text-gray-300 uppercase font-bold">{{ veh.patente }}</div>
               </div>
                </div>
               <div v-else class="text-gray-400 italic text-sm">Sin vehículo</div>
             </td>
             <td class="p-4 neutro-font">
               <span class="block max-w-[200px] truncate" :title="item.comentario">{{ item.comentario || 'No registrado' }}</span>
+            </td>
+            <td class="p-4 text-center">
+              <span class="estado-badge" :class="claseEstadoCard(item.estado).clase">{{ claseEstadoCard(item.estado).texto }}</span>
             </td>
             <td class="p-4 text-center whitespace-nowrap">
               <span class="neutro-font">{{ formatearFecha(item.created_at) }}</span>
@@ -312,7 +375,7 @@ onMounted( async () => {
     <listadoFichas v-if="abrirListadoFichas" @cerrar="handleListadoFichas()" />
 
     <!-- Empty state mobile -->
-    <div v-if="cotizaciones.length === 0" class="neutro-secondary rounded-xl p-10 text-center shadow-sm border border-gray-100 md:hidden">
+    <div v-if="cotizaciones.length === 0" class="neutro-secondary rounded-xl p-10 text-center shadow-sm dark:border border-gray-700 md:hidden">
       <div class="neutro-font mb-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -353,9 +416,51 @@ onMounted( async () => {
   border-right: 5px solid #ffc800a5;
 }
 
+.inicial {
+  border-left: 5px solid #3b82f6a5;
+  border-right: 5px solid #3b82f6a5;
+}
+
 .cerrado {
   border-left: 5px solid #52026f;
   border-right: 5px solid #52026f;
+}
+
+/* Estado badges */
+.estado-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  white-space: nowrap;
+}
+
+.badge-pendiente {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-aprobada {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-rechazada {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-inicial {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-cerrada {
+  background-color: #ede9fe;
+  color: #5b21b6;
 }
 
 .card-container:hover {
