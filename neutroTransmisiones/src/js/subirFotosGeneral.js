@@ -1,4 +1,4 @@
-const WORKER_URL = 'https://subir-imagenes.soporte-NeutroTransmisiones.workers.dev/' 
+const WORKER_URL = 'https://upload.neutrotransmisiones.workers.dev/' 
 
 export const subirFotosGeneral = async (archivos) => {
 

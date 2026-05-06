@@ -34,9 +34,7 @@ const vehiculosEnTaller = ref(0)
 const otPorEntregar = ref(0)
 const presupuestosSemana = ref(0)
 const presupuestosHoy = ref(0)
-const vehiculosEstacionados = ref(0)
 
-// Capacidad máxima fija ya que ahora es solo un taller
 const capacidadMaxima = ref(15)
 const porcentajeCapacidad = computed(() => {
   if (!capacidadMaxima.value || capacidadMaxima.value === 0) return 0
@@ -44,28 +42,19 @@ const porcentajeCapacidad = computed(() => {
 })
 const TruncarPorcentaje = computed(() => Math.trunc(porcentajeCapacidad.value))
 
-const fichas = ref([])
-const aTiempo = ref(0)
-const porcentajeAtiempo = computed(() => fichas.value.length ? Math.trunc((aTiempo.value / fichas.value.length) * 100) : 0)
-
 const cotizacionesTotales = ref(0)
 const cotizacionesRechazadas = ref(0)
-const porcentajeRechazos = computed(() => cotizacionesTotales.value ? Math.trunc((cotizacionesRechazadas.value / cotizacionesTotales.value) * 100) : 0)
+const porcentajeAprobadas = computed(() => {
+  if (cotizacionesTotales.value === 0) return 0
+  return Math.trunc(((cotizacionesTotales.value - cotizacionesRechazadas.value) / cotizacionesTotales.value) * 100)
+})
 
 const trabajoReciente = ref([])
 const estados = ref([])
-const misOTs = ref([])
-const metricas = ref({
-  ocupacion_actual: 0,
-  ticket_promedio: 0,
-  porcentaje_a_tiempo: 0,
-  porcentaje_rechazos: 0
-})
+const ticketPromedio = ref(0)
 
-// Acciones de redirección (sin parámetros de taller)
+// Acciones de redirección
 const VehiculosEnTaller = () => router.push({ name: 'vehiculos-en-taller' })
-const SinAsignar = () => router.push({ name: 'ot-sin-asignar' })
-const PresupuestosSemana = () => router.push({ name: 'presupuestos-semana' })
 const ListoParaEntregar = () => router.push({ name: 'ot-por-entregar' })
 const verTablero = () => router.push({ name: 'ordenes-de-trabajo' })
 const irAChequeoCompleto = () => router.push({ name: 'chequeos' })
@@ -78,13 +67,12 @@ const formatoMoneda = (valor) => {
   return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(valor)
 }
 
-// Funciones de obtención de datos globales
 const handleVehiculosEnTaller = async () => {
   try {
     const { data, error } = await supabase
       .from('ficha_de_trabajo')
       .select('id, orden_trabajo!inner(id)')
-      .in('estado', [1, 2, 3, 4, 5])
+      .in('estado', [1, 2, 3])
     if (error) throw error
     vehiculosEnTaller.value = data.reduce((total, ficha) => total + (Array.isArray(ficha.orden_trabajo) ? ficha.orden_trabajo.length : 1), 0)
   } catch (error) { console.error('Error al obtener vehiculos:', error) }
@@ -95,7 +83,7 @@ const handleListosParaEntregar = async () => {
     const { error, count } = await supabase
       .from('ficha_de_trabajo')
       .select('id', { count: 'exact' })
-      .in('estado', [4, 5])
+      .in('estado', [3])
     if (error) throw error
     otPorEntregar.value = count || 0
   } catch (error) { console.error('Error al obtener ot por entregar:', error) }
@@ -103,61 +91,35 @@ const handleListosParaEntregar = async () => {
 
 const handleCotizaciones = async () => {
   try {
-    const { data, error, count } = await supabase
-      .from('cotizaciones_ficha')
-      .select('id, estado', { count: 'exact' })
-      .gt('created_at', fechaInicioSemana.value)
-    if (error) throw error
-    presupuestosSemana.value = count || 0
-    presupuestosHoy.value = data.filter(cot => cot.estado === 2).length
-  } catch (error) { console.error('Error al obtener cotizaciones:', error) }
-}
-
-const handleVehiculosEstacionados = async () => {
-  try {
     const { data, error } = await supabase
-      .from('ficha_de_trabajo')
-      .select('id, estado, orden_trabajo!inner(id)')
-      .eq('estado', 5)
-    if (error) throw error
-    vehiculosEstacionados.value = data.reduce((total, ficha) => total + (Array.isArray(ficha.orden_trabajo) ? ficha.orden_trabajo.length : 1), 0)
-  } catch (error) { console.error('Error al obtener estacionados:', error) }
-}
-
-const handleEntregaATiempo = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('ficha_de_trabajo')
-      .select('id, fecha_promesa, fecha_entrega')
-    if (error) throw error
-    fichas.value = data.filter(ficha => ficha.fecha_promesa && ficha.fecha_entrega) || []
-    aTiempo.value = fichas.value.filter(ficha => new Date(ficha.fecha_entrega) <= new Date(ficha.fecha_promesa)).length || 0
-  } catch (error) { console.error('Error al calcular entregas:', error) }
-}
-
-const handleStatsCotizaciones = async () => {
-  try {
-    const { data, error, count } = await supabase
       .from('cotizaciones_ficha')
-      .select('id, estado, total_final', { count: 'exact' })
-
+      .select('id, estado, total_final, created_at')
+    
     if (error) throw error
-
-    cotizacionesTotales.value = count || 0
-    const rechazadas = data.filter(cot => cot.estado === 3)
-    cotizacionesRechazadas.value = rechazadas.length
+    
+    // Cálculos globales (Efectividad y Ticket Promedio)
+    cotizacionesTotales.value = data.length || 0
+    cotizacionesRechazadas.value = data.filter(cot => cot.estado === 3).length
+    
     const aprobadas = data.filter(cot => cot.estado === 2)
-
-    if (cotizacionesTotales.value > 0) {
-      metricas.value.porcentaje_rechazos = Math.round((rechazadas.length / cotizacionesTotales.value) * 100)
-      if (aprobadas.length > 0) {
+    if (aprobadas.length > 0) {
         const sumaTotal = aprobadas.reduce((acc, cot) => acc + (Number(cot.total_final) || 0), 0)
-        metricas.value.ticket_promedio = Math.round(sumaTotal / aprobadas.length)
-      } else {
-        metricas.value.ticket_promedio = 0
-      }
+        ticketPromedio.value = Math.round(sumaTotal / aprobadas.length)
+    } else {
+        ticketPromedio.value = 0
     }
-  } catch (error) { console.error('Error al obtener stats de cotizaciones:', error) }
+
+    // Cálculos semanales y diarios
+    const fechaSemanaDate = new Date(fechaInicioSemana.value)
+    const deEstaSemana = data.filter(cot => new Date(cot.created_at) > fechaSemanaDate)
+    presupuestosSemana.value = deEstaSemana.length
+
+    const inicioHoy = new Date()
+    inicioHoy.setHours(0,0,0,0)
+    const deHoy = data.filter(cot => new Date(cot.created_at) >= inicioHoy)
+    presupuestosHoy.value = deHoy.length
+    
+  } catch (error) { console.error('Error al obtener cotizaciones:', error) }
 }
 
 const handleTrabajoReciente = async () => {
@@ -181,20 +143,6 @@ const handleTraerEstados = async () => {
   } catch (error) { console.error('Error al traer estados:', error) }
 }
 
-const handleMisOTs = async () => {
-  if (!userStore.user?.id) return
-  try {
-    const { data, error } = await supabase
-      .from('orden_trabajo')
-      .select('id, estado_actual_id, diagnostico, vehiculo(patente, marca, modelo), ficha_de_trabajo!inner(id, estado)')
-      .eq('id_empleado', userStore.user.id)
-      .in('ficha_de_trabajo.estado', [1, 2, 3, 4])
-      .order('id', { ascending: false })
-    if (error) throw error
-    misOTs.value = data || []
-  } catch (error) { console.error('Error al obtener mis OTs:', error) }
-}
-
 const handleEstados = (estadoId) => {
   return estados.value.find(e => e.id === estadoId) || { estado: 'Desconocido', color: '#6b7280', texto: '#ffffff' }
 }
@@ -205,12 +153,8 @@ onMounted(async () => {
   await handleVehiculosEnTaller()
   await handleListosParaEntregar()
   await handleCotizaciones()
-  await handleVehiculosEstacionados()
-  await handleEntregaATiempo()
-  await handleStatsCotizaciones()
   await handleTrabajoReciente()
   await handleTraerEstados()
-  await handleMisOTs()
 
   interfaz.hideLoading()
 })
@@ -220,348 +164,173 @@ onMounted(async () => {
   <div class="neutro-background min-h-screen flex flex-col font-sans">
     <navbar class="navbar" :titulo="'Dashboard'" notificaciones="true" :subtitulo="'Resumen de operaciones'" />
 
-    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-20">
-      <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-20 space-y-6">
+      
+      <!-- 1. Cabecera y Estado -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 class="text-2xl font-bold neutro-font">Hola Jeremy</h1>
-          <p class="neutro-font capitalize">{{ fechaHoy }}</p>
+          <h1 class="text-3xl font-bold neutro-font">Hola, Jeremy</h1>
+          <p class="text-sm font-medium neutro-font capitalize text-white/70">{{ fechaHoy }}</p>
         </div>
-        <div class="mt-2 sm:mt-0 flex items-center gap-3">
-
-          <!--
-        <select v-model="tallerSeleccionado" @change="cambiarTaller" class="text-sm font-medium neutro-secondary neutro-font border border-gray-100 rounded-lg px-3 py-1.5 shadow-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none cursor-pointer">
-            <option v-for="taller in talleres" :key="taller.id" :value="taller.id">{{ taller.nombre }}</option>
-          </select>
-          -->
+        <div class="mt-4 sm:mt-0 flex items-center">
           <span v-if="!esFinDeSemana"
-            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-neutro-primary border border-blue-100">
-            <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-            Operativo
+            class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold bg-green-500/10 text-green-400 border border-green-500/20">
+            <span class="w-2.5 h-2.5 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+            Taller Operativo
           </span>
           <span v-else
-            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-50 text-red-600 border border-red-100">
-            <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-            Cerrado
+            class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-bold bg-red-500/10 text-red-400 border border-red-500/20">
+            <span class="w-2.5 h-2.5 bg-red-500 rounded-full mr-2"></span>
+            Taller Cerrado
           </span>
         </div>
       </div>
-      <h1 class="text-2xl font-bold neutro-font pb-4">Acciones rápidas</h1>
-      <div class="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
-        <button @click="irAChequeoCompleto"
-          class="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-sm transition-all duration-200 hover:shadow-md active:scale-95 cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-            stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Realizar Chequeo Completo
-        </button>
-        <button @click="irACrearDeuda"
-          class="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-sm transition-all duration-200 hover:shadow-md active:scale-95 cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-            stroke="currentColor" class="w-4 h-4">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-          </svg>
-          Ver Deudas
-        </button>
-        <button @click="irACrearFinanzas"
-          class="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-sm transition-all duration-200 hover:shadow-md active:scale-95 cursor-pointer">
-          <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-            width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-            <path fill-rule="evenodd"
-              d="M5.617 2.076a1 1 0 0 1 1.09.217L8 3.586l1.293-1.293a1 1 0 0 1 1.414 0L12 3.586l1.293-1.293a1 1 0 0 1 1.414 0L16 3.586l1.293-1.293A1 1 0 0 1 19 3v18a1 1 0 0 1-1.707.707L16 20.414l-1.293 1.293a1 1 0 0 1-1.414 0L12 20.414l-1.293 1.293a1 1 0 0 1-1.414 0L8 20.414l-1.293 1.293A1 1 0 0 1 5 21V3a1 1 0 0 1 .617-.924ZM9 7a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H9Zm0 4a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H9Zm0 4a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H9Z"
-              clip-rule="evenodd" />
-          </svg>
-          Ingresar Compra/Venta
-        </button>
-        <button @click="irACrearCotizacion"
-          class="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-sm transition-all duration-200 hover:shadow-md active:scale-95 cursor-pointer">
-          <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-            width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-            <path fill-rule="evenodd"
-              d="M8 7V2.221a2 2 0 0 0-.5.365L3.586 6.5a2 2 0 0 0-.365.5H8Zm2 0V2h7a2 2 0 0 1 2 2v.126a5.087 5.087 0 0 0-4.74 1.368v.001l-6.642 6.642a3 3 0 0 0-.82 1.532l-.74 3.692a3 3 0 0 0 3.53 3.53l3.694-.738a3 3 0 0 0 1.532-.82L19 15.149V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Z"
-              clip-rule="evenodd" />
-            <path fill-rule="evenodd"
-              d="M17.447 8.08a1.087 1.087 0 0 1 1.187.238l.002.001a1.088 1.088 0 0 1 0 1.539l-.377.377-1.54-1.542.373-.374.002-.001c.1-.102.22-.182.353-.237Zm-2.143 2.027-4.644 4.644-.385 1.924 1.925-.385 4.644-4.642-1.54-1.54Zm2.56-4.11a3.087 3.087 0 0 0-2.187.909l-6.645 6.645a1 1 0 0 0-.274.51l-.739 3.693a1 1 0 0 0 1.177 1.176l3.693-.738a1 1 0 0 0 .51-.274l6.65-6.646a3.088 3.088 0 0 0-2.185-5.275Z"
-              clip-rule="evenodd" />
-          </svg>
-          Cotización Rápida
-        </button>
-      </div>
-      <h1 class="text-2xl font-bold neutro-font pb-4">Resumen de operaciones</h1>
-      <div class="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-4">
-        <div @click="VehiculosEnTaller"
-          class="neutro-primary overflow-hidden cursor-pointer rounded-xl shadow-sm border border-gray-100 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-95">
-          <div class="p-4 sm:p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="p-2.5 sm:p-3 rounded-lg bg-blue-50 text-neutro-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
-                    <circle cx="7" cy="17" r="2" />
-                    <circle cx="17" cy="17" r="2" />
-                  </svg>
-                </div>
-              </div>
-              <div class="ml-4 w-0 flex-1">
-                <dt class="text-xs sm:text-sm font-medium text-white truncate">Vehículos en Taller</dt>
-                <dd class="text-xl sm:text-2xl font-bold text-white">{{ vehiculosEnTaller }}</dd>
-              </div>
-            </div>
-          </div>
-          <div class="px-4 sm:px-5 py-2.5">
-            <div class="text-xs font-medium text-white" :class="{ 'text-red-600': TruncarPorcentaje > 80 }">{{
-              TruncarPorcentaje }}% capacidad</div>
-          </div>
-        </div>
 
-        <div @click="SinAsignar"
-          class="neutro-primary overflow-hidden cursor-pointer rounded-xl shadow-sm border border-gray-100 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-95">
-          <div class="p-4 sm:p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="p-2.5 sm:p-3 rounded-lg bg-red-50 text-red-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                </div>
-              </div>
-              <div class="ml-4 w-0 flex-1">
-                <dt class="text-xs sm:text-sm font-medium text-white truncate">Vehiculos Estacionados</dt>
-                <dd class="text-xl sm:text-2xl font-bold text-white">{{ vehiculosEstacionados }}</dd>
-              </div>
-            </div>
-          </div>
-          <div v-if="vehiculosEstacionados > 2" class="px-4 sm:px-5 py-2.5">
-            <span class="text-xs font-bold text-red-600">Requiere acción</span>
-          </div>
-          <div v-else class="px-4 sm:px-5 py-2.5">
-            <span class="text-xs font-bold text-green-600">Todo en orden</span>
-          </div>
-        </div>
-
-        <div @click="PresupuestosSemana"
-          class="neutro-primary overflow-hidden cursor-pointer rounded-xl shadow-sm border border-gray-100 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-95">
-          <div class="p-4 sm:p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="p-2.5 sm:p-3 rounded-lg bg-green-50 text-green-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-              <div class="ml-4 w-0 flex-1">
-                <dt class="text-xs sm:text-sm font-medium text-white truncate">Cotizaciones / Semana</dt>
-                <dd class="text-xl sm:text-2xl font-bold text-white">{{ presupuestosSemana }}</dd>
-              </div>
-            </div>
-          </div>
-          <div class="px-4 sm:px-5 py-2.5 flex justify-between items-center">
-            <div class="text-xs text-white">Aprobados hoy</div>
-            <div class="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">+{{ presupuestosHoy }}
-            </div>
-          </div>
-        </div>
-
-        <div @click="ListoParaEntregar"
-          class="neutro-primary overflow-hidden cursor-pointer rounded-xl shadow-sm border border-gray-100 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-95">
-          <div class="p-4 sm:p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <div class="p-2.5 sm:p-3 rounded-lg bg-yellow-50 text-yellow-700">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-              <div class="ml-4 w-0 flex-1">
-                <dt class="text-xs sm:text-sm font-medium text-white truncate">Trabajos por Entregar</dt>
-                <dd class="text-xl sm:text-2xl font-bold text-white">{{ otPorEntregar }}</dd>
-              </div>
-            </div>
-          </div>
-          <div class="px-4 sm:px-5 py-2.5">
-            <div class="text-xs font-medium text-yellow-400">Contactar clientes</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mis OTs asignadas -->
-      <div v-if="misOTs.length > 0"
-        class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-        <div class="p-5 border-b border-gray-100 neutro-primary flex justify-between items-center">
-          <h2 class="text-lg font-bold text-white flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      <!-- 2. Acciones Rápidas -->
+      <div>
+        <h2 class="text-lg font-bold neutro-font mb-3">Acciones rápidas</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button @click="irAChequeoCompleto"
+            class="flex items-center justify-center gap-2 p-3 rounded-xl font-bold text-white neutro-secondary hover:bg-white/5 transition-colors border border-white/5 shadow-sm cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Mis OTs Asignadas
-          </h2>
-          <span class="text-xs font-bold neutro-font bg-white/10 px-2.5 py-1 rounded-full">{{ misOTs.length }}</span>
+            Nuevo Chequeo
+          </button>
+          <button @click="irACrearCotizacion"
+            class="flex items-center justify-center gap-2 p-3 rounded-xl font-bold text-white neutro-secondary hover:bg-white/5 transition-colors border border-white/5 shadow-sm cursor-pointer">
+            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" d="M8 7V2.221a2 2 0 0 0-.5.365L3.586 6.5a2 2 0 0 0-.365.5H8Zm2 0V2h7a2 2 0 0 1 2 2v.126a5.087 5.087 0 0 0-4.74 1.368v.001l-6.642 6.642a3 3 0 0 0-.82 1.532l-.74 3.692a3 3 0 0 0 3.53 3.53l3.694-.738a3 3 0 0 0 1.532-.82L19 15.149V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9h5a2 2 0 0 0 2-2Z" clip-rule="evenodd" />
+            </svg>
+            Cotización Rápida
+          </button>
+          <button @click="irACrearFinanzas"
+            class="flex items-center justify-center gap-2 p-3 rounded-xl font-bold text-white neutro-secondary hover:bg-white/5 transition-colors border border-white/5 shadow-sm cursor-pointer">
+            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" d="M5.617 2.076a1 1 0 0 1 1.09.217L8 3.586l1.293-1.293a1 1 0 0 1 1.414 0L12 3.586l1.293-1.293a1 1 0 0 1 1.414 0L16 3.586l1.293-1.293A1 1 0 0 1 19 3v18a1 1 0 0 1-1.707.707L16 20.414l-1.293 1.293a1 1 0 0 1-1.414 0L12 20.414l-1.293 1.293a1 1 0 0 1-1.414 0L8 20.414l-1.293 1.293A1 1 0 0 1 5 21V3a1 1 0 0 1 .617-.924ZM9 7a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H9Z" clip-rule="evenodd" />
+            </svg>
+            Gasto / Ingreso
+          </button>
+          <button @click="irACrearDeuda"
+            class="flex items-center justify-center gap-2 p-3 rounded-xl font-bold text-white neutro-secondary hover:bg-white/5 transition-colors border border-white/5 shadow-sm cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            Ver Deudas
+          </button>
         </div>
+      </div>
 
-        <!-- Table (desktop) -->
-        <div class="hidden md:block overflow-x-auto">
-          <table class="w-full text-sm text-left">
-            <thead class="text-xs text-white neutro-primary uppercase">
-              <tr>
-                <th class="px-5 py-3">OT</th>
-                <th class="px-5 py-3">Patente</th>
-                <th class="px-5 py-3">Vehículo</th>
-                <th class="px-5 py-3">Diagnóstico</th>
-                <th class="px-5 py-3">Estado</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-              <tr v-for="ot in misOTs" :key="ot.id" @click="verOT(ot.id)"
-                class="hover:opacity-80 transition-colors cursor-pointer">
-                <td class="px-5 py-3.5 font-bold neutro-font">#{{ ot.id }}</td>
-                <td class="px-5 py-3.5">
-                  <span class="px-2 py-1 bg-yellow-100 text-yellow-800 font-bold rounded text-xs">{{
-                    ot.vehiculo?.patente || 'S/P' }}</span>
-                </td>
-                <td class="px-5 py-3.5 neutro-font">{{ ot.vehiculo?.marca }} {{ ot.vehiculo?.modelo }}</td>
-                <td class="px-5 py-3.5 neutro-font truncate max-w-[200px]">{{ ot.diagnostico || 'Sin diagnóstico' }}
-                </td>
-                <td class="px-5 py-3.5">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
-                    :style="{ backgroundColor: handleEstados(ot.estado_actual_id).color, color: 'white' }">{{
-                      handleEstados(ot.estado_actual_id).estado }}</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <!-- 3. KPIs Principales -->
+      <div>
+        <h2 class="text-lg font-bold neutro-font mb-3">Métricas Generales</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <!-- KPI 1: Ocupación -->
+          <div @click="VehiculosEnTaller" class="neutro-primary rounded-2xl p-5 border border-white/10 hover:bg-white/5 transition-colors cursor-pointer">
+            <div class="flex items-center justify-between mb-4">
+              <div class="p-2.5 rounded-lg bg-blue-500/20 text-blue-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <span class="text-xs font-bold px-2 py-1 bg-white/10 rounded-full text-white/80">Ocupación</span>
+            </div>
+            <h3 class="text-3xl font-black text-white">{{ vehiculosEnTaller }} <span class="text-sm font-medium text-white/50">/ {{ capacidadMaxima }}</span></h3>
+            <div class="mt-3 w-full bg-white/10 rounded-full h-1.5">
+              <div class="bg-blue-500 h-1.5 rounded-full" :style="{ width: `${Math.min((vehiculosEnTaller / capacidadMaxima) * 100, 100)}%` }"></div>
+            </div>
+          </div>
 
-        <!-- Cards (mobile) -->
-        <div class="md:hidden divide-y divide-gray-100">
-          <div v-for="ot in misOTs" :key="ot.id" @click="verOT(ot.id)"
-            class="p-4 hover:opacity-80 transition-colors cursor-pointer">
-            <div class="flex items-center justify-between mb-2">
-              <span class="font-bold neutro-font">#{{ ot.id }}</span>
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
-                :style="{ backgroundColor: handleEstados(ot.estado_actual_id).color, color: 'white' }">{{
-                  handleEstados(ot.estado_actual_id).estado }}</span>
+          <!-- KPI 2: Listos para Entregar -->
+          <div @click="ListoParaEntregar" class="neutro-primary rounded-2xl p-5 border border-white/10 hover:bg-white/5 transition-colors cursor-pointer">
+            <div class="flex items-center justify-between mb-4">
+              <div class="p-2.5 rounded-lg bg-green-500/20 text-green-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <span class="text-xs font-bold px-2 py-1 bg-white/10 rounded-full text-white/80">Para entregar</span>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="px-2 py-1 bg-yellow-100 text-yellow-800 font-bold rounded text-xs">{{ ot.vehiculo?.patente ||
-                'S/P' }}</span>
-              <span class="text-sm neutro-font">{{ ot.vehiculo?.marca }} {{ ot.vehiculo?.modelo }}</span>
+            <h3 class="text-3xl font-black text-white">{{ otPorEntregar }}</h3>
+            <p class="text-sm font-medium text-white/60 mt-2">Vehículos listos</p>
+          </div>
+
+          <!-- KPI 3: Efectividad Comercial -->
+          <div class="neutro-primary rounded-2xl p-5 border border-white/10">
+            <div class="flex items-center justify-between mb-4">
+              <div class="p-2.5 rounded-lg bg-yellow-500/20 text-yellow-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+              <span class="text-xs font-bold px-2 py-1 bg-white/10 rounded-full text-white/80">Aprobación</span>
             </div>
-            <p class="text-xs neutro-font mt-2 truncate">{{ ot.diagnostico || 'Sin diagnóstico' }}</p>
+            <h3 class="text-3xl font-black text-white">{{ porcentajeAprobadas }}%</h3>
+            <p class="text-sm font-medium text-white/60 mt-2">Global</p>
           </div>
         </div>
       </div>
 
-      <!-- Contenido principal -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        <!-- Flujo de trabajo reciente (2/3) -->
-        <div class="lg:col-span-2 neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="p-5 border-b border-gray-100 neutro-primary flex justify-between items-center">
-            <h2 class="text-lg font-bold text-white">Flujo de Trabajo Reciente</h2>
-            <button @click="verTablero" class="text-sm cursor-pointer text-white hover:text-blue-800 font-medium">Ver
-              tablero</button>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left">
-              <thead class="text-xs text-white neutro-primary uppercase">
-                <tr>
-                  <th class="px-5 py-3">Orden</th>
-                  <th class="px-5 py-3">Vehículo</th>
-                  <th class="px-5 py-3">Servicio</th>
-                  <th class="px-5 py-3">Estado</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200">
-                <tr v-for="ot in trabajoReciente" @click="verOT(ot.id)" :key="ot.id"
-                  class="hover:opacity-80 transition-colors cursor-pointer">
-                  <td class="px-5 py-3.5 font-medium neutro-font">#{{ ot.id }}</td>
-                  <td class="px-5 py-3.5 neutro-font">{{ ot.vehiculo?.patente }}</td>
-                  <td class="px-5 py-3.5 neutro-font truncate max-w-[100px] sm:max-w-none">{{ ot.diagnostico || 'Sin diagnóstico' }}</td>
-                  <td class="px-5 py-3.5">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
-                      :style="{ backgroundColor: handleEstados(ot.estado_actual_id).color, color: 'white' }">{{
-                        handleEstados(ot.estado_actual_id).estado }}</span>
-                  </td>
-                </tr>
-                <tr v-if="trabajoReciente.length === 0" class="hover:opacity-80 transition-colors cursor-pointer">
-                  <td class="px-5 py-3.5 font-medium neutro-font">No hay OT recientes</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
+      <!-- 4. Columnas Detalladas -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Columna Operativa -->
         <div class="space-y-6">
-
-          <div class="space-y-6">
-            <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <div class="p-5 neutro-primary border-b border-gray-100">
-                <h3 class="font-bold text-white">Métricas de Eficiencia</h3>
+          <div class="neutro-primary rounded-2xl border border-white/10 overflow-hidden h-full">
+            <div class="p-4 border-b border-white/10 flex justify-between items-center">
+              <h3 class="font-bold text-white">Trabajo Reciente</h3>
+              <button @click="verTablero" class="text-xs font-bold text-blue-400 hover:text-blue-300">Ver todas</button>
+            </div>
+            <div class="p-4">
+              <div v-if="trabajoReciente.length === 0" class="text-center py-6 text-white/50 text-sm">
+                No hay trabajo reciente.
               </div>
-              <div class="p-5 space-y-5">
-
-                <div>
-                  <div class="flex justify-between mb-2">
-                    <span class="text-sm font-medium neutro-font">
-                      Ocupación Taller ({{ vehiculosEnTaller }}/{{ capacidadMaxima }})
-                    </span>
-                    <span class="text-sm font-bold neutro-font">
-                      {{ TruncarPorcentaje }}%
-                    </span>
+              <div v-else class="space-y-3">
+                <div v-for="ot in trabajoReciente" :key="ot.id" @click="verOT(ot.id)"
+                  class="neutro-secondary p-3 rounded-xl border border-white/5 hover:bg-white/5 transition-colors cursor-pointer flex items-center justify-between">
+                  <div class="flex-1 min-w-0">
+                    <p class="font-bold text-white text-sm">Ficha #{{ ot.id_ficha }} - OT #{{ ot.id }}</p>
+                    <p class="text-xs text-white/60 truncate mt-0.5">
+                      {{ ot.vehiculo?.marca }} {{ ot.vehiculo?.modelo }} ({{ ot.vehiculo?.patente }})
+                    </p>
                   </div>
-                  <div class="w-full neutro-primary rounded-full h-2.5">
-                    <div class="bg-blue-500 h-2.5 rounded-full transition-all duration-500"
-                      :style="{ width: `${Math.min((vehiculosEnTaller / capacidadMaxima) * 100, 100)}%` }">
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="flex justify-between mb-2">
-                    <span class="text-sm font-medium neutro-font">Entrega a Tiempo</span>
-                    <span class="text-sm font-bold text-green-600">
-                      {{ porcentajeAtiempo || 0 }}%
+                  <div class="ml-4 mr-2">
+                    <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider text-center block"
+                      :style="{ backgroundColor: handleEstados(ot.estado_actual_id).color, color: handleEstados(ot.estado_actual_id).texto }">
+                      {{ handleEstados(ot.estado_actual_id).estado }}
                     </span>
                   </div>
-                  <div class="w-full neutro-secondary rounded-full h-2.5">
-                    <div class="bg-green-500 h-2.5 rounded-full transition-all duration-500"
-                      :style="{ width: `${porcentajeAtiempo || 0}%` }">
-                    </div>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 pt-4 border-t border-gray-100">
-                  <div class="text-center p-3 neutro-secondary rounded-lg transition-all duration-200 hover:shadow-sm">
-                    <div class="text-xs neutro-font uppercase tracking-wider">Ticket Prom.</div>
-                    <div class="font-bold neutro-font mt-1">
-                      {{ formatoMoneda(metricas.ticket_promedio) }}
-                    </div>
-                  </div>
-                  <div class="text-center p-3 neutro-secondary rounded-lg">
-                    <div class="text-xs neutro-font uppercase tracking-wider">Rechazos</div>
-                    <div class="font-bold text-red-500 mt-1">
-                      {{ porcentajeRechazos || 0 }}%
-                    </div>
-                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
+        <!-- Columna Financiera -->
+        <div class="space-y-6">
+          <div class="neutro-primary rounded-2xl border border-white/10 overflow-hidden h-full">
+            <div class="p-4 border-b border-white/10">
+              <h3 class="font-bold text-white">Resumen Comercial</h3>
+            </div>
+            <div class="p-6">
+              <div class="grid grid-cols-2 gap-4">
+                <div class="neutro-secondary p-4 rounded-xl border border-white/5 text-center flex flex-col justify-center">
+                  <span class="text-xs font-bold text-white/60 uppercase tracking-wider block mb-2">Presupuestos Hoy</span>
+                  <span class="text-2xl font-black text-white">{{ presupuestosHoy }}</span>
+                </div>
+                <div class="neutro-secondary p-4 rounded-xl border border-white/5 text-center flex flex-col justify-center">
+                  <span class="text-xs font-bold text-white/60 uppercase tracking-wider block mb-2">Ticket Promedio</span>
+                  <span class="text-xl font-black text-green-400">{{ formatoMoneda(ticketPromedio) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </main>
   </div>
 </template>

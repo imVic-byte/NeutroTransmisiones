@@ -33,9 +33,8 @@ const obtenerMisOTs = async () => {
     const { data, error } = await supabase
       .from('orden_trabajo')
       .select('id, diagnostico, vehiculo(patente, marca, modelo), ficha_de_trabajo!inner(id, estado, cliente(nombre, apellido, telefono))')
-      .eq('id_empleado', userStore.user.id)
       .is('chequeo', null)
-      .in('ficha_de_trabajo.estado', [1, 2, 3, 4])
+      .in('ficha_de_trabajo.estado', [1,2,3])
       .order('id', { ascending: false })
     if (error) throw error
     misOTs.value = data || []

@@ -519,6 +519,21 @@ onMounted(async () => {
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 pb-15">
       <volver />
+
+      <!-- Advertencia de Chequeo Faltante -->
+      <div v-if="!chequeo && !isCerrado && datosCargados"
+        class="mb-6 p-4 mt-6 bg-red-100 border-l-4 border-red-600 text-red-800 rounded shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <p class="font-bold">¡Atención! Esta Orden de Trabajo NO tiene un chequeo completo asociado.</p>
+        </div>
+        <button v-if="!soloLectura" @click="irACrearChequeo" class="px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-sm hover:bg-red-700 transition-colors shadow-sm cursor-pointer whitespace-nowrap w-full sm:w-auto text-center">
+          Realizar Chequeo
+        </button>
+      </div>
       <div v-if="isCerrado"
         class="mb-6 p-4 bg-blue-100 border-l-4 border-blue-600 text-blue-800 rounded shadow-sm flex items-center gap-3">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
