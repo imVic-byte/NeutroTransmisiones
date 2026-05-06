@@ -140,7 +140,7 @@ onMounted(async () => {
       <Navbar titulo="NeutroTransmisiones" subtitulo="Chequeo PDF" class="navbar" />
       <div class="mt-4 flex w-[70%] mx-auto justify-between">
         <Volver />
-        <button @click="generarPDF" class="ml-4 px-4 py-2 bg-[#1f3d64] text-white rounded-lg transition-colors cursor-pointer">
+        <button @click="generarPDF" class="ml-4 px-4 py-2 bg-[#234723] text-white rounded-lg transition-colors cursor-pointer">
           Generar PDF
         </button>
       </div>
@@ -157,17 +157,17 @@ onMounted(async () => {
         <div class="flex flex-col items-center justify-center min-h-[90vh] text-center">
           <!-- Logo y branding -->
           <div class="mb-8">
-            <span class="w-32 h-32 rounded-full overflow-hidden border-2 border-[#1f3d64] mx-auto block">
-              <img class="w-full h-full object-cover" src="../../img/Logo.jpg" alt="Logo">
+            <span class="w-32 h-32 flex items-center justify-center overflow-hidden mx-auto block">
+              <img class="w-[80%] h-[80%] object-contain" src="../../img/Logo.jpg" alt="Logo">
             </span>
-            <h1 class="text-4xl font-black tracking-tighter italic text-[#1f3d64] mt-4">NeutroTransmisiones</h1>
+            <h1 class="text-4xl font-black tracking-tighter italic text-[#234723] mt-4">NeutroTransmisiones</h1>
             <p class="font-bold uppercase text-[13px] tracking-[0.3em] text-[#4b5563] mt-1">Servicios Mecánicos</p>
           </div>
 
           <!-- Título del documento -->
           <div class="mb-8">
             <div class="inline-block px-8 py-3 rounded-lg">
-              <h2 class="text-2xl font-bold tracking-wide uppercase text-[#1f3d64]">Chequeo Vehicular</h2>
+              <h2 class="text-2xl font-bold tracking-wide uppercase text-[#234723]">Chequeo Vehicular</h2>
             </div>
             <div class="mt-3">
               <p class="text-lg font-mono font-bold text-[#dc2626]">Chequeo N° {{ chequeo.id }}</p>
@@ -177,21 +177,21 @@ onMounted(async () => {
           </div>
 
           <!-- Separador -->
-          <div class="w-24 h-1 bg-[#1f3d64] rounded mx-auto mb-8"></div>
+          <div class="w-24 h-1 bg-[#234723] rounded mx-auto mb-8"></div>
 
           <!-- Info empresa y cliente lado a lado -->
           <div class="grid grid-cols-2 gap-10 text-left w-full max-w-lg mx-auto mb-8">
             <div>
-              <h3 class="font-bold border-b-2 border-[#1f3d64] mb-2 pb-1 text-[11px] uppercase text-[#1f3d64]">De: NeutroTransmisiones</h3>
+              <h3 class="font-bold border-b-2 border-[#234723] mb-2 pb-1 text-[11px] uppercase text-[#234723]">De: NeutroTransmisiones</h3>
               <ul class="space-y-1 text-[#374151] text-xs">
-                <li><span class="font-bold text-[#111827]">Dirección:</span> {{ datosEmpresa?.dirección || '...' }}</li>
+                <li><span class="font-bold text-[#111827]">Dirección:</span> {{ datosEmpresa?.direccion || '...' }}</li>
                 <li><span class="font-bold text-[#111827]">Ciudad:</span> {{ datosEmpresa?.ciudad || '...' }}</li>
                 <li><span class="font-bold text-[#111827]">Teléfono:</span> {{ datosEmpresa?.telefono || 'Sin Teléfono' }}</li>
                 <li><span class="font-bold text-[#111827]">Email:</span> {{ datosEmpresa?.email || '...' }}</li>
               </ul>
             </div>
             <div>
-              <h3 class="font-bold border-b-2 border-[#1f3d64] mb-2 pb-1 text-[11px] uppercase text-[#1f3d64]">Para: Cliente</h3>
+              <h3 class="font-bold border-b-2 border-[#234723] mb-2 pb-1 text-[11px] uppercase text-[#234723]">Para: Cliente</h3>
               <ul class="space-y-1 text-[#374151] text-xs" v-if="ot">
                 <li>
                   <span class="font-bold text-[#111827]">Cliente:</span>
@@ -212,9 +212,9 @@ onMounted(async () => {
 
           <!-- Vehículo -->
           <div class="w-full max-w-lg mx-auto text-left mb-6" v-if="ot">
-            <h3 class="font-bold border-b-2 border-[#1f3d64] mb-2 pb-1 text-[11px] uppercase text-[#1f3d64]">Vehículo</h3>
+            <h3 class="font-bold border-b-2 border-[#234723] mb-2 pb-1 text-[11px] uppercase text-[#234723]">Vehículo</h3>
             <div class="p-3 rounded-lg border border-[#e2e8f0] bg-[#f8fafc]">
-              <p class="font-bold uppercase text-sm text-[#1f3d64]">
+              <p class="font-bold uppercase text-sm text-[#234723]">
                 {{ ot.vehiculo?.marca }} {{ ot.vehiculo?.modelo }} {{ ot.vehiculo?.anio || '' }}
               </p>
               <p class="text-xs mt-1 text-[#4b5563]">
@@ -244,12 +244,12 @@ onMounted(async () => {
 
         <!-- ==================== DETALLE DE CHEQUEO ==================== -->
         <div class="bg-white relative" style="page-break-before: always;">
-          <div class="w-full h-2 bg-[#1f3d64]"></div>
+          <div class="w-full h-2 bg-[#234723]"></div>
           
           <div class="p-5">
             <div class="flex justify-between items-end border-b border-[#e5e7eb] pb-2 mb-4">
               <div>
-                <h2 class="text-xl font-bold uppercase tracking-tight text-[#1f3d64]">Detalle de Inspección</h2>
+                <h2 class="text-xl font-bold uppercase tracking-tight text-[#234723]">Detalle de Inspección</h2>
                 <p class="text-xs text-[#6b7280]">Resultado completo del chequeo vehicular</p>
               </div>
               <div class="text-right">
@@ -263,7 +263,7 @@ onMounted(async () => {
             <!-- Tabla de items por categoría -->
             <template v-for="(catMeta, catKey) in categorias" :key="catKey">
               <div v-if="chequeo.datos_chequeo?.[catKey]" class="mb-4 break-inside-avoid">
-                <h3 class="flex items-center gap-3 text-[11px] font-bold uppercase border-b-2 pb-1 mb-2 text-[#1f3d64] border-[#1f3d64]">
+                <h3 class="flex items-center gap-3 text-[11px] font-bold uppercase border-b-2 pb-1 mb-2 text-[#234723] border-[#234723]">
                   {{ catMeta.titulo }}
                 </h3>
                 <table class="w-full text-[11px]">
@@ -289,7 +289,7 @@ onMounted(async () => {
 
             <!-- Observaciones generales -->
             <div v-if="chequeo.observaciones" class="mt-4 break-inside-avoid">
-              <h3 class="flex items-center gap-3 text-[11px] font-bold uppercase border-b-2 pb-1 mb-2 text-[#1f3d64] border-[#1f3d64]">
+              <h3 class="flex items-center gap-3 text-[11px] font-bold uppercase border-b-2 pb-1 mb-2 text-[#234723] border-[#234723]">
                 Observaciones Generales
               </h3>
               <p class="text-[11px] leading-snug text-[#4b5563]">{{ chequeo.observaciones }}</p>
@@ -305,12 +305,12 @@ onMounted(async () => {
 
         <!-- ==================== HALLAZGOS (items malo) ==================== -->
         <div v-if="itemsMalos(chequeo.datos_chequeo).length > 0" class="bg-white relative" style="page-break-before: always;">
-          <div class="w-full h-2 bg-[#1f3d64]"></div>
+          <div class="w-full h-2 bg-[#234723]"></div>
           
           <div class="p-5">
             <div class="flex justify-between items-end border-b border-[#e5e7eb] pb-2 mb-4">
               <div>
-                <h2 class="text-xl font-bold uppercase tracking-tight text-[#1f3d64]">Hallazgos y Observaciones</h2>
+                <h2 class="text-xl font-bold uppercase tracking-tight text-[#234723]">Hallazgos y Observaciones</h2>
                 <p class="text-xs text-[#6b7280]">Detalle de items con estado deficiente y registro fotográfico</p>
               </div>
               <div class="text-right">

@@ -13,7 +13,7 @@ const userStore = useUserStore()
 
 const activarNotificaciones = async () => {
   try {
-    const userId = 'ID_DEL_USUARIO_AQUI'
+    const userId = userStore.user.id
     await subscribeToPush(userId)
     alert('Notificaciones activadas correctamente')
   } catch (error) {
