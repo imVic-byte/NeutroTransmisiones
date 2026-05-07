@@ -539,7 +539,7 @@ onMounted(async () => {
                 
               </div>
             </div>
-            <p v-else class="text-sm text-gray-500 italic p-6 text-center">No hay cotizaciones previas.</p>
+            <p v-else class="text-sm text-gray-200 italic p-6 text-center">No hay cotizaciones previas.</p>
           </div>
           <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
              <div class="neutro-primary px-6 py-4  flex justify-between items-center">

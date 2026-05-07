@@ -198,7 +198,7 @@ onMounted(async () => {
   <div class="space-y-6">
 
     <!-- Transmisión: Autocomplete + Formulario -->
-    <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
       <div class="neutro-primary px-6 py-4 flex justify-between items-center">
         <h2 class="neutro-font font-bold text-lg tracking-wide uppercase">Datos de Transmisión</h2>
         <button v-if="transmisionSeleccionada" @click="limpiarTransmision" type="button"
@@ -215,13 +215,13 @@ onMounted(async () => {
             v-model="transmisionQuery"
             type="text"
             placeholder="Buscar modelo de caja... (ej: 4T65E, 6T70)"
-            class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+            class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
             @focus="mostrarSugerencias = sugerenciasTransmision.length > 0"
             @input="datosNuevaTransmision.modelo_caja = transmisionQuery"
           />
           <!-- Dropdown sugerencias -->
           <div v-if="mostrarSugerencias"
-            class="absolute z-10 w-full mt-1 neutro-secondary border border-gray-100 rounded-lg shadow-xl max-h-48 overflow-y-auto">
+            class="absolute z-10 w-full mt-1 neutro-secondary dark:border border-gray-700 rounded-lg shadow-xl max-h-48 overflow-y-auto">
             <button
               v-for="s in sugerenciasTransmision" :key="s.id"
               @click="seleccionarTransmision(s)"
@@ -277,34 +277,34 @@ onMounted(async () => {
             <div class="space-y-1">
               <label class="text-xs font-bold neutro-font uppercase tracking-wider">Fabricante</label>
               <input v-model="datosNuevaTransmision.fabricante" type="text" placeholder="Ej: GM, ZF, Aisin..."
-                class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
+                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
             </div>
             <div class="space-y-1">
               <label class="text-xs font-bold neutro-font uppercase tracking-wider">Tipo de Fluido</label>
               <input v-model="datosNuevaTransmision.tipo_fluido" type="text" placeholder="Ej: Dexron VI, ATF+4..."
-                class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
+                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
             </div>
             <div class="space-y-1">
               <label class="text-xs font-bold neutro-font uppercase tracking-wider">Capacidad (Litros)</label>
               <input v-model="datosNuevaTransmision.capacidad_litros" type="number" placeholder="Ej: 7"
-                class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
+                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
             </div>
             <div class="space-y-1">
               <label class="text-xs font-bold neutro-font uppercase tracking-wider">Torque Cuerpo Válvulas (Nm)</label>
               <input v-model="datosNuevaTransmision.torque_cuerpo_valvulas_nm" type="number" placeholder="Ej: 10"
-                class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
+                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
             </div>
             <div class="space-y-1">
               <label class="text-xs font-bold neutro-font uppercase tracking-wider">Torque Cárter (Nm)</label>
               <input v-model="datosNuevaTransmision.torque_carter_nm" type="number" placeholder="Ej: 15"
-                class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
+                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
             </div>
           </div>
           <div class="space-y-1">
             <label class="text-xs font-bold neutro-font uppercase tracking-wider">Notas Técnicas</label>
             <textarea v-model="datosNuevaTransmision.notas_tecnicas" placeholder="Observaciones adicionales sobre esta transmisión..."
               rows="2"
-              class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium resize-none"></textarea>
+              class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium resize-none"></textarea>
           </div>
           <div class="flex justify-end">
             <button @click="guardarTransmision" type="button" :disabled="cargando || !datosNuevaTransmision.modelo_caja"
@@ -321,7 +321,7 @@ onMounted(async () => {
     </div>
 
     <!-- Diagnóstico de Transmisión -->
-    <div class="neutro-secondary rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
       <div class="neutro-primary px-6 py-4 flex justify-between items-center">
         <h2 class="neutro-font font-bold text-lg tracking-wide uppercase">Diagnóstico de Transmisión</h2>
       </div>
@@ -369,14 +369,14 @@ onMounted(async () => {
               v-model="datosTransmision.codigos_falla_tcm"
               type="text"
               placeholder="Ej: P0700, P0731..."
-              class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+              class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
             />
           </div>
           <div class="space-y-1">
             <label class="text-xs font-bold neutro-font uppercase tracking-wider">Estado del Fluido al Recibir</label>
             <select
               v-model="datosTransmision.estado_fluido"
-              class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+              class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
             >
               <option value="">Seleccione estado...</option>
               <option value="limpio">Limpio / Rojo</option>
@@ -391,7 +391,7 @@ onMounted(async () => {
               v-model="datosTransmision.prueba_calado_rpm"
               type="number"
               placeholder="Ej: 1800"
-              class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+              class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
             />
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -401,7 +401,7 @@ onMounted(async () => {
                 v-model="datosTransmision.presion_linea_ralenti"
                 type="number"
                 placeholder="Ej: 60"
-                class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               />
             </div>
             <div class="space-y-1">
@@ -410,11 +410,11 @@ onMounted(async () => {
                 v-model="datosTransmision.presion_linea_carga"
                 type="number"
                 placeholder="Ej: 120"
-                class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               />
             </div>
           </div>
-          <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg border border-gray-100 hover:border-blue-400 transition-colors">
+          <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg dark:border border-gray-700 hover:border-blue-400 transition-colors">
             <input type="checkbox" v-model="datosTransmision.inspeccion_fugas_externas" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
             <span class="text-sm font-medium neutro-font">Inspección de fugas externas realizada</span>
           </label>
@@ -428,7 +428,7 @@ onMounted(async () => {
               <label class="text-xs font-bold neutro-font uppercase tracking-wider">Cuerpo de Válvulas</label>
               <select
                 v-model="datosTransmision.checklist_cuerpo_valvulas"
-                class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               >
                 <option value="pendiente">Pendiente de revisión</option>
                 <option value="bueno">Buen estado</option>
@@ -440,7 +440,7 @@ onMounted(async () => {
               <label class="text-xs font-bold neutro-font uppercase tracking-wider">Convertidor de Par</label>
               <select
                 v-model="datosTransmision.checklist_convertidor"
-                class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               >
                 <option value="pendiente">Pendiente de revisión</option>
                 <option value="bueno">Buen estado</option>
@@ -454,14 +454,14 @@ onMounted(async () => {
                 type="number"
                 step="0.01"
                 placeholder="Ej: 0.25"
-                class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               />
             </div>
             <div class="space-y-1">
               <label class="text-xs font-bold neutro-font uppercase tracking-wider">Estado de Bomba</label>
               <select
                 v-model="datosTransmision.estado_bomba"
-                class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               >
                 <option value="pendiente">Pendiente de revisión</option>
                 <option value="bueno">Buen estado</option>
@@ -473,7 +473,7 @@ onMounted(async () => {
               <label class="text-xs font-bold neutro-font uppercase tracking-wider">Estado de Planetarios</label>
               <select
                 v-model="datosTransmision.estado_planetarios"
-                class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               >
                 <option value="pendiente">Pendiente de revisión</option>
                 <option value="bueno">Buen estado</option>
@@ -486,7 +486,7 @@ onMounted(async () => {
         </div>
 
         <div v-show="faseActual === 3" class="space-y-4">
-          <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg border border-gray-100 hover:border-blue-400 transition-colors">
+          <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg dark:border border-gray-700 hover:border-blue-400 transition-colors">
             <input type="checkbox" v-model="datosTransmision.lavado_enfriador" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
             <span class="text-sm font-medium neutro-font">Lavado de enfriador (cooler) realizado</span>
           </label>
@@ -497,18 +497,18 @@ onMounted(async () => {
               type="number"
               step="0.1"
               placeholder="Ej: 40"
-              class="w-full neutro-secondary border border-gray-100 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+              class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
             />
           </div>
-          <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg border border-gray-100 hover:border-blue-400 transition-colors">
+          <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg dark:border border-gray-700 hover:border-blue-400 transition-colors">
             <input type="checkbox" v-model="datosTransmision.adaptacion_realizada" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
             <span class="text-sm font-medium neutro-font">Adaptación y reaprendizaje TCM completado</span>
           </label>
-          <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg border border-gray-100 hover:border-blue-400 transition-colors">
+          <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg dark:border border-gray-700 hover:border-blue-400 transition-colors">
             <input type="checkbox" v-model="datosTransmision.presion_final_ok" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
             <span class="text-sm font-medium neutro-font">Presión final verificada y correcta</span>
           </label>
-          <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg border border-gray-100 hover:border-blue-400 transition-colors">
+          <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg dark:border border-gray-700 hover:border-blue-400 transition-colors">
             <input type="checkbox" v-model="datosTransmision.prueba_ruta_ok" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
             <span class="text-sm font-medium neutro-font">Prueba de ruta satisfactoria</span>
           </label>
@@ -518,7 +518,7 @@ onMounted(async () => {
           <button
             type="submit"
             :disabled="cargando"
-            class="neutro-font neutro-secondary py-3 px-6 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            class="neutro-font neutro-primary py-3 px-6 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <svg v-if="cargando" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

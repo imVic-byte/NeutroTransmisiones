@@ -341,7 +341,7 @@ onMounted(async () => {
                 <div v-if="item.orden_trabajo.length > 0">
                   <div v-for="orden in item.orden_trabajo" :key="orden.id">
                     <div class="font-medium">{{ orden.vehiculo?.marca }} {{ orden.vehiculo?.modelo }}</div>
-                    <div class="text-xs text-gray-500 uppercase font-bold">{{ orden.vehiculo?.patente }}</div>
+                    <div class="text-xs text-gray-200 uppercase font-bold">{{ orden.vehiculo?.patente }}</div>
                   </div>
                 </div>
                 <div v-else class="text-gray-400 italic text-sm">Sin vehículo</div>
@@ -406,12 +406,12 @@ onMounted(async () => {
               <span class="text-sm font-bold neutro-font">
                 {{ camelCase(item.vehiculo.marca) }} {{ camelCase(item.vehiculo.modelo) }}
               </span>
-              <span v-if="item.vehiculo.patente" class="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded text-xs font-black tracking-widest uppercase text-gray-700">
+              <span v-if="item.vehiculo.patente" class="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded text-xs font-black tracking-widest uppercase text-gray-200">
                 {{ item.vehiculo.patente }}
               </span>
             </div>
             <div class="mb-3">
-              <p class="text-[10px] uppercase font-black text-gray-400 mb-0.5 tracking-widest">Diagnóstico/Motivo</p>
+              <p class="text-[10px] uppercase font-black text-gray-200 mb-0.5 tracking-widest">Diagnóstico/Motivo</p>
               <p class="text-sm neutro-font leading-relaxed line-clamp-2">
                 {{ item.diagnostico || 'Sin diagnóstico detallado' }}
               </p>
