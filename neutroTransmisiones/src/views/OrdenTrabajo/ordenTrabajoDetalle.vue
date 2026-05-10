@@ -379,8 +379,8 @@ onMounted(async () => {
               class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
             >
               <option value="">Seleccione estado...</option>
-              <option value="limpio">Limpio / Rojo</option>
-              <option value="quemado">Quemado / Oscuro</option>
+              <option value="limpio">Limpio</option>
+              <option value="quemado">Quemado</option>
               <option value="viruta">Con Viruta Metálica</option>
               <option value="contaminado">Contaminado (Agua/Refrigerante)</option>
             </select>
@@ -389,8 +389,8 @@ onMounted(async () => {
             <label class="text-xs font-bold neutro-font uppercase tracking-wider">Prueba de Calado (RPM)</label>
             <input
               v-model="datosTransmision.prueba_calado_rpm"
-              type="number"
-              placeholder="Ej: 1800"
+              type="text"
+              placeholder="RPM bajas, RPM altas, etc..."
               class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
             />
           </div>
@@ -433,7 +433,9 @@ onMounted(async () => {
                 <option value="pendiente">Pendiente de revisión</option>
                 <option value="bueno">Buen estado</option>
                 <option value="rectificar">Requiere rectificación/torno</option>
-                <option value="reemplazar">Reemplazo total</option>
+                <option value="reemplazar valvulas">Reemplazo de válvulas</option>
+                <option value="reemplazar solenoide">Reemplazo de solenoide</option>
+                <option value="reemplazar todo">Reemplazo total</option>
               </select>
             </div>
             <div class="space-y-1">
@@ -445,15 +447,24 @@ onMounted(async () => {
                 <option value="pendiente">Pendiente de revisión</option>
                 <option value="bueno">Buen estado</option>
                 <option value="reparar">Enviar a reparar</option>
+                <option value="no aplica">No Aplica</option>
               </select>
             </div>
             <div class="space-y-1">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Holgura de Discos (mm)</label>
+              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Tipo de embrague</label>
               <input
-                v-model="datosTransmision.holgura_discos"
-                type="number"
-                step="0.01"
-                placeholder="Ej: 0.25"
+                v-model="datosTransmision.tipo_embrague"
+                type="text"
+                placeholder="Ej: Monodisco,Multidisco, etc..."
+                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+              />
+            </div>
+            <div class="space-y-1">
+              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Estado de embragues</label>
+              <input
+                v-model="datosTransmision.estado_embrague"
+                type="text"
+                placeholder="Ej: Embragues desgastados"
                 class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               />
             </div>
@@ -469,10 +480,19 @@ onMounted(async () => {
                 <option value="reemplazar">Requiere reemplazo</option>
               </select>
             </div>
+            <div class="space-y-1">
+              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Estado de Sellos, gomas y pistones</label>
+              <input
+                v-model="datosTransmision.estado_sellos_gomas_pistones"
+                type="text"
+                placeholder="Ej: Sellos desgastados, Gomas desgastadas, etc"
+                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+              />
+            </div>
             <div class="space-y-1 md:col-span-2">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Estado de Planetarios</label>
+              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Estado de Partes duras</label>
               <select
-                v-model="datosTransmision.estado_planetarios"
+                v-model="datosTransmision.estado_partes_duras"
                 class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               >
                 <option value="pendiente">Pendiente de revisión</option>
