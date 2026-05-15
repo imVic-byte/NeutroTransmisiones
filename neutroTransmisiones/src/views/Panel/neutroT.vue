@@ -124,6 +124,7 @@ const mostrarModalCuenta = ref(false)
 const cuentaEditando = ref(null)
 const nuevaCuenta = ref({ banco: '', tipo_cuenta: 'Cuenta Corriente', numero_cuenta: '', titular: '', rut_titular: '' })
 const bancos = [
+  { "codigo": "875", "nombre": "Mercado Pago" },
   { "codigo": "001", "nombre": "Banco de Chile" },
   { "codigo": "009", "nombre": "Banco Internacional" },
   { "codigo": "012", "nombre": "Banco Estado" },
@@ -810,6 +811,8 @@ onMounted(async () => {
               <option value="Cuenta Vista">Cuenta Vista</option>
               <option value="Cuenta de Ahorro">Cuenta de Ahorro</option>
               <option value="Cuenta RUT">Cuenta RUT</option>
+              <option value="Personal">Personal</option>
+              <option value="Vendedor/Empresa">Vendedor/Empresa</option>
             </select>
           </div>
           <div>
