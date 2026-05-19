@@ -52,6 +52,12 @@ const calcularValores = () => {
 }
 
 
+const limpiarNumerico = (valor) => {
+  if (valor === '' || valor === null || valor === undefined) return null
+  const num = Number(valor)
+  return isNaN(num) ? null : num
+}
+
 const guardarTransaccion = async () => {
   const validacion = (() => {
       if (!formulario.value.fecha) {
@@ -75,9 +81,20 @@ const guardarTransaccion = async () => {
   interfaz.showLoadingOverlay()
   errorMensaje.value = ''
   try {
+    // Sanitizar campos numéricos antes de enviar a Supabase
+    const datosLimpios = {
+      ...formulario.value,
+      cantidad: limpiarNumerico(formulario.value.cantidad),
+      valor_iva_incluido: limpiarNumerico(formulario.value.valor_iva_incluido),
+      valor_neto: limpiarNumerico(formulario.value.valor_neto),
+      iva: limpiarNumerico(formulario.value.iva),
+      precio_costo_unitario: limpiarNumerico(formulario.value.precio_costo_unitario),
+      nro_documento: limpiarNumerico(formulario.value.nro_documento),
+    }
+
     const { data: idTransaccion, error } = await supabase
       .from('transacciones')
-      .insert([formulario.value])
+      .insert([datosLimpios])
       .select('id')
       .single()
     if (error) throw error
@@ -93,12 +110,12 @@ const guardarTransaccion = async () => {
             }
         }
     }
+    router.push('/finanzas')
   } catch (error) {
     console.error(error.message)
     errorMensaje.value = 'Ocurrió un error al guardar la transacción. Intenta nuevamente.'
   } finally {
     interfaz.hideLoadingOverlay()
-    router.push('/finanzas')
   }
 }
 </script>
