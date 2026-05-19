@@ -163,7 +163,7 @@ const menu = [
 
       </div>
     </div>
-    <span class="version-label">Versión 1.3</span>
+    <span class="version-label">Versión 1.4</span>
   </div>
 </template>
 
