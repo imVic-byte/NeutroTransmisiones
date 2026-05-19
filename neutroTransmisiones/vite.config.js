@@ -15,6 +15,13 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
+        importScripts: ['/sw-push.js'],
+        navigateFallback: '/index.html',
+      },
       manifest: {
         name: 'Neutro Transmisiones',
         short_name: 'Neutro Transmisiones',
