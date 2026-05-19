@@ -131,6 +131,8 @@ const enviarFormulario = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error("Sesión expirada");
 
+    const cotizacionId = Number(route.params.id)
+
     // Actualizar cotización principal
     const { error: errorCotizacion } = await supabase
       .from('cotizacion')
@@ -144,21 +146,24 @@ const enviarFormulario = async () => {
         iva: totales.value.iva,
         total_final: totales.value.total_final
       })
-      .eq('id', route.params.id)
+      .eq('id', cotizacionId)
 
     if (errorCotizacion) throw errorCotizacion;
 
-    // Eliminar detalles anteriores y crear nuevos
-    await supabase
+    // Eliminar detalles anteriores
+    const { error: errorEliminar } = await supabase
       .from('detalle_cotizacion')
       .delete()
-      .eq('id_cotizacion', route.params.id)
+      .eq('id_cotizacion', cotizacionId)
 
+    if (errorEliminar) throw errorEliminar;
+
+    // Crear nuevos detalles
     const detalles = items.value.map((item) => ({
-      id_cotizacion: route.params.id,
+      id_cotizacion: cotizacionId,
       descripcion: item.descripcion.toUpperCase(),
-      monto: item.monto,
-      cantidad: item.cantidad || 1
+      monto: Number(item.monto),
+      cantidad: Number(item.cantidad) || 1
     }))
 
     const { error: errorDetalles } = await supabase
