@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useInterfaz } from '@/stores/interfaz.js'
 import { onMounted } from 'vue'
-import activarNotificaciones from '@/components/componentes/ActivarNotificaciones.vue'
+
 import cambiarTema from '@/components/componentes/cambiarTema.vue'
 import navbar from '@/components/componentes/navbar.vue'
 
@@ -46,7 +46,6 @@ const menu = [
         <p class="neutro-font">¿Qué deseas administrar hoy?</p>
         <div class="flex flex-row gap-2">
           <cambiarTema class="neutro-secondary text-white" />
-          <activarNotificaciones class="neutro-secondary text-white py-1 px-2 rounded-xl" />
         </div>
       </div>
 

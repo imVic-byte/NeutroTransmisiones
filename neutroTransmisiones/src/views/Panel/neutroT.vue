@@ -3,11 +3,13 @@ import { ref, computed, onMounted } from 'vue'
 import navbar from '../../components/componentes/navbar.vue'
 import { useInterfaz } from '../../stores/interfaz.js'
 import { supabase } from '../../lib/supabaseClient.js'
+import TallerConfig from './taller.vue'
 
 const interfaz = useInterfaz()
 const tabActiva = ref('empresa')
 const tabs = [
   { id: 'empresa', label: 'Empresa', icon: 'building' },
+  { id: 'taller', label: 'Taller', icon: 'box' },
   { id: 'servicios', label: 'Servicios', icon: 'cog' },
   { id: 'cuentas', label: 'Cuentas Bancarias', icon: 'bank' },
 ]
@@ -669,6 +671,11 @@ onMounted(async () => {
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- ═══════════════════ TAB: TALLER ═══════════════════ -->
+      <div v-if="tabActiva === 'taller'">
+        <TallerConfig />
       </div>
 
       <!-- ═══════════════════ TAB: SERVICIOS ═══════════════════ -->

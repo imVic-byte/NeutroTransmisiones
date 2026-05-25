@@ -302,9 +302,22 @@ const ejecutarCambioEstado = async (estado) => {
       updates.fecha_ingreso = fechaLocal
       ficha.value.fecha_ingreso = fechaLocal
     }
-    if (estado === 5 || estado === 6) {
+    if (Number(estado) === 5 || Number(estado) === 6) {
       bloquearFichaJS(ficha.value.id)
       ficha.value.bloqueada = true
+
+      // Desvincular de la tabla taller
+      await supabase
+        .from('taller')
+        .update({
+          status: 'vacante',
+          id_ficha: null,
+          vehicle_name: null
+        })
+        .eq('id_ficha', Number(fichaId))
+
+      celdaActual.value = null
+      await cargarCeldasTaller()
     }
 
     const { data, error } = await supabase
@@ -332,6 +345,107 @@ const confirmarCambioEstado = () => {
   }
 }
 
+// Integración con Taller
+const celdaActual = ref(null)
+const celdasDisponibles = ref([])
+const celdaSeleccionadaId = ref('')
+
+const obtenerNombreVehiculo = () => {
+  if (ficha.value?.orden_trabajo && ficha.value.orden_trabajo.length > 0) {
+    const firstOt = ficha.value.orden_trabajo[0]
+    if (firstOt?.vehiculo) {
+      return `${firstOt.vehiculo.marca || ''} ${firstOt.vehiculo.modelo || ''} (${firstOt.vehiculo.patente || ''})`.trim()
+    }
+  }
+  return 'Ficha N°' + fichaId
+}
+
+const buscarUbicacionTaller = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('taller')
+      .select('*')
+      .eq('id_ficha', Number(fichaId))
+      .maybeSingle()
+    if (error) throw error
+    celdaActual.value = data || null
+  } catch (err) {
+    console.error('Error al buscar ubicación en taller:', err)
+  }
+}
+
+const cargarCeldasTaller = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('taller')
+      .select('*')
+      .order('row_number', { ascending: true })
+      .order('column_number', { ascending: true })
+    if (error) throw error
+    celdasDisponibles.value = data || []
+  } catch (err) {
+    console.error('Error al cargar celdas de taller:', err)
+  }
+}
+
+const asignarCelda = async () => {
+  if (!celdaSeleccionadaId.value) return
+  interfaz.showLoading()
+  try {
+    // 1. Liberar cualquier celda anterior asociada a esta ficha
+    await supabase
+      .from('taller')
+      .update({
+        status: 'vacante',
+        id_ficha: null,
+        vehicle_name: null
+      })
+      .eq('id_ficha', Number(fichaId))
+
+    // 2. Asignar la nueva celda
+    const nombreVehiculo = obtenerNombreVehiculo()
+    const { error } = await supabase
+      .from('taller')
+      .update({
+        status: 'ocupado',
+        id_ficha: Number(fichaId),
+        vehicle_name: nombreVehiculo
+      })
+      .eq('id', celdaSeleccionadaId.value)
+    if (error) throw error
+
+    celdaSeleccionadaId.value = ''
+    await buscarUbicacionTaller()
+    await cargarCeldasTaller()
+  } catch (err) {
+    console.error('Error al asignar celda:', err)
+  } finally {
+    interfaz.hideLoading()
+  }
+}
+
+const liberarCelda = async () => {
+  if (!celdaActual.value) return
+  interfaz.showLoading()
+  try {
+    const { error } = await supabase
+      .from('taller')
+      .update({
+        status: 'vacante',
+        id_ficha: null,
+        vehicle_name: null
+      })
+      .eq('id', celdaActual.value.id)
+    if (error) throw error
+    celdaActual.value = null
+    await cargarCeldasTaller()
+  } catch (err) {
+    console.error('Error al liberar celda:', err)
+  } finally {
+    interfaz.hideLoading()
+  }
+}
+
 onMounted(async () => {
   interfaz.showLoading()
   if (fichaId) {
@@ -339,6 +453,8 @@ onMounted(async () => {
     await contarVisitasCliente()
     await traerEstados()
     await cargarEstados()
+    await buscarUbicacionTaller()
+    await cargarCeldasTaller()
   } else {
     error.value = "ID de ficha no proporcionado."
     cargando.value = false
@@ -562,6 +678,80 @@ onMounted(async () => {
             </div>
             <p v-else class="text-sm text-gray-200 italic p-6 text-center">No hay cotizaciones previas.</p>
           </div>
+          <!-- Integración con el Taller -->
+          <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
+            <div class="neutro-primary px-6 py-3 flex justify-between items-center">
+              <h2 class="text-white font-bold text-lg">Ubicación en Taller</h2>
+            </div>
+            <div class="p-6 space-y-4">
+              <!-- Si ya está ubicado -->
+              <div v-if="celdaActual" class="space-y-3">
+                <div class="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 flex flex-col gap-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">Espacio Asignado</span>
+                    <span class="px-2 py-0.5 rounded text-[9px] bg-blue-500/20 text-blue-400 font-bold uppercase tracking-wider">Ocupado</span>
+                  </div>
+                  <p class="text-sm font-bold text-white">
+                    Fila {{ celdaActual.row_number }} - Columna {{ celdaActual.column_number }}
+                  </p>
+                  <p class="text-xs text-white/50">
+                    Vehículo registrado: {{ celdaActual.vehicle_name }}
+                  </p>
+                </div>
+                <button 
+                  v-if="!isFichaBloqueada"
+                  @click="liberarCelda" 
+                  class="w-full py-2 px-4 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-400 text-xs font-bold transition-all cursor-pointer animate-fade-in"
+                >
+                  Liberar Ubicación
+                </button>
+              </div>
+
+              <!-- Si no está ubicado -->
+              <div v-else class="space-y-3">
+                <p class="text-xs text-white/60">
+                  Esta ficha no está asociada a ninguna celda de la cuadrícula del taller.
+                </p>
+                <div v-if="!isFichaBloqueada" class="space-y-2">
+                  <label class="block text-xs font-bold text-white/40 uppercase tracking-wider">Seleccionar Espacio</label>
+                  <div class="relative">
+                    <select 
+                      v-model="celdaSeleccionadaId" 
+                      class="w-full rounded-lg border border-gray-700 bg-black/20 text-white font-bold px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled selected>Selecciona un espacio del taller...</option>
+                      <option 
+                        v-for="celda in celdasDisponibles" 
+                        :key="celda.id" 
+                        :value="celda.id"
+                        :disabled="celda.status !== 'vacante' && celda.status !== 'ocupado'"
+                        class="bg-gray-900 text-white"
+                      >
+                        Fila {{ celda.row_number }} - Col {{ celda.column_number }}
+                        <span v-if="celda.status === 'vacante'"> (Disponible)</span>
+                        <span v-else-if="celda.status === 'ocupado'"> (Sobreescribir Ocupado: {{ celda.vehicle_name || 'Ficha #' + celda.id_ficha }})</span>
+                        <span v-else> ({{ celda.status }})</span>
+                      </option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white/60">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                  </div>
+                  <button 
+                    @click="asignarCelda" 
+                    :disabled="!celdaSeleccionadaId"
+                    class="w-full py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    Asignar Espacio
+                  </button>
+                </div>
+                <div v-else class="text-xs text-white/40 italic">
+                  Ficha bloqueada. No se pueden asignar ubicaciones.
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
              <div class="neutro-primary px-6 py-4  flex justify-between items-center">
                 <span class="text-sm font-bold text-white uppercase tracking-wider">Acciones</span>
