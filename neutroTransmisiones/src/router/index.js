@@ -167,6 +167,12 @@ const router = createRouter({
       meta: { requiresAuth: true, allowedRoles: ['Administrador', 'Gerente', 'Soporte'] }
     },
     {
+      path: '/cliente/editar/:id',
+      name: 'editar-cliente',
+      component: () => import('../views/Gestion/clienteEditar.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Administrador', 'Gerente', 'Soporte'] }
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: () => import('../views/notFound.vue')

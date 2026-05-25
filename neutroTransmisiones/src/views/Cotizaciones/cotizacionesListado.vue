@@ -335,6 +335,7 @@ onMounted( async () => {
           :class="claseEstadoCard(item.estado).contenedor"
         >
           <div class="card-body text-white">
+            <h3 class="text-lg font-bold">Cotización #{{ item.id }}</h3>
             <div class="info-row">
               <span class="label">Emisión:</span>
               <span class="valor">{{ formatearFecha(item.created_at) }}</span>
