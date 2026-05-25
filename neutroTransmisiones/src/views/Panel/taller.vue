@@ -101,7 +101,7 @@ onMounted(() => {
     <div class="flex justify-between items-center">
       <div>
         <h2 class="text-xl font-bold text-white neutro-font">Cuadrícula del Taller</h2>
-        <p class="text-sm text-white/60">Configura la distribución de espacios designando áreas de trabajo, bodegas, oficinas o bloqueando bahías.</p>
+        <p class="text-sm neutro-font">Configura la distribución de espacios designando áreas de trabajo, bodegas, oficinas o bloqueando bahías.</p>
       </div>
     </div>
 

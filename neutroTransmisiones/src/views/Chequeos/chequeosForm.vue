@@ -192,7 +192,7 @@ onMounted(async () => {
             {{ ot.vehiculo?.patente || 'S/P' }}
           </span>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 sm:gap-4 gap-2 text-sm neutro-font px-4 py-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 sm:gap-4 gap-2 text-sm text-white px-4 py-4">
           <div class="flex flex-col gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
@@ -229,7 +229,7 @@ onMounted(async () => {
             <!-- Estado buttons -->
             <div class="flex flex-col sm:flex-row sm:items-center gap-3">
               <div class="flex items-center gap-2 sm:w-48 shrink-0">
-                <span class="font-medium neutro-font">{{ item.label }}</span>
+                <span class="font-medium text-white">{{ item.label }}</span>
               </div>
               <div class="flex gap-2 flex-1 flex-wrap">
                 <button v-for="opcion in opciones" :key="opcion.valor"
@@ -238,7 +238,7 @@ onMounted(async () => {
                     'flex-1 min-w-[80px] py-2 px-2 rounded-lg text-xs sm:text-sm font-semibold border-2 transition-all cursor-pointer active:scale-95',
                     chequeo[catKey][item.key] === opcion.valor
                       ? opcion.color + ' shadow-sm'
-                      : 'border-gray-200 neutro-font opacity-50 hover:opacity-80'
+                      : 'border-gray-200 text-white opacity-50 hover:opacity-80'
                   ]">
                   {{ opcion.label }}
                 </button>
@@ -258,7 +258,7 @@ onMounted(async () => {
                   </label>
                   <textarea v-model="comentarios[catKey][item.key]" rows="2"
                     :placeholder="`Describe el problema en ${item.label.toLowerCase()}...`"
-                    class="w-full rounded-lg border-2 border-red-200 neutro-secondary px-3 py-2 text-sm neutro-font focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none resize-none bg-white">
+                    class="w-full rounded-lg border-2 border-red-200 neutro-secondary px-3 py-2 text-sm text-white focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none resize-none bg-white">
                   </textarea>
                 </div>
 
@@ -306,7 +306,7 @@ onMounted(async () => {
         </div>
         <div class="p-5">
           <textarea v-model="observacionesGenerales" rows="4" placeholder="Escribe observaciones adicionales..."
-            class="w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-sm neutro-font focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none resize-none neutro-secondary">
+            class="w-full rounded-lg border-2 border-gray-200 px-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none resize-none neutro-secondary">
           </textarea>
         </div>
       </div>

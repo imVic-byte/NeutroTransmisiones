@@ -200,14 +200,14 @@ onMounted(async () => {
         <button
           @click="tabActiva = 'fichas'"
           class="px-5 py-2.5 rounded-lg text-sm font-bold transition-all duration-200"
-          :class="tabActiva === 'fichas' ? 'neutro-primary text-white shadow-sm' : 'neutro-font hover:opacity-70'"
+          :class="tabActiva === 'fichas' ? 'neutro-primary text-white shadow-sm' : 'text-white hover:opacity-70'"
         >
           Fichas de Trabajo
         </button>
         <button
           @click="tabActiva = 'cotizaciones'"
           class="px-5 py-2.5 rounded-lg text-sm font-bold transition-all duration-200"
-          :class="tabActiva === 'cotizaciones' ? 'neutro-primary text-white shadow-sm' : 'neutro-font hover:opacity-70'"
+          :class="tabActiva === 'cotizaciones' ? 'neutro-primary text-white shadow-sm' : 'text-white hover:opacity-70'"
         >
           Cotizaciones
         </button>
@@ -238,19 +238,19 @@ onMounted(async () => {
       <Transition name="slide-stats">
         <div v-show="showStats" class="md:hidden grid grid-cols-2 gap-3 mb-6">
           <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
-              <p class="text-xs neutro-font uppercase font-bold">Total</p>
-              <p class="text-xl font-bold neutro-font">{{ stats.total }}</p>
+              <p class="text-xs text-white uppercase font-bold">Total</p>
+              <p class="text-xl font-bold text-white">{{ stats.total }}</p>
           </div>
           <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
-              <p class="text-xs neutro-font uppercase font-bold">Ingresadas</p>
+              <p class="text-xs text-white uppercase font-bold">Ingresadas</p>
               <p class="text-xl font-bold text-yellow-600">{{ stats.ingresadas }}</p>
           </div>
           <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
-              <p class="text-xs neutro-font uppercase font-bold">En Proceso</p>
+              <p class="text-xs text-white uppercase font-bold">En Proceso</p>
               <p class="text-xl font-bold text-blue-600">{{ stats.enProceso }}</p>
           </div>
           <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
-              <p class="text-xs neutro-font uppercase font-bold">Terminadas</p>
+              <p class="text-xs text-white uppercase font-bold">Terminadas</p>
               <p class="text-xl font-bold text-green-600">{{ stats.terminadas }}</p>
           </div>
         </div>
@@ -265,7 +265,7 @@ onMounted(async () => {
         <div class="flex items-center gap-2">
           <button 
             @click="irACrear" 
-            class="neutro-font neutro-secondary font-bold py-2 px-6 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center gap-2"
+            class="text-white neutro-secondary font-bold py-2 px-6 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center gap-2"
           >
             <span class="text-xl leading-none mb-1">+</span>
             <span class="hidden sm:inline">Nueva Ficha</span>
@@ -273,7 +273,7 @@ onMounted(async () => {
 
           <button 
             @click="showStats = !showStats" 
-            class="md:hidden neutro-secondary neutro-font font-bold py-2 px-4 rounded-lg shadow-sm dark:border border-gray-700 hover:opacity-80 transition-all flex items-center gap-2"
+            class="md:hidden neutro-secondary text-white font-bold py-2 px-4 rounded-lg shadow-sm dark:border border-gray-700 hover:opacity-80 transition-all flex items-center gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -297,7 +297,7 @@ onMounted(async () => {
         <button
           @click="handleFiltroEstado(null)"
           class="px-3 py-1.5 rounded-full text-xs font-bold transition-all border"
-          :class="filtroEstado === null ? 'neutro-primary text-white border-transparent shadow-sm' : 'neutro-secondary neutro-font border-gray-700 hover:opacity-80'"
+          :class="filtroEstado === null ? 'neutro-primary text-white border-transparent shadow-sm' : 'neutro-secondary text-white border-gray-700 hover:opacity-80'"
         >
           Todos
         </button>
@@ -306,7 +306,7 @@ onMounted(async () => {
           :key="estado.id"
           @click="handleFiltroEstado(estado.id)"
           class="px-3 py-1.5 rounded-full text-xs font-bold transition-all border"
-          :class="filtroEstado === estado.id ? 'text-white border-transparent shadow-sm' : 'neutro-secondary neutro-font border-gray-700 hover:opacity-80'"
+          :class="filtroEstado === estado.id ? 'text-white border-transparent shadow-sm' : 'neutro-secondary text-white border-gray-700 hover:opacity-80'"
           :style="filtroEstado === estado.id ? { backgroundColor: estado.color } : {}"
         >
           {{ estado.estado }}
@@ -316,7 +316,7 @@ onMounted(async () => {
       <div class="hidden md:block neutro-secondary rounded-xl shadow-sm overflow-hidden">
         <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="neutro-primary neutro-font text-xs uppercase tracking-wider border-b border-gray-700">
+            <tr class="neutro-primary text-white text-xs uppercase tracking-wider border-b border-gray-700">
               <th class="p-4 font-semibold">Ficha N°</th>
               <th class="p-4 font-semibold">Cliente</th>
               <th class="p-4 font-semibold">Vehículo</th>
@@ -330,14 +330,14 @@ onMounted(async () => {
             <tr v-for="item in fichas" :key="item.id" 
                 class="hover:opacity-80 transition-colors cursor-pointer"
                 @click="irADetalle(item.id)">
-              <td class="p-4 font-medium neutro-font">#{{ item.id }}</td>
-              <td class="p-4 neutro-font">
+              <td class="p-4 font-medium text-white">#{{ item.id }}</td>
+              <td class="p-4 text-white">
                 <div class="font-medium" v-if="item.cliente">
                   {{ camelCase(item.cliente.nombre) }} {{ camelCase(item.cliente.apellido) }}
                 </div>
                 <div v-else class="text-gray-400 italic">Sin cliente</div>
               </td>
-              <td class="p-4 neutro-font">
+              <td class="p-4 text-white">
                 <div v-if="item.orden_trabajo.length > 0">
                   <div v-for="orden in item.orden_trabajo" :key="orden.id">
                     <div class="font-medium">{{ orden.vehiculo?.marca }} {{ orden.vehiculo?.modelo }}</div>
@@ -346,13 +346,13 @@ onMounted(async () => {
                 </div>
                 <div v-else class="text-gray-400 italic text-sm">Sin vehículo</div>
               </td>
-              <td class="p-4 neutro-font">
+              <td class="p-4 text-white">
                 <span class="block max-w-[200px] truncate" :title="item.motivo_ingreso">
                   {{ item.motivo_ingreso || 'Sin descripción' }}
                 </span>
               </td>
               <td class="p-4 text-center whitespace-nowrap">
-                <span class="neutro-font">{{ formatearFecha(item.fecha_ingreso) }}</span>
+                <span class="text-white">{{ formatearFecha(item.fecha_ingreso) }}</span>
               </td>
               <td class="p-4 text-center">
                 <span class="px-2 py-1 rounded-full text-xs font-semibold" :style="{backgroundColor: handleEstados(item.estado).color, color: 'white'}">
@@ -360,7 +360,7 @@ onMounted(async () => {
                 </span> 
               </td>
               <td class="p-4 text-center">
-                <button class="neutro-font hover:text-blue-600 transition-colors">
+                <button class="text-white hover:text-blue-600 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -393,7 +393,7 @@ onMounted(async () => {
             <!-- Header: Patente + Estado -->
             <div class="flex justify-between items-center mb-3">
               <div class="flex items-center gap-2">
-                <span class="text-xl font-black neutro-font tracking-wide">#{{ item.id }}</span>
+                <span class="text-xl font-black text-white tracking-wide">#{{ item.id }}</span>
               </div>
               <span 
                 class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase text-white shadow-sm"
@@ -403,7 +403,7 @@ onMounted(async () => {
               </span>
             </div>
             <div v-if="item.vehiculo" class="flex flex-wrap items-center gap-2 mb-3">
-              <span class="text-sm font-bold neutro-font">
+              <span class="text-sm font-bold text-white">
                 {{ camelCase(item.vehiculo.marca) }} {{ camelCase(item.vehiculo.modelo) }}
               </span>
               <span v-if="item.vehiculo.patente" class="px-2 py-0.5 bg-gray-100 border border-gray-200 rounded text-xs font-black tracking-widest uppercase text-gray-200">
@@ -412,15 +412,15 @@ onMounted(async () => {
             </div>
             <div class="mb-3">
               <p class="text-[10px] uppercase font-black text-gray-200 mb-0.5 tracking-widest">Diagnóstico/Motivo</p>
-              <p class="text-sm neutro-font leading-relaxed line-clamp-2">
+              <p class="text-sm text-white leading-relaxed line-clamp-2">
                 {{ item.diagnostico || 'Sin diagnóstico detallado' }}
               </p>
             </div>
             <div v-if="item.orden_trabajo.length > 0">
               <p class="text-[10px] uppercase font-black text-gray-400 mb-0.5 tracking-widest">Vehiculos:</p>
               <div v-for="orden in item.orden_trabajo" :key="orden.id" class="mb-2">
-                <div class="font-medium neutro-font">{{ orden.vehiculo?.marca }} {{ orden.vehiculo?.modelo }}</div>
-                <div class="text-xs text-gray-500 uppercase font-bold neutro-font"> {{ orden.vehiculo?.patente }}</div>
+                <div class="font-medium text-white">{{ orden.vehiculo?.marca }} {{ orden.vehiculo?.modelo }}</div>
+                <div class="text-xs text-gray-500 uppercase font-bold text-white"> {{ orden.vehiculo?.patente }}</div>
               </div>
             </div>
             <div v-if="item.cliente" class="flex items-center gap-3 pt-3 border-t border-gray-100 mt-2">
@@ -428,7 +428,7 @@ onMounted(async () => {
                 <span class="text-sm font-black text-white">{{ item.cliente.nombre?.charAt(0)?.toUpperCase() || '?' }}</span>
               </div>
               <div class="min-w-0 flex-1">
-                <p class="text-sm font-bold neutro-font truncate">
+                <p class="text-sm font-bold text-white truncate">
                   {{ item.cliente.nombre }} {{ item.cliente.apellido }}
                 </p>
                 <div class="flex items-center gap-3 mt-0.5">
@@ -440,7 +440,7 @@ onMounted(async () => {
                   </span>
                 </div>
               </div>
-              <button class="neutro-font hover:text-blue-600 transition-colors">
+              <button class="text-white hover:text-blue-600 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />

@@ -266,7 +266,7 @@ onMounted( async () => {
           :key="estado.id"
           @click="handleFiltroEstado(estado.id)"
           class="px-3 py-1.5 rounded-full text-xs font-bold transition-all border"
-          :class="filtroEstado === estado.id ? 'text-white border-transparent shadow-sm' : 'neutro-secondary neutro-font border-gray-700 hover:opacity-80'"
+          :class="filtroEstado === estado.id ? 'text-white border-transparent shadow-sm' : 'neutro-secondary text-white border-gray-700 hover:opacity-80'"
           :style="filtroEstado === estado.id ? { backgroundColor: estado.color } : {}"
         >
           {{ estado.estado }}
@@ -507,6 +507,7 @@ onMounted( async () => {
   text-transform: uppercase;
   letter-spacing: 0.025em;
   white-space: nowrap;
+  color: white;
 }
 
 .info-row {
