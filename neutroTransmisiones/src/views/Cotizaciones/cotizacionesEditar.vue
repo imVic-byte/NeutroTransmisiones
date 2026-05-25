@@ -275,7 +275,7 @@ onMounted(async () => {
             <div class="space-y-4 px-3">
               <div v-for="(item, index) in items" :key="index" class="animate-fadeIn relative"
                 :style="{ zIndex: autocompletadoActivo === index ? 20 : 0 }">
-                <div class="flex gap-4 items-end">
+                <div class="flex flex-col md:flex-row gap-2 md:gap-4 md:items-end">
                   <div class="flex-1 group relative">
                     <label class="block text-xs neutro-font mb-0.5">Descripción</label>
                     <input v-model="item.descripcion" type="text"
@@ -294,29 +294,31 @@ onMounted(async () => {
                       </button>
                     </div>
                   </div>
-                  <div class="w-28 group">
-                    <label class="block text-xs neutro-font mb-0.5">P. Unit.</label>
-                    <input v-model.number="item.monto" type="number"
-                      class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm text-right"
-                      placeholder="$0" />
+                  <div class="flex gap-4 items-end">
+                    <div class="w-28 group">
+                      <label class="block text-xs neutro-font mb-0.5">P. Unit.</label>
+                      <input v-model.number="item.monto" type="number"
+                        class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm text-right"
+                        placeholder="$0" />
+                    </div>
+                    <div class="w-16 group">
+                      <label class="block text-xs neutro-font mb-0.5">Cant.</label>
+                      <input v-model.number="item.cantidad" type="number" min="1"
+                        class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm text-center"
+                        placeholder="1" />
+                    </div>
+                    <div class="w-28 text-right pb-2">
+                      <label class="block text-xs neutro-font mb-0.5">Total</label>
+                      <span class="text-sm font-semibold neutro-font">{{ formatearDinero((Number(item.monto) || 0) * (Number(item.cantidad) || 1)) }}</span>
+                    </div>
+                    <button @click="eliminarItem(index)" class="neutro-font hover:text-red-500 pb-2 transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                          clip-rule="evenodd" />
+                      </svg>
+                    </button>
                   </div>
-                  <div class="w-16 group">
-                    <label class="block text-xs neutro-font mb-0.5">Cant.</label>
-                    <input v-model.number="item.cantidad" type="number" min="1"
-                      class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-sm text-center"
-                      placeholder="1" />
-                  </div>
-                  <div class="w-28 text-right pb-2">
-                    <label class="block text-xs neutro-font mb-0.5">Total</label>
-                    <span class="text-sm font-semibold neutro-font">{{ formatearDinero((Number(item.monto) || 0) * (Number(item.cantidad) || 1)) }}</span>
-                  </div>
-                  <button @click="eliminarItem(index)" class="neutro-font hover:text-red-500 pb-2 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd"
-                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                        clip-rule="evenodd" />
-                    </svg>
-                  </button>
                 </div>
               </div>
 

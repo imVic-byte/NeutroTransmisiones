@@ -144,6 +144,11 @@ const router = createRouter({
       }
     },
     {
+      path: '/editar-usuario/:id',
+      name: 'editar-usuario',
+      component: () => import('../views/Gestion/editarUsuarios.vue'),
+    },
+    {
       path: '/unauthorized',
       name: 'unauthorized',
       component: () => import('../views/unauthorized.vue'),
