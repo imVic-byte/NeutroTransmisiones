@@ -162,7 +162,7 @@ const menu = [
 
       </div>
     </div>
-    <span class="version-label">Versión 1.4</span>
+    <span class="version-label">Versión 1.2</span>
   </div>
 </template>
 
