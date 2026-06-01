@@ -1,8 +1,8 @@
 import { supabase } from '../lib/supabaseClient.js'
 
 export const handleVehiculo = async (id_cliente, patente, marca, modelo) => {
-    const {data,error} = await supabase.from('vehiculo').select("*").eq('patente', patente).eq('id_cliente', id_cliente).single()
-    if (error) {
+    const {data,error} = await supabase.from('vehiculo').select("*").eq('patente', patente).eq('id_cliente', id_cliente).maybeSingle()
+    if (error || data === null) {
         const {data:newVehiculo, error:errVehiculo} = await supabase
                 .from('vehiculo')
                 .insert({

@@ -19,6 +19,7 @@ const cotizacion = ref(null)
 const n_cotizacion = ref()
 const modalState = ref({ visible: false, titulo: "", mensaje: "", exito: true })
 const confirmada = ref(false)
+const fichaCreadaId = ref(null)
 // Modal confirmación
 const modalConfirmacion = ref(false)
 const correoCliente = ref('')
@@ -38,7 +39,11 @@ const camelCase = (texto) => {
 const redirigir = () => {
     modalState.value.visible = false;
     if (modalState.value.exito) {
-      router.push({ name: "listado-cotizaciones" });
+      if (fichaCreadaId.value) {
+        router.push({ name: "ficha-de-trabajo", params: { id: fichaCreadaId.value } });
+      } else {
+        router.push({ name: "listado-cotizaciones" });
+      }
     }
 }
 
@@ -112,6 +117,7 @@ const generarFicha = async () => {
     const { exito, ficha_de_trabajo, mensaje } = await generarFichaTrabajo(data);
     
     if (exito) {
+      fichaCreadaId.value = ficha_de_trabajo.id
       // Inserción en cotizaciones_ficha (Historial/Cierre)
       const {data: cotizacionFicha, error: cotizacionError } = await supabase
         .from('cotizaciones_ficha')
@@ -157,7 +163,6 @@ const generarFicha = async () => {
       modalState.value.titulo = "Exito";
       modalState.value.mensaje = mensaje;
       modalState.value.exito = true;
-      id_nueva_ficcion.value = ficha_de_trabajo.id
     } else {
       modalState.value.visible = true;
       modalState.value.titulo = "Error";
@@ -221,7 +226,7 @@ onMounted(async () => {
       
     if (cuentas && cuentas.length > 0) {
       cuentasBancarias.value = cuentas
-      cuentaSeleccionada.value = cuentas[0]
+      cuentaSeleccionada.value = cuentas.find(c => c.favorito) || cuentas[0]
     }
 })
 </script>
@@ -320,18 +325,6 @@ onMounted(async () => {
                 <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700">
                     <h3 class="text-xs rounded-t-xl font-semibold uppercase neutro-primary p-3 flex justify-between items-center text-white tracking-wider mb-4">Acciones</h3>
                     
-                    <!-- Selector de cuenta bancaria -->
-                    <div v-if="cuentasBancarias.length > 0 && !confirmada" class="mb-4 neutro-secondary py-2 px-3">
-                      <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2">Cuenta para PDF</label>
-                      <select
-                        v-model="cuentaSeleccionada"
-                        class="w-full rounded-lg neutro-primary text-white dark:border border-gray-700 px-2 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option v-for="cuenta in cuentasBancarias" :key="cuenta.id" :value="cuenta">
-                          {{ cuenta.banco }} - {{ cuenta.titular }}
-                        </option>
-                      </select>
-                    </div>
                     <div class="py-2 px-3 space-y-3 pb-4">
                         <button 
                           @click="generarPDF"
@@ -358,6 +351,16 @@ onMounted(async () => {
                           class="neutro-primary w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg   text-white hover:bg-blue-50 transition-colors text-sm font-medium"
                         >
                           Generar Ficha de Trabajo
+                        </button>
+                        <button 
+                          v-if="confirmada && cotizacion?.id_ficha"
+                          @click="router.push({ name: 'ficha-de-trabajo', params: { id: cotizacion.id_ficha } })"
+                          class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg neutro-primary hover:bg-blue-700 text-white transition-all text-sm font-bold cursor-pointer"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                          </svg>
+                          Ver Ficha de Trabajo
                         </button>
                     </div>
                 </div>

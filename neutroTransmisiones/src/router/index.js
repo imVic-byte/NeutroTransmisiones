@@ -7,7 +7,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'dashboard',
-      component: () => import('../views/dashboard.vue'),
+      component: () => import('../views/dashboard/main.vue'),
       meta: { 
         requiresAuth: true
        }
@@ -144,6 +144,11 @@ const router = createRouter({
       }
     },
     {
+      path: '/editar-usuario/:id',
+      name: 'editar-usuario',
+      component: () => import('../views/Gestion/editarUsuarios.vue'),
+    },
+    {
       path: '/unauthorized',
       name: 'unauthorized',
       component: () => import('../views/unauthorized.vue'),
@@ -159,6 +164,12 @@ const router = createRouter({
       path: '/cliente/:id',
       name: 'ver-cliente',
       component: () => import('../views/Gestion/clienteVer.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Administrador', 'Gerente', 'Soporte'] }
+    },
+    {
+      path: '/cliente/editar/:id',
+      name: 'editar-cliente',
+      component: () => import('../views/Gestion/clienteEditar.vue'),
       meta: { requiresAuth: true, allowedRoles: ['Administrador', 'Gerente', 'Soporte'] }
     },
     {

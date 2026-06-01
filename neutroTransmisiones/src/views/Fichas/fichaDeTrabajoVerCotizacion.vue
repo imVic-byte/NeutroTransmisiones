@@ -113,7 +113,7 @@ const cargarDatos = async () => {
       
     if (cuentas && cuentas.length > 0) {
       cuentasBancarias.value = cuentas
-      cuentaSeleccionada.value = cuentas[0]
+      cuentaSeleccionada.value = cuentas.find(c => c.favorito) || cuentas[0]
     }
 }
 
@@ -233,17 +233,6 @@ onMounted(async () => {
                 <!-- Acciones -->
                 <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700">
                     <h3 class="text-xs rounded-t-xl font-semibold uppercase neutro-primary p-3 flex justify-between items-center text-white tracking-wider mb-4">Acciones</h3>
-                    <div v-if="cuentasBancarias.length > 0 && !confirmada" class="mb-4 neutro-secondary py-2 px-3">
-                      <label class="block text-xs font-semibold text-white uppercase tracking-wider mb-2">Cuenta para PDF</label>
-                      <select
-                        v-model="cuentaSeleccionada"
-                        class="w-full rounded-lg neutro-primary text-white dark:border border-gray-700 px-2 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option v-for="cuenta in cuentasBancarias" :key="cuenta.id" :value="cuenta">
-                          {{ cuenta.banco }} - {{ cuenta.titular }}
-                        </option>
-                      </select>
-                    </div>
                     <div class="py-2 px-3 space-y-3 pb-4 flex flex-col justify-between items-center">
                         <button 
                           @click="generarPDF"

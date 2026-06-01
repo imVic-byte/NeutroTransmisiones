@@ -34,9 +34,10 @@ const descuentoCantidad = computed(() => {
 })
 
 const datosEmpresa = ref({})
+const cuentaFavorita = ref(null)
 
 const traerDatosEmpresa = async () => {
-  const {data, error} = await supabase.from('neutro_t').select('*').single()
+  const {data, error} = await supabase.from('neutro_t').select('*').maybeSingle()
   if (data) {
     datosEmpresa.value = data
   }
@@ -46,7 +47,7 @@ const traerDatosEmpresa = async () => {
 }
 
 const traerEmail = async () => {
-  const {data, error} = await supabase.from('neutro_email').select('*').eq('prioritario',true).single()
+  const {data, error} = await supabase.from('neutro_email').select('*').eq('prioritario',true).maybeSingle()
   if (data) {
     datosEmpresa.value.email = data.email
   }
@@ -59,9 +60,27 @@ const traerTelefono = async () => {
   const {data,error} = await supabase.from('neutro_telefono').select('*').eq('prioritario',true).maybeSingle()
   if (data) {
     datosEmpresa.value.telefono = data.telefono || ''
-  }
+  } 
   if (error) {
     datosEmpresa.value.telefono = ''
+  }
+}
+
+const traerCuentaFavorita = async () => {
+  const { data, error } = await supabase
+    .from('neutro_cuentas')
+    .select('*')
+    .eq('favorito', true)
+    .maybeSingle()
+  if (data) {
+    cuentaFavorita.value = data
+  } else {
+    const { data: fallback } = await supabase
+      .from('neutro_cuentas')
+      .select('*')
+      .limit(1)
+      .maybeSingle()
+    cuentaFavorita.value = fallback
   }
 }
 
@@ -69,6 +88,7 @@ onMounted(async () => {
   await traerDatosEmpresa()
   await traerEmail()
   await traerTelefono()
+  await traerCuentaFavorita()
 })
 
 </script>
@@ -162,21 +182,21 @@ onMounted(async () => {
     <!-- Totales + cuenta bancaria -->
     <div class="flex justify-between items-start gap-8">
       
-      <div v-if="cuentaSeleccionada" class="w-3/5 bg-[#f8fafc] p-4 rounded-lg border border-[#e2e8f0]">
+      <div v-if="cuentaFavorita" class="w-3/5 bg-[#f8fafc] p-4 rounded-lg border border-[#e2e8f0]">
         <h4 class="font-bold text-[#234723] uppercase text-[10px] mb-2 flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#234723]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
           Datos de Transferencia
         </h4>
         <div class="text-[10px] text-[#475569] grid grid-cols-2 gap-x-4 gap-y-1">
-          <p><span class="font-bold">Banco:</span> {{ cuentaSeleccionada.banco }}</p>
-          <p><span class="font-bold">Tipo:</span> {{ cuentaSeleccionada.tipo_cuenta }}</p>
-          <p><span class="font-bold">RUT:</span> {{ cuentaSeleccionada.rut_titular }}</p>
-          <p><span class="font-bold">Titular:</span> {{ cuentaSeleccionada.titular }}</p>
-          <p><span class="font-bold">N° Cuenta:</span> {{ cuentaSeleccionada.numero_cuenta }}</p>
+          <p><span class="font-bold">Banco:</span> {{ cuentaFavorita.banco }}</p>
+          <p><span class="font-bold">Tipo:</span> {{ cuentaFavorita.tipo_cuenta }}</p>
+          <p><span class="font-bold">RUT:</span> {{ cuentaFavorita.rut_titular }}</p>
+          <p><span class="font-bold">Titular:</span> {{ cuentaFavorita.titular }}</p>
+          <p><span class="font-bold">N° Cuenta:</span> {{ cuentaFavorita.numero_cuenta }}</p>
         </div>
       </div>
 
-      <div :class="cuentaSeleccionada ? 'w-2/5' : 'w-2/5 ml-auto'">
+      <div :class="cuentaFavorita ? 'w-2/5' : 'w-2/5 ml-auto'">
         <div class="flex justify-between items-center py-2 border-b border-[#e5e7eb] text-[#374151]">
           <span class="font-medium">Subtotal</span>
           <span>{{ formatoPesos(cotizacion.subtotal) }}</span>

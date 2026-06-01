@@ -71,7 +71,7 @@ const fuelColor = computed(() => {
     </div>
 
     <div class="flex items-center justify-between w-full mb-2">
-      <span class="text-xs font-bold neutro-font uppercase tracking-widest">Nivel de Combustible</span>
+      <span class="text-xs font-bold text-white uppercase tracking-widest">Nivel de Combustible</span>
       <span class="text-lg font-mono font-bold" :style="{ color: fuelColor }">{{ fuelLevel }}%</span>
     </div>
 

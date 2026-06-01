@@ -30,13 +30,13 @@ onMounted(()=>{
     <div
       class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div
-        class="neutro-primary neutro-font rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[80vh] animate-in fade-in zoom-in duration-200">
+        class="neutro-primary text-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[80vh] animate-in fade-in zoom-in duration-200">
         <div class="px-6 flex justify-end pt-4">
-          <button @click="emit('cerrar')" class="neutro-font rounded-xl w-[10%] text-white/80 hover:text-white">X</button>
+          <button @click="emit('cerrar')" class="text-white rounded-xl w-[10%] text-white/80 hover:text-white">X</button>
         </div>
         <div class="px-6 flex flex-col pb-4 border-b border-white/10">
           <div class="flex flex-col">
-            <h2 class="text-lg font-bold neutro-font">Agregar Fichas</h2>
+            <h2 class="text-lg font-bold text-white">Agregar Fichas</h2>
             <p class="text-sm text-white/80">Selecciona una Ficha de trabajo</p>
           </div>
         </div>
