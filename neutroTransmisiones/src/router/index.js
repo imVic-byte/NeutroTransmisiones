@@ -25,6 +25,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path:'/panel/config/perfil',
+      name:'mi-perfil',
+      component: () => import('../views/Panel/perfil.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path:'/agenda',
       name:'agenda',
       component: () => import('../views/Agenda/agendaMain.vue'),
@@ -149,6 +155,24 @@ const router = createRouter({
       component: () => import('../views/Gestion/editarUsuarios.vue'),
     },
     {
+      path: '/usuarios',
+      name: 'listado-usuarios',
+      component: () => import('../views/Usuarios/usuariosListado.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Administrador', 'Gerente', 'Soporte'] }
+    },
+    {
+      path: '/usuarios/crear',
+      name: 'crear-usuario',
+      component: () => import('../views/Usuarios/usuariosForm.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Administrador', 'Gerente', 'Soporte'] }
+    },
+    {
+      path: '/usuarios/editar/:id',
+      name: 'editar-usuarios',
+      component: () => import('../views/Usuarios/usuariosForm.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Administrador', 'Gerente', 'Soporte'] }
+    },
+    {
       path: '/unauthorized',
       name: 'unauthorized',
       component: () => import('../views/unauthorized.vue'),
@@ -177,42 +201,7 @@ const router = createRouter({
       name: 'NotFound',
       component: () => import('../views/notFound.vue')
     },
-    {
-      path:'/cotizacion/crear',
-      name: 'crear-cotizacion',
-      component: () => import('../views/Cotizaciones/cotizacionesForm.vue'),
-      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
-    },
-    {
-      path:'/cotizacion/editar/:id',
-      name: 'editar-cotizacion',
-      component: () => import('../views/Cotizaciones/cotizacionesEditar.vue'),
-      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
-    },
-    {
-      path:'/cotizacion/ver/:id',
-      name: 'ver-cotizacion',
-      component: () => import('../views/Cotizaciones/cotizacionesVer.vue'),
-      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
-    },
-    {
-      path:'/cotizacion/pdf/:id',
-      name: 'pdf-cotizacion',
-      component: () => import('../views/Cotizaciones/cotizacionesPDF.vue'),
-      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
-    },
-    {
-      path:'/cotizacion/listado',
-      name: 'listado-cotizaciones',
-      component: () => import('../views/Cotizaciones/cotizacionesListado.vue'),
-      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
-    },
-    {
-      path:'/cotizacion/crear-presupuesto/:id',
-      name: 'crear-presupuesto-cotizacion',
-      component: () => import('../views/Cotizaciones/crearPresupuesto.vue'),
-      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
-    },
+
     {
       path:'/ficha-de-trabajo/:id',
       name: 'ficha-de-trabajo',
