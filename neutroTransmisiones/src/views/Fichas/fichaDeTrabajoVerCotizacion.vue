@@ -120,6 +120,8 @@ const confirmarDescartar = async (modificar) => {
   mostrarModalModificar.value = false;
   interfaz.showLoading();
   
+  await revertirStock();
+
   const {data, error} = await supabase.from('cotizaciones_ficha').update({estado:3}).eq('id', route.params.cotizacion_id).select().single()
   
   interfaz.hideLoading();
@@ -142,8 +144,35 @@ const confirmarDescartar = async (modificar) => {
   }
 }
 
+const revertirStock = async () => {
+  // Solo revertimos stock si la cotizacion estaba en estado 2 (Confirmada)
+  if (cotizacion.value && cotizacion.value.estado === 2) {
+    const insumosInventario = cotizacion.value.detalle_cotizaciones_ficha.filter(i => i.es_inventario);
+    if (insumosInventario.length > 0) {
+      for (const insumo of insumosInventario) {
+        const { data: invData } = await supabase
+          .from('inventario')
+          .select('stock')
+          .eq('id', insumo.producto_inventario)
+          .single();
+          
+        if (invData) {
+          await supabase
+            .from('inventario')
+            .update({ stock: invData.stock + insumo.cantidad })
+            .eq('id', insumo.producto_inventario);
+        }
+      }
+    }
+  }
+}
+
 const ejecutarBorrador = async () => {
+  interfaz.showLoading();
+  await revertirStock();
+
   const {error} = await supabase.from('cotizaciones_ficha').update({estado:1}).eq('id',route.params.cotizacion_id).select().single()
+  interfaz.hideLoading();
   if(error){
     modalState.value.visible = true;
     modalState.value.titulo = "Error";
