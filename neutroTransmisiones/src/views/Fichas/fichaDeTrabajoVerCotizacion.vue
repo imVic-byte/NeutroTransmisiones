@@ -18,6 +18,7 @@ const router = useRouter()
 const cotizacion = ref(null)
 const n_cotizacion = ref(route.query.numero)
 const modalState = ref({ visible: false, titulo: "", mensaje: "", exito: true })
+const mostrarModalModificar = ref(false)
 const confirmada = ref(false)
 const isPendiente = computed(() => cotizacion.value.estado === 1 || cotizacion.value.estado === 4)
 const cuentasBancarias = ref([])
@@ -50,12 +51,59 @@ const generarPDF = () => {
 }
 
 const confirmarCotizacion = async () => {
+  interfaz.showLoading();
+
+  // Validar y descontar stock para insumos
+  const insumos = cotizacion.value.detalle_cotizaciones_ficha?.filter(d => d.tipo === 'insumo') || [];
+  
+  if (insumos.length > 0) {
+    const operacionesStock = [];
+    
+    // Validar primero si todos tienen stock
+    for (const insumo of insumos) {
+      const { data: invData, error: invError } = await supabase
+        .from('inventario')
+        .select('id, stock')
+        .eq('nombre', insumo.descripcion)
+        .single();
+        
+      if (invError || !invData) {
+        interfaz.hideLoading();
+        modalState.value = { visible: true, titulo: "Error de Inventario", mensaje: `No se encontró el insumo en el inventario: ${insumo.descripcion}`, exito: false };
+        return;
+      }
+      
+      const stockReal = Number(invData.stock) || 0;
+      if (insumo.cantidad > stockReal) {
+        interfaz.hideLoading();
+        modalState.value = { visible: true, titulo: "Stock Insuficiente", mensaje: `Stock insuficiente para ${insumo.descripcion}. Solicitado: ${insumo.cantidad}, Disponible: ${stockReal}`, exito: false };
+        return;
+      }
+      
+      operacionesStock.push({
+        id: invData.id,
+        nuevoStock: stockReal - insumo.cantidad
+      });
+    }
+    
+    // Descontamos stock si todo está OK
+    for (const op of operacionesStock) {
+      await supabase
+        .from('inventario')
+        .update({ stock: op.nuevoStock })
+        .eq('id', op.id);
+    }
+  }
+
   const {data,error} = await supabase.from('cotizaciones_ficha').update({estado:2, id_cuenta: cuentaSeleccionada.value.id}).eq('id',route.params.cotizacion_id).select().single()
+  interfaz.hideLoading();
+
   if(data){
     modalState.value.visible = true;
     modalState.value.titulo = "Exito";
     modalState.value.mensaje = "Cotización confirmada";
     modalState.value.exito = true;
+    confirmada.value = true;
   }else{
     modalState.value.visible = true;
     modalState.value.titulo = "Error";
@@ -64,18 +112,33 @@ const confirmarCotizacion = async () => {
   }
 }
 
-const descartarCotizacion = async () => {
-  const {data,error} = await supabase.from('cotizaciones_ficha').update({estado:3}).eq('id',route.params.cotizacion_id).select().single()
-  if(data){
-    modalState.value.visible = true;
-    modalState.value.titulo = "Exito";
-    modalState.value.mensaje = "Cotización descartada";
-    modalState.value.exito = true;
-  }else{
+const descartarCotizacion = () => {
+  mostrarModalModificar.value = true;
+}
+
+const confirmarDescartar = async (modificar) => {
+  mostrarModalModificar.value = false;
+  interfaz.showLoading();
+  
+  const {data, error} = await supabase.from('cotizaciones_ficha').update({estado:3}).eq('id', route.params.cotizacion_id).select().single()
+  
+  interfaz.hideLoading();
+  
+  if (error) {
     modalState.value.visible = true;
     modalState.value.titulo = "Error";
     modalState.value.mensaje = error.message;
     modalState.value.exito = false;
+    return;
+  }
+  
+  if (modificar) {
+    router.push({ name: 'crear-cotizacion-ficha-de-trabajo', params: { id: route.params.id }, query: { clonar_cotizacion: route.params.cotizacion_id } });
+  } else {
+    modalState.value.visible = true;
+    modalState.value.titulo = "Exito";
+    modalState.value.mensaje = "Cotización descartada";
+    modalState.value.exito = true;
   }
 }
 
@@ -116,6 +179,14 @@ const cargarDatos = async () => {
       cuentaSeleccionada.value = cuentas.find(c => c.favorito) || cuentas[0]
     }
 }
+
+const servicios = computed(() => {
+  return cotizacion.value?.detalle_cotizaciones_ficha?.filter(d => d.tipo === 'servicio') || [];
+})
+
+const insumos = computed(() => {
+  return cotizacion.value?.detalle_cotizaciones_ficha?.filter(d => d.tipo === 'insumo') || [];
+})
 
 onMounted(async () => {
     interfaz.showLoading();
@@ -185,12 +256,25 @@ onMounted(async () => {
                 </div>
 
                 <!-- Servicios -->
-                <div v-if="cotizacion.detalle_cotizaciones_ficha && cotizacion.detalle_cotizaciones_ficha.length > 0" class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
+                <div v-if="servicios.length > 0" class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-700 neutro-primary">
                         <h3 class="text-white font-bold">Servicios Solicitados</h3>
                     </div>
                     <div class="divide-y divide-gray-800">
-                        <div v-for="detalle in cotizacion.detalle_cotizaciones_ficha" :key="detalle.id" class="px-6 py-4 flex justify-between items-center hover:opacity-80 transition-colors">
+                        <div v-for="detalle in servicios" :key="detalle.id" class="px-6 py-4 flex justify-between items-center hover:opacity-80 transition-colors">
+                            <span class="text-sm text-white font-medium">{{ camelCase(detalle.descripcion) }}</span>
+                            <span class="text-sm font-bold text-white">{{ formatearDinero(detalle.monto) }} x {{ detalle.cantidad }} = {{ formatearDinero(detalle.monto * detalle.cantidad) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Insumos -->
+                <div v-if="insumos.length > 0" class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden mt-6">
+                    <div class="px-6 py-4 border-b border-gray-700 neutro-primary">
+                        <h3 class="text-white font-bold">Insumos del Inventario</h3>
+                    </div>
+                    <div class="divide-y divide-gray-800">
+                        <div v-for="detalle in insumos" :key="detalle.id" class="px-6 py-4 flex justify-between items-center hover:opacity-80 transition-colors">
                             <span class="text-sm text-white font-medium">{{ camelCase(detalle.descripcion) }}</span>
                             <span class="text-sm font-bold text-white">{{ formatearDinero(detalle.monto) }} x {{ detalle.cantidad }} = {{ formatearDinero(detalle.monto * detalle.cantidad) }}</span>
                         </div>
@@ -259,6 +343,25 @@ onMounted(async () => {
             :exito="modalState.exito" 
             @cerrar="redirigir" 
         />
+
+        <div v-if="mostrarModalModificar" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] p-4 transition-all duration-300">
+            <div class="neutro-primary rounded-2xl p-6 border border-white/10 max-w-sm w-full shadow-2xl animate-modal-entrance">
+                <h3 class="text-xl font-bold text-white mb-2">Descartar Cotización</h3>
+                <p class="text-white/70 text-sm mb-6">La cotización actual será descartada. ¿Deseas usar esta información como base para crear una nueva (modificarla)?</p>
+                
+                <div class="flex flex-col gap-3">
+                    <button @click="confirmarDescartar(true)" class="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors shadow-[0_0_15px_rgba(37,99,235,0.3)]">
+                        Sí, descartar y modificar
+                    </button>
+                    <button @click="confirmarDescartar(false)" class="w-full py-2.5 rounded-lg neutro-secondary hover:bg-white/10 border border-white/10 text-white font-bold transition-colors">
+                        No, solo descartar
+                    </button>
+                    <button @click="mostrarModalModificar = false" class="w-full py-2 text-sm text-white/50 hover:text-white transition-colors mt-2">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </template>
@@ -299,5 +402,20 @@ onMounted(async () => {
   color: #ffffff;
   border-radius: 4px;
   text-transform: uppercase;
+}
+
+@keyframes modalEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal-entrance {
+  animation: modalEntrance 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 </style>

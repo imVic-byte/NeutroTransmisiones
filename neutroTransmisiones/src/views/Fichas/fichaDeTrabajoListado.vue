@@ -2,7 +2,6 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import navbar from "../../components/componentes/navbar.vue";
-import listadoCotizaciones from "../../components/fichas/listadoCotizaciones.vue";
 import { supabase } from "../../lib/supabaseClient";
 import { useInterfaz } from "@/stores/interfaz";
 import { formatearFecha } from '@/js/formateadores.js'
@@ -12,7 +11,6 @@ const router = useRouter();
 const interfaz = useInterfaz();
 const showStats = ref(false);
 const filtroEstado = ref(null);
-const tabActiva = ref('fichas');
 const textoBusquedaGlobal = ref('');
 
 const fichas = ref([]);
@@ -25,12 +23,10 @@ const debounce = usarDebounce();
 const handleBusqueda = (texto) => {
   textoBusquedaGlobal.value = texto;
   
-  if (tabActiva.value === 'fichas') {
-    debounce(() => {
-      textoBusqueda.value = texto;
-      aplicarFiltros();
-    }, 300);
-  }
+  debounce(() => {
+    textoBusqueda.value = texto;
+    aplicarFiltros();
+  }, 300);
 };
 
 const aplicarFiltros = () => {
@@ -195,26 +191,7 @@ onMounted(async () => {
     />
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-      <!-- Tabs -->
-      <div class="flex gap-1 mb-6 neutro-secondary rounded-xl p-1 shadow-sm dark:border border-gray-700 w-fit">
-        <button
-          @click="tabActiva = 'fichas'"
-          class="px-5 py-2.5 rounded-lg text-sm font-bold transition-all duration-200"
-          :class="tabActiva === 'fichas' ? 'neutro-primary text-white shadow-sm' : 'text-white hover:opacity-70'"
-        >
-          Fichas de Trabajo
-        </button>
-        <button
-          @click="tabActiva = 'cotizaciones'"
-          class="px-5 py-2.5 rounded-lg text-sm font-bold transition-all duration-200"
-          :class="tabActiva === 'cotizaciones' ? 'neutro-primary text-white shadow-sm' : 'text-white hover:opacity-70'"
-        >
-          Cotizaciones
-        </button>
-      </div>
-
-      <!-- Tab: Fichas -->
-      <div v-show="tabActiva === 'fichas'">
+      <div>
       
       <div class="hidden md:grid md:grid-cols-4 gap-4 mb-8">
         <div class="neutro-secondary p-4 rounded-xl shadow-sm border border-gray-700">
@@ -461,12 +438,6 @@ onMounted(async () => {
       </div>
 
     </div>
-      </div>
-      <!-- Fin Tab Fichas -->
-
-      <!-- Tab: Cotizaciones -->
-      <div v-if="tabActiva === 'cotizaciones'">
-        <listadoCotizaciones :busqueda="textoBusquedaGlobal"/>
       </div>
 
     </div>

@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import navbar from '@/components/componentes/navbar.vue';
 import { useInterfaz } from '@/stores/interfaz.js';
 import { supabase } from '@/lib/supabaseClient.js';
-
+import volver from '../../components/componentes/volverPanel.vue'
 const router = useRouter();
 const interfaz = useInterfaz();
 const usuarios = ref([]);
@@ -92,6 +92,7 @@ onMounted(async () => {
     <navbar class="navbar" titulo="Gestión de Usuarios Autenticados" subtitulo="Administra los perfiles de acceso al sistema." />
     
     <div class="max-w-7xl mx-auto pt-5 px-4 md:px-8">
+      <volver />
       <div class="flex justify-between items-center mb-6">
         <div class="hidden sm:block">
           <h1 class="text-2xl font-bold neutro-font">Usuarios Autenticados</h1>

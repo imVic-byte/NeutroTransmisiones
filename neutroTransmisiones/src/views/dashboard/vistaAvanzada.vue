@@ -4,6 +4,7 @@ import { useUserStore } from '../../stores/user'
 import { useRouter } from 'vue-router'
 import { useInterfaz } from '@/stores/interfaz'
 import { supabase } from '@/lib/supabaseClient'
+import listadoFichas from '@/components/fichas/listitadefichas.vue'
 
 const interfaz = useInterfaz()
 const userStore = useUserStore()
@@ -57,11 +58,14 @@ const loading = ref(true)
 // Acciones de redirección
 const VehiculosEnTaller = () => router.push({ name: 'vehiculos-en-taller' })
 const ListoParaEntregar = () => router.push({ name: 'ot-por-entregar' })
-const verTablero = () => router.push({ name: 'ordenes-de-trabajo' })
 const irAChequeoCompleto = () => router.push({ name: 'chequeos' })
 const irACrearDeuda = () => router.push({ name: 'listado-deudas' })
 const irACrearFinanzas = () => router.push({ name: 'crear-finanza' })
-const irACrearCotizacion = () => router.push({ name: 'crear-cotizacion' })
+
+const abrirListadoFichas = ref(false)
+const handleListadoFichas = () => { abrirListadoFichas.value = !abrirListadoFichas.value }
+const irACrearCotizacion = () => { abrirListadoFichas.value = true }
+
 const verOT = (id) => router.push({ name: 'ver-orden-de-trabajo', params: { id } })
 
 const formatoMoneda = (valor) => {
@@ -318,7 +322,6 @@ onMounted(() => {
         <div class="neutro-primary rounded-2xl border border-white/10 overflow-hidden h-full">
           <div class="p-4 border-b border-white/10 flex justify-between items-center">
             <h3 class="font-bold text-white">Trabajo Reciente</h3>
-            <button @click="verTablero" class="text-xs font-bold text-blue-400 hover:text-blue-300">Ver todas</button>
           </div>
           <div class="p-4">
             <div v-if="trabajoReciente.length === 0" class="text-center py-6 text-white/50 text-sm">
@@ -357,7 +360,7 @@ onMounted(() => {
           <div class="p-6">
             <div class="grid grid-cols-2 gap-4">
               <div class="neutro-secondary p-4 rounded-xl border border-white/5 text-center flex flex-col justify-center">
-                <span class="text-xs font-bold text-white/60 uppercase tracking-wider block mb-2">Presupuestos Hoy</span>
+                <span class="text-xs font-bold text-white/60 uppercase tracking-wider block mb-2">Cotizaciones Hoy</span>
                 <span class="text-2xl font-black text-white">{{ presupuestosHoy }}</span>
               </div>
               <div class="neutro-secondary p-4 rounded-xl border border-white/5 text-center flex flex-col justify-center">
@@ -371,5 +374,7 @@ onMounted(() => {
 
     </div>
   </main>
+  
+  <listadoFichas v-if="abrirListadoFichas" @cerrar="handleListadoFichas" />
   </div>
 </template>

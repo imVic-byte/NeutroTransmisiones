@@ -10,7 +10,9 @@ const events = ref([])
 const showModal = ref(false)
 const showEventModal = ref(false)
 const newTitle = ref('')
+const editTitle = ref('')
 const selectedTime = ref(null)
+const selectedDuration = ref(2)
 const selectedEvent = ref(null)
 
 const isMobile = ref(false)
@@ -45,7 +47,26 @@ const handleCellClick = (date) => {
 const handleEventClick = (event, e) => {
     e.stopPropagation()
     selectedEvent.value = event
+    editTitle.value = event.title
     showEventModal.value = true
+}
+
+const handleEventChange = async (payload) => {
+    // Vue-cal emits different payloads depending on the event, usually payload.event or just payload
+    const event = payload.event || payload
+    if (!event || !event.id) return
+
+    const { error } = await supabase
+        .from('appointments')
+        .update({
+            start_time: event.start.toISOString(),
+            end_time: event.end.toISOString()
+        })
+        .eq('id', event.id)
+
+    if (error) {
+        console.error('Error al actualizar fecha del evento:', error)
+    }
 }
 
 const closeModal = () => {
@@ -57,6 +78,7 @@ const closeModal = () => {
 const closeEventModal = () => {
     showEventModal.value = false
     selectedEvent.value = null
+    editTitle.value = ''
 }
 
 const saveAppointment = async () => {
@@ -64,7 +86,7 @@ const saveAppointment = async () => {
 
     const start = new Date(selectedTime.value)
     const end = new Date(start)
-    end.setHours(start.getHours() + 2)
+    end.setHours(start.getHours() + selectedDuration.value)
 
     const { data, error } = await supabase
         .from('appointments')
@@ -103,6 +125,24 @@ const deleteAppointment = async () => {
     }
 }
 
+const updateAppointment = async () => {
+    if (!selectedEvent.value || !selectedEvent.value.id || !editTitle.value) return
+
+    const { error } = await supabase
+        .from('appointments')
+        .update({ title: editTitle.value })
+        .eq('id', selectedEvent.value.id)
+
+    if (!error) {
+        const index = events.value.findIndex(e => e.id === selectedEvent.value.id)
+        if (index !== -1) {
+            events.value[index].title = editTitle.value
+        }
+        selectedEvent.value.title = editTitle.value
+        closeEventModal()
+    }
+}
+
 onMounted(() => {
     checkScreenSize()
     window.addEventListener('resize', checkScreenSize)
@@ -121,6 +161,7 @@ onUnmounted(() => {
         </div>
         <div class="calendar-container pt-5 px-5">
             <vue-cal class="neutro-primary rounded-xl text-white" locale="es" :events="events" @cell-click="handleCellClick" @event-click="handleEventClick"
+            @event-drop="handleEventChange" @event-duration-change="handleEventChange"
             :editable-events="{ title: false, drag: true, resize: true, delete: false, create: false }"
                 :default-view="currentView" :active-view="currentView" :time-from="8 * 60" :time-to="20 * 60"
                 :disable-views="['years', 'year']" :small="isMobile" />
@@ -129,8 +170,9 @@ onUnmounted(() => {
         <div v-if="showEventModal" class="modal-overlay" @click.self="closeEventModal">
             <div class="modal-content neutro-primary text-white">
                 <h3>Detalles de la Cita</h3>
-                <p class="event-title text-white">{{ selectedEvent?.title }}</p>
-                <div class="modal-actions">
+                <input class="input mb-2" v-model="editTitle" type="text" placeholder="Título de la cita" />
+                <div class="modal-actions mt-2">
+                    <button class="button-confirm mr-auto" @click="updateAppointment">Actualizar</button>
                     <button class="btn-danger" @click="deleteAppointment">Eliminar</button>
                     <button @click="closeEventModal">Cerrar</button>
                 </div>
@@ -140,7 +182,16 @@ onUnmounted(() => {
             <div class="modal-content neutro-primary text-white">
                 <h3>Nueva Cita</h3>
                 <input class="input" v-model="newTitle" type="text" placeholder="Título de la cita" />
-                <div class="modal-actions">
+                <div class="mt-2">
+                    <label class="block mb-2 text-sm">Duración estimada:</label>
+                    <select v-model="selectedDuration" class="input w-full cursor-pointer">
+                        <option :value="1">1 hora</option>
+                        <option :value="2">2 horas</option>
+                        <option :value="4">4 horas</option>
+                        <option :value="8">Todo el día (8 horas)</option>
+                    </select>
+                </div>
+                <div class="modal-actions mt-2">
                     <button class="button-confirm" @click="saveAppointment">Guardar</button>
                     <button @click="closeModal">Cancelar</button>
                 </div>

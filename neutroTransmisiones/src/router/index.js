@@ -215,6 +215,12 @@ const router = createRouter({
       meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
     },
     {
+      path: '/cotizaciones',
+      name: 'listado-cotizaciones',
+      component: () => import('../views/Fichas/cotizacionesFichaListado.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
       path:'/ficha-de-trabajo/crear',
       name: 'crear-ficha-de-trabajo',
       component: () => import('../views/Fichas/fichaDeTrabajoCrear.vue'),

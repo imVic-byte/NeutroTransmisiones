@@ -5,7 +5,7 @@ import {useInterfaz} from '../../stores/interfaz.js';
 import { supabase } from '../../lib/supabaseClient.js'; 
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
-
+import volver from '../../components/componentes/volverPanel.vue'
 const router = useRouter();
 const trabajadores = ref([]);
 const cargando = ref(true);
@@ -118,6 +118,7 @@ onMounted(async () => {
     <navbar class="navbar" titulo="Gestión de Personal" subtitulo="Administra los usuarios y sus permisos de acceso." />
     
     <div class="max-w-7xl mx-auto pt-5 px-4 md:px-8">
+      <volver />
       <div class="flex justify-between items-center mb-6">
         <div class="hidden sm:block">
           <h1 class="text-2xl font-bold neutro-font">Gestión de Personal</h1>
