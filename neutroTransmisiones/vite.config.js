@@ -13,7 +13,7 @@ export default defineConfig({
     vueDevTools(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       workbox: {
         skipWaiting: true,
