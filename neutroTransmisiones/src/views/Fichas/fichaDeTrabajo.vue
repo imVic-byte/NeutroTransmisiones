@@ -49,6 +49,8 @@ const mostrarModalListoEntrega = ref(false)
 const mostrarModalConfirmarPresupuesto = ref(false)
 const mostrarModalGenerarPresupuestoAuto = ref(false)
 const estadoTemporal = ref(null)
+const mostrarModalEliminarOT = ref(false)
+const otAEliminar = ref(null)
 const procesandoEstadoFicha = ref(false)
 const desbloqueoEmergencia = ref(false)
 const visitasCliente = ref(0)
@@ -130,6 +132,8 @@ const confirmarCreacionOT = async () => {
         errorModal.value = 'Debes ingresar una marca.'
         return
     }
+
+    creandoOT.value = true
     const vehiculo = await handleVehiculo(ficha.value.cliente.id, otPatenteIngresada.value.toUpperCase(), otMarcaIngresada.value, otModeloIngresado.value)
     try {
         const resultado = await creacionOT(ficha.value.id, otTrabajadorSeleccionado.value, vehiculo.id)
@@ -177,7 +181,7 @@ const cargarDatos = async () => {
   try {
     const { data: dataFicha, error: errorFicha } = await supabase
       .from('ficha_de_trabajo')
-      .select(`*, cliente(*),orden_trabajo(*,vehiculo(*)),cotizaciones_ficha(*)`) 
+      .select(`*, cliente(*),orden_trabajo(*,vehiculo(*),chequeos(id)),cotizaciones_ficha(*)`) 
       .eq('id', fichaId)
       .single()
     if (errorFicha) throw errorFicha
@@ -191,6 +195,35 @@ const cargarDatos = async () => {
     error.value = "No se pudo cargar la información de la ficha. Revisa la conexión."
   } finally {
     cargando.value = false
+  }
+}
+
+const eliminarOrdenVacia = (ordenId) => {
+  otAEliminar.value = ordenId;
+  mostrarModalEliminarOT.value = true;
+}
+
+const confirmarEliminarOT = async () => {
+  if (!otAEliminar.value) return;
+  mostrarModalEliminarOT.value = false;
+  interfaz.showLoading();
+  
+  // Eliminación en cascada manual de las tablas hijas conocidas para evitar errores de llave foránea
+  await supabase.from('ot_bitacora').delete().eq('ot_id', otAEliminar.value);
+  await supabase.from('ot_fotos_ingreso').delete().eq('id_ot', otAEliminar.value);
+
+  const { error } = await supabase
+    .from('orden_trabajo')
+    .delete()
+    .eq('id', otAEliminar.value);
+    
+  if (error) {
+    console.error(error);
+    interfaz.hideLoading();
+  } else {
+    otAEliminar.value = null;
+    await cargarDatos();
+    interfaz.hideLoading();
   }
 }
 
@@ -632,7 +665,7 @@ onMounted(async () => {
             </div>
             <div class="p-6">
               <div v-if="ficha.orden_trabajo" class="flex flex-col" :class="{ 'pointer-events-none opacity-80': isFichaBloqueada }">
-                <OTcardFicha v-for="(orden, i) in ficha.orden_trabajo" :key="orden.id" :orden="orden" :index="i" :estado="handleEstados(orden.estado_actual_id)" />
+                <OTcardFicha v-for="(orden, i) in ficha.orden_trabajo" :key="orden.id" :orden="orden" :index="i" :estado="handleEstados(orden.estado_actual_id)" @eliminar="eliminarOrdenVacia" />
               </div>
               <p v-else class="text-sm text-white italic text-center py-4 neutro-secondary rounded-lg border border-dashed border-gray-200">
                 No se encontraron vehículos registrados para este cliente.
@@ -978,7 +1011,45 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-</template>
+    <!-- Modal de Confirmación Eliminar OT -->
+    <div v-if="mostrarModalEliminarOT" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity">
+      <div class="neutro-background rounded-xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all scale-100">
+        
+        <div class="bg-red-600 px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2 text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <h3 class="text-lg font-bold">Eliminar Orden</h3>
+            </div>
+            <button @click="mostrarModalEliminarOT = false" class="text-white hover:text-red-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="p-6">
+            <p class="text-white mb-6 text-sm">
+              ¿Estás seguro de que deseas eliminar esta orden de trabajo vacía? Esta acción no se puede deshacer.
+            </p>
+            
+            <div class="flex justify-end gap-3">
+                <button @click="mostrarModalEliminarOT = false" class="px-4 py-2 text-sm font-medium text-white hover:bg-gray-200 hover:text-gray-900 rounded-lg transition-colors border border-gray-600">
+                    Cancelar
+                </button>
+                <button 
+                  @click="confirmarEliminarOT"
+                  class="px-4 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center justify-center min-w-[100px]"
+                >
+                    Eliminar
+                </button>
+            </div>
+        </div>
+      </div>
+    </div>
+
+  </template>
 
 
 

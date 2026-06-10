@@ -21,7 +21,7 @@ const close = async () => {
   >
     <div class="mb-3 text-sm text-gray-800 dark:text-gray-200">
       <span v-if="offlineReady">
-        La aplicación está lista para funcionar sin conexión.
+        La app está actualizada.
       </span>
       <span v-else>
         Hay una nueva versión de NeutroTransmisiones disponible. Actualiza para ver los cambios.
