@@ -4,10 +4,12 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { useDeudas } from '@/stores/deudas.js';
 import { useNotificacionesCitas } from '@/stores/notificacionesCitas.js';
+import { useNotifications } from '@/stores/notificaciones.js';
 
 const userStore = useUserStore()
 const storeDeudas = useDeudas()
 const storeCitas = useNotificacionesCitas()
+const storeGlobal = useNotifications()
 const router = useRouter()
 
 const mostrarModal = ref(false)
@@ -48,6 +50,22 @@ const todasLasNotificaciones = computed(() => {
     lista = [...lista, ...citasFormat]
   }
 
+  // Notificaciones Globales (Inventario, etc)
+  if (storeGlobal.notifications && storeGlobal.notifications.value) {
+    const globalFormat = storeGlobal.notifications.value.map(n => ({
+      id: `global_${n.id}`,
+      original_id: n.id,
+      tipo: n.tipo || 'notificacion',
+      titulo: n.titulo,
+      mensaje: n.contenido,
+      fecha: n.created_at,
+      leido: n.leido,
+      ruta: null, // Si es inventario, no hay ruta definida por ahora
+      marcarLeido: () => storeGlobal.markAsRead(n.id)
+    }))
+    lista = [...lista, ...globalFormat]
+  }
+
   // TODO: Agregar notificaciones de otros stores aquí en el futuro
 
   // Ordenamos por fecha descendente
@@ -64,6 +82,7 @@ const handleMostrarNotificaciones = () => {
 const marcarTodoComoLeido = () => {
   storeDeudas.markAllAsReadDeuda()
   storeCitas.markAllAsReadCita()
+  storeGlobal.markAllAsRead()
 }
 
 const irRutaNotificacion = (notif) => {
@@ -160,7 +179,7 @@ const formatFecha = (fechaStr) => {
                    @click="irRutaNotificacion(notif)">
                 <div class="flex justify-between items-start gap-2">
                   <div class="flex-1">
-                    <p class="text-xs font-bold" :class="!notif.leido ? 'text-blue-800' : 'text-gray-300'">
+                    <p class="text-xs font-bold" :class="!notif.leido ? 'text-blue-300' : 'text-gray-300'">
                       {{ notif.titulo }}
                     </p>
                     <p class="text-sm mt-1" :class="!notif.leido ? 'font-medium text-gray-100' : 'text-gray-300'">

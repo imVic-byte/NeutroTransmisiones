@@ -1,16 +1,15 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { supabase } from '@/lib/supabaseClient.js' 
 
-export function useNotifications(currentUserId) {
+export function useNotifications() {
   const notifications = ref([])
 
   const fetchRecentNotifications = async () => {
     const { data, error } = await supabase
       .from('notificaciones')
       .select('*')
-      .eq('id_empleado', currentUserId)
       .order('created_at', { ascending: false })
-      .limit(10)
+      .limit(15)
     
     if (data) notifications.value = data
   }
@@ -57,8 +56,7 @@ export function useNotifications(currentUserId) {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'notificaciones',
-          filter: `id_empleado=eq.${currentUserId}`
+          table: 'notificaciones'
         },
         handleNewNotification
       )

@@ -1,10 +1,13 @@
 <script setup>
-import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import navbar from '../../components/componentes/navbar.vue'
 import VistaSimple from './vistaTaller.vue'
 import VistaAvanzada from './vistaAvanzada.vue'
+import { useDashboardStore } from '../../stores/dashboard.js'
 
-const activeTab = ref('simple') // 'simple' o 'avanzada'
+const dashboardStore = useDashboardStore()
+const { activeTab } = storeToRefs(dashboardStore)
+
 </script>
 
 <template>

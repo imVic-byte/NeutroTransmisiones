@@ -86,6 +86,12 @@ const irADetalle = (cotizacion) => {
   router.push({ name: "ver-cotizacion-ficha-de-trabajo", params: {id:cotizacion.ficha_de_trabajo.id, cotizacion_id: cotizacion.id } });
 };
 
+const irAFicha = (id) => {
+  if (id) {
+    router.push({ name: 'ficha-de-trabajo', params: { id } });
+  }
+};
+
 const camelCase = (texto) => {
   if (!texto) return "";
   return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
@@ -297,11 +303,14 @@ onMounted( async () => {
               {{ formatearDinero(item.total_final) }}
             </td>
             <td class="p-4 text-center">
-              <button class="text-white hover:text-blue-600 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
+              <div class="flex">
+                <button @click.stop="irAFicha(item.ficha_de_trabajo.id)" title="Ir a Ficha de Trabajo" class="text-white hover:text-green-500 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Ficha
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -328,7 +337,15 @@ onMounted( async () => {
         :class="claseEstadoCard(item.estado).contenedor"
       >
       <div class="card-header text-white flex justify-between pb-4">
-        <span class="label">Cotización #{{ item.id }}</span>
+        <div class="flex items-center gap-2">
+          <span class="label">Cotización #{{ item.id }}</span>
+          <button @click.stop="irAFicha(item.ficha_de_trabajo.id)" class="bg-gray-800/50 hover:bg-gray-700/80 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1 border border-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            Ficha
+          </button>
+        </div>
         <span class="badge">{{ claseEstadoCard(item.estado).texto }}</span>
       </div>
         <div class="card-body text-white">

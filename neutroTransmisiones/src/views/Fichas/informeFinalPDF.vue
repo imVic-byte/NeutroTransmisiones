@@ -6,12 +6,10 @@ import { useInterfaz } from '@/stores/interfaz';
 import Navbar from '@/components/componentes/navbar.vue';
 import html2pdf from 'html2pdf.js';
 import Volver from '@/components/componentes/volver.vue';
-import { enviarInformeFinal } from '@/js/enviarInformeFinal';
 const route = useRoute()
 const router = useRouter()
 const interfaz = useInterfaz()
 const loading = ref(true);
-const enviandoCorreo = ref(false);
 const datosEmpresa = ref({})
 const datosFicha = ref({})
 const informeFinal = ref({})
@@ -98,32 +96,7 @@ const formatoFechaYHora = (fecha) => {
   return new Date(fecha).toLocaleString('es-CL');
 };
 
-const generarYsubir = async () => {
-  enviandoCorreo.value = true;
-  const elemento = document.getElementById('elemento-a-imprimir')
-  if (!elemento) return
-  const opciones = {
-    margin: [10, 10, 10, 10],
-    filename: `InformeFinal_${datosFicha.value?.numero_folio}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, scrollY: 0 }, // El scale 2 evita que se vea borroso
-    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }, // Esta línea es CLAVE
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
-  try {
-    const pdfBlob = await html2pdf().set(opciones).from(elemento).output('blob');
-    if (datosFicha.value?.cliente?.email) {
-      const {exito,error} = await enviarInformeFinal(datosFicha.value.cliente.id,informeFinal.value.id, datosFicha.value.numero_folio, pdfBlob)
-      if (error) {
-        console.error('Error al subir el informe final:', error)
-      }
-    }
-  } catch (error) {
-    console.error('Error al generar el informe final:', error)
-  } finally {
-    enviandoCorreo.value = false;
-  }
-}
+
 
 const generarInformeFinal = async () => {
   if (!datosFicha.value) {
@@ -144,9 +117,6 @@ const generarInformeFinal = async () => {
   }
   if (data) {
     informeFinal.value = data
-    if (datosFicha.value?.cliente?.email) {
-      await generarYsubir()
-    }
   }
   const {error:errorInformeFinal} = await supabase.from('ficha_de_trabajo').update({informe_final:true}).eq('id',datosFicha.value.id)
   if (errorInformeFinal) {
@@ -256,16 +226,11 @@ onMounted(async () => {
         </button>
       </div>
     </div>
-    <div v-if="enviandoCorreo"
-      class="fixed inset-0 bg-black/50 z-50 flex flex-col items-center justify-center text-white backdrop-blur-sm">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
-      <p class="font-bold text-lg">Generando y enviando informe...</p>
-      <p class="text-sm opacity-80">Por favor espera un momento.</p>
-    </div>
-    <div  class="mx-auto mt-5">
+
+    <div class="mx-auto mt-5 w-full px-2 lg:px-0 pb-4">
     <div 
       id="elemento-a-imprimir" 
-      class="mx-auto overflow-hidden max-w-[21cm] max-w-[21cm] bg-white print:w-full print:max-w-none print:m-0 print:border-none print:shadow-none"
+      class="mx-auto overflow-hidden w-full max-w-[21cm] bg-white shadow-md print:w-full print:max-w-none print:m-0 print:border-none print:shadow-none"
     >
       <div class="px-4 py-2  mx-auto text-xs font-sans leading-normal">
         <div class="flex flex-col items-center justify-center min-h-[90vh] text-center">
@@ -296,7 +261,7 @@ onMounted(async () => {
           <div class="w-24 h-1 bg-[#234723] rounded mx-auto mb-8"></div>
 
           <!-- Info empresa y cliente lado a lado -->
-          <div class="grid grid-cols-2 gap-10 text-left w-full max-w-lg mx-auto mb-8">
+          <div class="grid grid-cols-1 sm:grid-cols-2 [.is-exporting_&]:grid-cols-2 gap-6 sm:gap-10 [.is-exporting_&]:gap-10 text-left w-full max-w-lg mx-auto mb-8">
             <div>
               <h3 class="font-bold border-b-2 border-[#234723] mb-2 pb-1 text-[11px] uppercase text-[#234723]">De: NeutroTransmisiones</h3>
               <ul class="space-y-1 text-[#374151] text-xs">
@@ -336,7 +301,7 @@ onMounted(async () => {
           <!-- Vehículos -->
           <div class="w-full max-w-lg mx-auto text-left mb-8">
             <h3 class="font-bold border-b-2 border-[#234723] mb-2 pb-1 text-[11px] uppercase text-[#234723]">Vehículos</h3>
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 [.is-exporting_&]:grid-cols-2 gap-3">
               <div v-for="orden in datosFicha?.orden_trabajo" :key="orden.id" class="p-3 rounded-lg border border-[#e2e8f0] bg-[#f8fafc]">
                 <p class="font-bold uppercase text-sm text-[#234723]">
                   {{ orden.vehiculo.marca }} {{ orden.vehiculo.modelo }} {{ orden.vehiculo.anio }}
@@ -351,7 +316,7 @@ onMounted(async () => {
           </div>
 
           <!-- Firmas -->
-          <div class="flex gap-16 justify-center mt-4">
+          <div class="flex flex-col sm:flex-row [.is-exporting_&]:flex-row gap-8 sm:gap-16 [.is-exporting_&]:gap-16 justify-center items-center mt-4">
             <div class="text-center w-36">
               <div class="h-12 border-b-2 border-[#d1d5db] mb-1"></div>
               <p class="text-[9px] font-bold text-[#9ca3af] uppercase">Firma Taller</p>
@@ -382,8 +347,8 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <div class="grid grid-cols-12 gap-4 mb-6">
-                <div class="col-span-4 rounded-lg p-3 border shadow-sm break-inside-avoid bg-[#f8fafc] border-[#f1f5f9]">
+              <div class="grid grid-cols-1 sm:grid-cols-12 [.is-exporting_&]:grid-cols-12 gap-4 mb-6">
+                <div class="col-span-1 sm:col-span-4 [.is-exporting_&]:col-span-4 rounded-lg p-3 border shadow-sm break-inside-avoid bg-[#f8fafc] border-[#f1f5f9]">
                    <h4 class="font-bold uppercase text-[10px] mb-2 border-b pb-1 text-[#234723] border-[#e2e8f0]">Inventario & Accesorios</h4>
                    <ul class="space-y-1 text-[11px]">
                      <li class="flex justify-between items-center">
@@ -413,8 +378,8 @@ onMounted(async () => {
                    </ul>
                 </div>
                 
-                <div class="col-span-8 break-inside-avoid">
-                  <div class="grid grid-cols-2 gap-4 mb-3">
+                <div class="col-span-1 sm:col-span-8 [.is-exporting_&]:col-span-8 break-inside-avoid">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 [.is-exporting_&]:grid-cols-2 gap-4 mb-3">
                      <div class="border rounded shadow-sm text-center p-2 bg-[#f8fafc] border-[#f1f5f9]">
                         <span class="block text-[9px] font-bold uppercase tracking-widest text-[#94a3b8]">Kilometraje</span>
                         <span class="block text-lg font-bold mt-0.5 text-[#234723]">{{ ot.kilometraje_inicial || '0' }} km</span>

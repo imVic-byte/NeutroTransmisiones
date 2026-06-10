@@ -18,11 +18,18 @@ const productoSeleccionado = ref(null)
 
 const formulario = ref({
   nombre: '',
+  marca: '',
+  sku_interno: '',
+  codigo_fabricante: '',
   categoria: '',
-  cantidad: 0,
-  precio: 0,
+  tipo: 'producto',
+  unidad_medida: 'Unidad',
+  stock: 0,
+  precio_compra: 0,
+  precio_venta: 0,
   descripcion: '',
-  stock_minimo: 5
+  stock_minimo: 5,
+  estado: true
 })
 
 // ─── Categorías ───
@@ -34,9 +41,9 @@ const categorias = computed(() => {
 // ─── Estadísticas ───
 const stats = computed(() => {
   const total = productos.value.length
-  const sinStock = productos.value.filter(p => p.cantidad === 0).length
-  const stockBajo = productos.value.filter(p => p.cantidad > 0 && p.cantidad <= (p.stock_minimo || 5)).length
-  const valorTotal = productos.value.reduce((acc, p) => acc + (p.precio * p.cantidad), 0)
+  const sinStock = productos.value.filter(p => p.stock === 0).length
+  const stockBajo = productos.value.filter(p => p.stock > 0 && p.stock <= (p.stock_minimo || 5)).length
+  const valorTotal = productos.value.reduce((acc, p) => acc + (p.precio_venta * p.stock), 0)
   return { total, sinStock, stockBajo, valorTotal }
 })
 
@@ -49,6 +56,9 @@ const productosFiltrados = computed(() => {
     const term = busqueda.value.toLowerCase()
     resultado = resultado.filter(p =>
       p.nombre?.toLowerCase().includes(term) ||
+      p.marca?.toLowerCase().includes(term) ||
+      p.sku_interno?.toLowerCase().includes(term) ||
+      p.codigo_fabricante?.toLowerCase().includes(term) ||
       p.categoria?.toLowerCase().includes(term) ||
       p.descripcion?.toLowerCase().includes(term)
     )
@@ -63,10 +73,10 @@ const productosFiltrados = computed(() => {
   resultado.sort((a, b) => {
     switch (ordenActivo.value) {
       case 'nombre': return (a.nombre || '').localeCompare(b.nombre || '')
-      case 'cantidad-asc': return a.cantidad - b.cantidad
-      case 'cantidad-desc': return b.cantidad - a.cantidad
-      case 'precio-asc': return a.precio - b.precio
-      case 'precio-desc': return b.precio - a.precio
+      case 'cantidad-asc': return a.stock - b.stock
+      case 'cantidad-desc': return b.stock - a.stock
+      case 'precio-asc': return a.precio_venta - b.precio_venta
+      case 'precio-desc': return b.precio_venta - a.precio_venta
       default: return 0
     }
   })
@@ -76,8 +86,8 @@ const productosFiltrados = computed(() => {
 
 // ─── Nivel de stock ───
 const getNivelStock = (producto) => {
-  if (producto.cantidad === 0) return 'sin-stock'
-  if (producto.cantidad <= (producto.stock_minimo || 5)) return 'stock-bajo'
+  if (producto.stock === 0) return 'sin-stock'
+  if (producto.stock <= (producto.stock_minimo || 5)) return 'stock-bajo'
   return 'stock-ok'
 }
 
@@ -110,11 +120,18 @@ const abrirModalNuevo = () => {
   modoEdicion.value = false
   formulario.value = {
     nombre: '',
+    marca: '',
+    sku_interno: '',
+    codigo_fabricante: '',
     categoria: '',
-    cantidad: 0,
-    precio: 0,
+    tipo: 'repuesto',
+    unidad_medida: 'Unidad',
+    stock: 0,
+    precio_compra: 0,
+    precio_venta: 0,
     descripcion: '',
-    stock_minimo: 5
+    stock_minimo: 5,
+    estado: true
   }
   showModal.value = true
 }
@@ -124,11 +141,18 @@ const abrirModalEdicion = (producto) => {
   productoSeleccionado.value = producto
   formulario.value = {
     nombre: producto.nombre || '',
+    marca: producto.marca || '',
+    sku_interno: producto.sku_interno || '',
+    codigo_fabricante: producto.codigo_fabricante || '',
     categoria: producto.categoria || '',
-    cantidad: producto.cantidad || 0,
-    precio: producto.precio || 0,
+    tipo: producto.tipo || 'repuesto',
+    unidad_medida: producto.unidad_medida || 'Unidad',
+    stock: producto.stock || 0,
+    precio_compra: producto.precio_compra || 0,
+    precio_venta: producto.precio_venta || 0,
     descripcion: producto.descripcion || '',
-    stock_minimo: producto.stock_minimo || 5
+    stock_minimo: producto.stock_minimo || 5,
+    estado: producto.estado ?? true
   }
   showModal.value = true
 }
@@ -139,35 +163,56 @@ const cerrarModal = () => {
 }
 
 const guardarProducto = async () => {
-  if (!formulario.value.nombre) return
+  if (!formulario.value.nombre || formulario.value.nombre.trim() === '') {
+    alert('El nombre del producto es obligatorio.')
+    return
+  }
+  if (!formulario.value.tipo) {
+    alert('Debe seleccionar un tipo de producto.')
+    return
+  }
+  if (formulario.value.precio_venta < 0 || formulario.value.precio_compra < 0) {
+    alert('Los precios no pueden ser negativos.')
+    return
+  }
+  if (formulario.value.stock < 0 || formulario.value.stock_minimo < 0) {
+    alert('El stock no puede ser negativo.')
+    return
+  }
 
   uiStore.showLoading()
   try {
+    const payload = {
+      nombre: formulario.value.nombre.toUpperCase(),
+      marca: formulario.value.marca || null,
+      codigo_fabricante: formulario.value.codigo_fabricante || null,
+      categoria: formulario.value.categoria || null,
+      tipo: formulario.value.tipo,
+      unidad_medida: formulario.value.unidad_medida,
+      stock: Number(formulario.value.stock),
+      precio_compra: Number(formulario.value.precio_compra),
+      precio_venta: Number(formulario.value.precio_venta),
+      descripcion: formulario.value.descripcion || null,
+      stock_minimo: Number(formulario.value.stock_minimo),
+      estado: formulario.value.estado
+    }
+    
+    // Only send sku_interno if it has a value, to let DB auto-generate if empty
+    if (formulario.value.sku_interno && formulario.value.sku_interno.trim() !== '') {
+        payload.sku_interno = formulario.value.sku_interno.trim()
+    }
+
     if (modoEdicion.value && productoSeleccionado.value) {
       const { error } = await supabase
         .from('inventario')
-        .update({
-          nombre: formulario.value.nombre.toUpperCase(),
-          categoria: formulario.value.categoria,
-          cantidad: Number(formulario.value.cantidad),
-          precio: Number(formulario.value.precio),
-          descripcion: formulario.value.descripcion,
-          stock_minimo: Number(formulario.value.stock_minimo)
-        })
+        .update(payload)
         .eq('id', productoSeleccionado.value.id)
 
       if (error) throw error
     } else {
       const { error } = await supabase
         .from('inventario')
-        .insert([{
-          nombre: formulario.value.nombre.toUpperCase(),
-          categoria: formulario.value.categoria,
-          cantidad: Number(formulario.value.cantidad),
-          precio: Number(formulario.value.precio),
-          descripcion: formulario.value.descripcion,
-          stock_minimo: Number(formulario.value.stock_minimo)
-        }])
+        .insert([payload])
 
       if (error) throw error
     }
@@ -343,6 +388,7 @@ onMounted(() => {
           <div class="product-main-info">
             <h3 class="product-name">{{ producto.nombre }}</h3>
             <span v-if="producto.categoria" class="product-category">{{ producto.categoria }}</span>
+            <span v-if="producto.sku_interno" class="text-[0.65rem] text-white/50 ml-2">SKU: {{ producto.sku_interno }}</span>
           </div>
           <span :class="['stock-badge', getNivelStock(producto)]">
             {{ getEtiquetaStock(producto) }}
@@ -354,13 +400,13 @@ onMounted(() => {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="detail-icon">
               <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
             </svg>
-            <span class="detail-value">{{ producto.cantidad }} uds</span>
+            <span class="detail-value">{{ producto.stock }} uds</span>
           </div>
           <div class="detail-item">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="detail-icon">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg>
-            <span class="detail-value">{{ formatearPrecio(producto.precio) }}</span>
+            <span class="detail-value">{{ formatearPrecio(producto.precio_venta) }}</span>
           </div>
           <div v-if="producto.ubicacion" class="detail-item">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="detail-icon">
@@ -376,7 +422,7 @@ onMounted(() => {
           <div
             class="stock-bar"
             :class="getNivelStock(producto)"
-            :style="{ width: Math.min((producto.cantidad / Math.max(producto.stock_minimo * 3, 1)) * 100, 100) + '%' }"
+            :style="{ width: Math.min((producto.stock / Math.max(producto.stock_minimo * 3, 1)) * 100, 100) + '%' }"
           ></div>
         </div>
 
@@ -405,7 +451,7 @@ onMounted(() => {
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body space-y-4">
           <div class="form-group">
             <label class="form-label">Nombre *</label>
             <input
@@ -416,56 +462,117 @@ onMounted(() => {
               id="input-nombre"
             />
           </div>
-
-          <div class="">
-            <div class="form-group">
-              <label class="form-label">Categoría</label>
-              <input
-                v-model="formulario.categoria"
-                type="text"
-                class="form-input"
-                placeholder="Ej: Filtros"
-                id="input-categoria"
-                list="categorias-list"
-              />
-              <datalist id="categorias-list">
-                <option v-for="cat in categorias.filter(c => c !== 'Todos')" :key="cat" :value="cat" ></option>
-              </datalist>
-            </div>
+          <div class="form-group">
+            <label class="form-label">Marca</label>
+            <input
+              v-model="formulario.marca"
+              type="text"
+              class="form-input"
+              placeholder="Ej: Toyota"
+            />
+          </div>
+          <div class="form-group" v-if="modoEdicion">
+            <label class="form-label">SKU Interno</label>
+            <input
+              v-model="formulario.sku_interno"
+              type="text"
+              class="form-input opacity-60 cursor-not-allowed"
+              disabled
+            />
           </div>
 
-          <div class="form-row form-row-triple">
-            <div class="form-group">
-              <label class="form-label">Cantidad</label>
-              <input
-                v-model.number="formulario.cantidad"
-                type="number"
-                min="0"
-                class="form-input"
-                id="input-cantidad"
-              />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Precio ($)</label>
-              <input
-                v-model.number="formulario.precio"
-                type="number"
-                min="0"
-                step="0.01"
-                class="form-input"
-                id="input-precio"
-              />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Stock mín.</label>
-              <input
-                v-model.number="formulario.stock_minimo"
-                type="number"
-                min="0"
-                class="form-input"
-                id="input-stock-minimo"
-              />
-            </div>
+          <div class="form-group">
+            <label class="form-label">Código Fabricante</label>
+            <input
+              v-model="formulario.codigo_fabricante"
+              type="text"
+              class="form-input"
+              placeholder="Ej: TY-102938"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo</label>
+            <select
+              v-model="formulario.tipo"
+              class="form-input"
+            >
+              <option class="neutro-primary text-white" value="repuesto">Repuesto</option>
+              <option class="neutro-primary text-white" value="insumo">Insumo</option>
+              <option class="neutro-primary text-white" value="fluido">Fluido</option>
+              <option class="neutro-primary text-white" value="accesorio">Accesorio</option>
+              <option class="neutro-primary text-white" value="activo">Activo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Categoría</label>
+            <input
+              v-model="formulario.categoria"
+              type="text"
+              class="form-input"
+              placeholder="Ej: Filtros"
+              id="input-categoria"
+              list="categorias-list"
+            />
+            <datalist id="categorias-list">
+              <option v-for="cat in categorias.filter(c => c !== 'Todos')" :key="cat" :value="cat" ></option>
+            </datalist>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Stock</label>
+            <input
+              v-model.number="formulario.stock"
+              type="number"
+              min="0"
+              class="form-input"
+              id="input-cantidad"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unidad Medida</label>
+            <input
+              v-model="formulario.unidad_medida"
+              type="text"
+              class="form-input"
+              placeholder="Ej: Unidad"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Stock mín.</label>
+            <input
+              v-model.number="formulario.stock_minimo"
+              type="number"
+              min="0"
+              class="form-input"
+              id="input-stock-minimo"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Precio Compra ($)</label>
+            <input
+              v-model.number="formulario.precio_compra"
+              type="number"
+              min="0"
+              step="0.01"
+              class="form-input"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Precio Venta ($)</label>
+            <input
+              v-model.number="formulario.precio_venta"
+              type="number"
+              min="0"
+              step="0.01"
+              class="form-input"
+            />
+          </div>
+          <div class="form-group flex items-center pt-2">
+            <label class="flex items-center gap-2 cursor-pointer text-white font-semibold">
+              <input type="checkbox" v-model="formulario.estado" class="form-checkbox h-5 w-5 rounded text-blue-600 bg-white/10 border-white/20 focus:ring-blue-500 focus:ring-offset-0">
+              <span>Producto Activo</span>
+            </label>
           </div>
 
           <div class="form-group">

@@ -201,7 +201,7 @@ const handleIrADeuda = (notifId, deudaId) => {
   gap: 0.375rem;
   background: none;
   border: none;
-  color: #1f3d64;
+  color: #203a5d;
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
@@ -237,7 +237,7 @@ const handleIrADeuda = (notifId, deudaId) => {
 
 .notification-item:hover {
   background-color: #0e2c53;
-  color: #1f3d64;
+  color: #365885;
 }
 
 .notification-item:last-child {

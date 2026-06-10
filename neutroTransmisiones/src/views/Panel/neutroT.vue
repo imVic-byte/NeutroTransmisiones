@@ -4,7 +4,7 @@ import navbar from '../../components/componentes/navbar.vue'
 import { useInterfaz } from '../../stores/interfaz.js'
 import { supabase } from '../../lib/supabaseClient.js'
 import TallerConfig from './taller.vue'
-
+import volver from '@/components/componentes/volver.vue'
 const interfaz = useInterfaz()
 const tabActiva = ref('empresa')
 const tabs = [
@@ -487,6 +487,7 @@ onMounted(async () => {
 
       <!-- Header -->
       <div class="mb-6 hidden sm:block">
+        <volver />
         <h1 class="text-2xl font-bold neutro-font">Gestión NeutroTransmisiones</h1>
         <p class="text-sm neutro-font mt-1">Administra la configuración general de los datos de la App.</p>
       </div>

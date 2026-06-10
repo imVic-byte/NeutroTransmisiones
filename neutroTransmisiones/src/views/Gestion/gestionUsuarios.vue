@@ -5,7 +5,7 @@ import {useInterfaz} from '../../stores/interfaz.js';
 import { supabase } from '../../lib/supabaseClient.js'; 
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
-
+import volver from '../../components/componentes/volverPanel.vue'
 const router = useRouter();
 const trabajadores = ref([]);
 const cargando = ref(true);
@@ -13,12 +13,40 @@ const errorMsg = ref('');
 const interfaz = useInterfaz();
 const userStore = useUserStore();
 
+// --- Modal State ---
+const modal = ref({
+  mostrar: false,
+  titulo: '',
+  mensaje: '',
+  tipo: 'alerta', // 'alerta' o 'confirmacion'
+  callback: null
+});
+
+const abrirAlerta = (titulo, mensaje) => {
+  modal.value = { mostrar: true, titulo, mensaje, tipo: 'alerta', callback: null };
+};
+
+const abrirConfirmacion = (titulo, mensaje, callback) => {
+  modal.value = { mostrar: true, titulo, mensaje, tipo: 'confirmacion', callback };
+};
+
+const cerrarModal = () => {
+  modal.value.mostrar = false;
+};
+
+const confirmarAccion = async () => {
+  if (modal.value.callback) await modal.value.callback();
+  cerrarModal();
+};
+// -------------------
+
 const obtenerTrabajadores = async () => {
   try {
     cargando.value = true;
     const { data, error } = await supabase
       .from('trabajadores')
       .select('*')
+      .eq('activo', true)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -38,6 +66,30 @@ const editarUsuario = (id) => {
   router.push({ name: 'editar-usuario', params: { id } });
 }
 
+const eliminarUsuario = (id) => {
+  if (userStore.user && userStore.user.id === id) {
+    abrirAlerta('Acción denegada', 'No puedes eliminar tu propio usuario.');
+    return;
+  }
+  abrirConfirmacion('Eliminar Usuario', '¿Estás seguro de que deseas eliminar este usuario?', async () => {
+    interfaz.showLoadingOverlay();
+    try {
+      const { error } = await supabase
+        .from('trabajadores')
+        .update({ activo: false })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      trabajadores.value = trabajadores.value.filter(t => t.id !== id);
+    } catch (error) {
+      abrirAlerta('Error', 'Error al eliminar usuario: ' + error.message);
+    } finally {
+      interfaz.hideLoadingOverlay();
+    }
+  });
+};
+
 
 const RecuperarContraseña = async (id) => {
   interfaz.showLoadingOverlay();
@@ -46,9 +98,9 @@ const RecuperarContraseña = async (id) => {
       redirectTo: 'http://app.NeutroTransmisiones.cl/crear-contrasena'
     });
     if (error) throw error;
-    alert('Se ha enviado un correo electrónico para restablecer la contraseña.');
+    abrirAlerta('Correo Enviado', 'Se ha enviado un correo electrónico para restablecer la contraseña.');
   } catch (error) {
-    alert('Error al restablecer la contraseña: ' + error.message);
+    abrirAlerta('Error', 'Error al restablecer la contraseña: ' + error.message);
   } finally {
     interfaz.hideLoadingOverlay();
   }
@@ -66,10 +118,11 @@ onMounted(async () => {
     <navbar class="navbar" titulo="Gestión de Personal" subtitulo="Administra los usuarios y sus permisos de acceso." />
     
     <div class="max-w-7xl mx-auto pt-5 px-4 md:px-8">
+      <volver />
       <div class="flex justify-between items-center mb-6">
         <div class="hidden sm:block">
           <h1 class="text-2xl font-bold neutro-font">Gestión de Personal</h1>
-          <p class="text-sm neutro-font mt-1">Administra los usuarios y sus permisos de acceso.</p>
+          <p class="text-sm neutro-font mt-1">Administra los trabajadores del taller.</p>
         </div>
         <div class="flex gap-2">
           <button 
@@ -157,6 +210,12 @@ onMounted(async () => {
                 >
                   Editar
                 </button>
+                <button 
+                  @click="eliminarUsuario(trabajador.id)"
+                  class="flex-1 text-xs font-semibold px-3 py-2 rounded-lg text-center cursor-pointer transition-colors bg-red-500/20 text-red-300 hover:bg-red-500/30"
+                >
+                  Eliminar
+                </button>
               </div>
             </div>
           </div>
@@ -219,6 +278,12 @@ onMounted(async () => {
                       >
                         Editar
                       </button>
+                      <button 
+                        @click="eliminarUsuario(trabajador.id)"
+                        class="cursor-pointer font-semibold px-3 py-1.5 rounded-lg transition-colors bg-red-500/20 text-red-300 hover:bg-red-500/30"
+                      >
+                        Eliminar
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -229,4 +294,31 @@ onMounted(async () => {
       </div>
     </div>
   </div>
+
+  <!-- Modal Genérico para Alertas y Confirmaciones -->
+  <Teleport to="body">
+    <div v-if="modal.mostrar" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="cerrarModal"></div>
+      <div class="relative neutro-secondary rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
+        <div class="p-6 text-center">
+          <div class="mx-auto w-14 h-14 rounded-full flex items-center justify-center mb-4" :class="modal.tipo === 'confirmacion' ? 'bg-red-100' : 'bg-blue-100'">
+            <svg v-if="modal.tipo === 'confirmacion'" xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">{{ modal.titulo }}</h3>
+          <p class="text-sm text-white/80 leading-relaxed">{{ modal.mensaje }}</p>
+        </div>
+        <div class="p-4 flex gap-3 border-t border-gray-700">
+          <button v-if="modal.tipo === 'confirmacion'" @click="cerrarModal" class="flex-1 py-2.5 rounded-xl font-semibold text-sm neutro-primary text-white hover:opacity-80 transition cursor-pointer">Cancelar</button>
+          <button @click="confirmarAccion" class="flex-1 py-2.5 rounded-xl font-semibold text-sm text-white transition cursor-pointer" :class="modal.tipo === 'confirmacion' ? 'bg-red-600 hover:bg-red-700' : 'neutro-primary hover:opacity-80'">
+            {{ modal.tipo === 'confirmacion' ? 'Confirmar' : 'Entendido' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
