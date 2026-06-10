@@ -86,6 +86,12 @@ const irADetalle = (cotizacion) => {
   router.push({ name: "ver-cotizacion-ficha-de-trabajo", params: {id:cotizacion.ficha_de_trabajo.id, cotizacion_id: cotizacion.id } });
 };
 
+const irAFicha = (id) => {
+  if (id) {
+    router.push({ name: 'ficha-de-trabajo', params: { id } });
+  }
+};
+
 const camelCase = (texto) => {
   if (!texto) return "";
   return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
@@ -172,40 +178,40 @@ onMounted( async () => {
     <!-- Stats Desktop -->
     <div class="hidden md:grid md:grid-cols-4 gap-4 mb-8">
       <div class="neutro-secondary p-4 rounded-xl shadow-sm dark:border border-gray-700">
-          <p class="text-xs neutro-font uppercase font-bold">Total</p>
-          <p class="text-2xl font-bold neutro-font">{{ stats.total }}</p>
+          <p class="text-xs text-white uppercase font-bold">Total</p>
+          <p class="text-2xl font-bold text-white">{{ stats.total }}</p>
       </div>
       <div class="neutro-secondary p-4 rounded-xl shadow-sm dark:border border-gray-700">
-          <p class="text-xs neutro-font uppercase font-bold">Pendientes</p>
+          <p class="text-xs text-white uppercase font-bold">Pendientes</p>
           <p class="text-2xl font-bold text-yellow-600">{{ stats.pendientes }}</p>
       </div>
       <div class="neutro-secondary p-4 rounded-xl shadow-sm dark:border border-gray-700">
-          <p class="text-xs neutro-font uppercase font-bold">Aprobadas</p>
+          <p class="text-xs text-white uppercase font-bold">Aprobadas</p>
           <p class="text-2xl font-bold text-green-600">{{ stats.aprobadas }}</p>
       </div>
       <div class="neutro-secondary p-4 rounded-xl shadow-sm dark:border border-gray-700">
-          <p class="text-xs neutro-font uppercase font-bold">Monto Total</p>
-          <p class="text-lg font-bold neutro-font">{{ formatearDinero(stats.montoTotal) }}</p>
+          <p class="text-xs text-white uppercase font-bold">Monto Total</p>
+          <p class="text-lg font-bold text-white">{{ formatearDinero(stats.montoTotal) }}</p>
       </div>
     </div>
 
     <!-- Stats Mobile -->
     <div class="md:hidden grid grid-cols-2 gap-3 mb-6">
       <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
-          <p class="text-xs neutro-font uppercase font-bold">Total</p>
-          <p class="text-xl font-bold neutro-font">{{ stats.total }}</p>
+          <p class="text-xs text-white uppercase font-bold">Total</p>
+          <p class="text-xl font-bold text-white">{{ stats.total }}</p>
       </div>
       <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
-          <p class="text-xs neutro-font uppercase font-bold">Pendientes</p>
+          <p class="text-xs text-white uppercase font-bold">Pendientes</p>
           <p class="text-xl font-bold text-yellow-600">{{ stats.pendientes }}</p>
       </div>
       <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
-          <p class="text-xs neutro-font uppercase font-bold">Aprobadas</p>
+          <p class="text-xs text-white uppercase font-bold">Aprobadas</p>
           <p class="text-xl font-bold text-green-600">{{ stats.aprobadas }}</p>
       </div>
       <div class="neutro-secondary p-3 rounded-xl shadow-sm dark:border border-gray-700">
-          <p class="text-xs neutro-font uppercase font-bold">Monto Total</p>
-          <p class="text-lg font-bold neutro-font">{{ formatearDinero(stats.montoTotal) }}</p>
+          <p class="text-xs text-white uppercase font-bold">Monto Total</p>
+          <p class="text-lg font-bold text-white">{{ formatearDinero(stats.montoTotal) }}</p>
       </div>
     </div>
 
@@ -218,7 +224,7 @@ onMounted( async () => {
       <div class="flex items-center gap-2">
         <button 
           @click="irACrear" 
-          class="neutro-font neutro-secondary font-bold py-2 px-6 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center gap-2"
+          class="text-white neutro-secondary font-bold py-2 px-6 rounded-lg shadow-sm hover:opacity-90 transition-all flex items-center gap-2"
         >
           <span class="text-xl leading-none mb-1">+</span>
           <span class="hidden sm:inline">Nueva Cotización</span>
@@ -231,7 +237,7 @@ onMounted( async () => {
       <button
         @click="handleFiltroEstado(null)"
         class="px-3 py-1.5 rounded-full text-xs font-bold transition-all border"
-        :class="filtroEstado === null ? 'neutro-primary text-white border-transparent shadow-sm' : 'neutro-secondary neutro-font border-gray-200 hover:opacity-80'"
+        :class="filtroEstado === null ? 'neutro-primary text-white border-transparent shadow-sm' : 'neutro-secondary text-white border-gray-200 hover:opacity-80'"
       >
         Todos
       </button>
@@ -240,7 +246,7 @@ onMounted( async () => {
         :key="estado.id"
         @click="handleFiltroEstado(estado.id)"
         class="px-3 py-1.5 rounded-full text-xs font-bold transition-all border"
-        :class="filtroEstado === estado.id ? 'text-white border-transparent shadow-sm' : 'neutro-secondary neutro-font border-gray-700 hover:opacity-80'"
+        :class="filtroEstado === estado.id ? 'text-white border-transparent shadow-sm' : 'neutro-secondary text-white border-gray-700 hover:opacity-80'"
         :style="filtroEstado === estado.id ? { backgroundColor: estado.color } : {}"
       >
         {{ estado.estado }}
@@ -254,7 +260,7 @@ onMounted( async () => {
     <div v-if="!loading" class="hidden md:block neutro-secondary rounded-xl shadow-sm overflow-hidden">
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="neutro-primary neutro-font text-xs uppercase tracking-wider">
+          <tr class="neutro-primary text-white text-xs uppercase tracking-wider">
             <th class="p-4 font-semibold">N°</th>
             <th class="p-4 font-semibold">Cliente</th>
             <th class="p-4 font-semibold">Vehículo</th>
@@ -269,13 +275,13 @@ onMounted( async () => {
           <tr v-for="item in cotizaciones" :key="item.id" 
               class="hover:opacity-80 transition-colors cursor-pointer"
               @click="irADetalle(item)">
-            <td class="p-4 neutro-font">
+            <td class="p-4 text-white">
               <div class="font-medium">{{ item.id }}</div>
             </td>
-            <td class="p-4 neutro-font">
+            <td class="p-4 text-white">
                 <div class="font-medium">{{ camelCase(item.ficha_de_trabajo.cliente.nombre) }} {{ camelCase(item.ficha_de_trabajo.cliente.apellido) }}</div>
             </td>
-            <td class="p-4 neutro-font">
+            <td class="p-4 text-white">
               <div v-if="obtenerVehiculos(item).length > 0">
               <div v-for="(veh) in obtenerVehiculos(item)" :key="veh.id" class="mb-2">
                 <div class="font-medium">{{ camelCase(veh.marca) }} {{ camelCase(veh.modelo) }}</div>
@@ -284,36 +290,39 @@ onMounted( async () => {
                </div>
               <div v-else class="text-gray-400 italic text-sm">Sin vehículo</div>
             </td>
-            <td class="p-4 neutro-font">
+            <td class="p-4 text-white">
               <span class="block max-w-[200px] truncate" :title="item.comentario">{{ item.comentario || 'No registrado' }}</span>
             </td>
             <td class="p-4 text-center">
               <span class="estado-badge" :class="claseEstadoCard(item.estado).clase">{{ claseEstadoCard(item.estado).texto }}</span>
             </td>
             <td class="p-4 text-center whitespace-nowrap">
-              <span class="neutro-font">{{ formatearFecha(item.created_at) }}</span>
+              <span class="text-white">{{ formatearFecha(item.created_at) }}</span>
             </td>
-            <td class="p-4 text-right font-bold neutro-font">
+            <td class="p-4 text-right font-bold text-white">
               {{ formatearDinero(item.total_final) }}
             </td>
             <td class="p-4 text-center">
-              <button class="neutro-font hover:text-blue-600 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
+              <div class="flex">
+                <button @click.stop="irAFicha(item.ficha_de_trabajo.id)" title="Ir a Ficha de Trabajo" class="text-white hover:text-green-500 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Ficha
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
       <!-- Empty state tabla -->
       <div v-if="cotizaciones.length === 0" class="p-10 text-center">
-        <div class="neutro-font mb-2">
+        <div class="text-white mb-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <p class="neutro-font text-lg">No se encontraron cotizaciones</p>
-          <p class="text-sm neutro-font">Intenta cambiar el filtro de búsqueda o crea una nueva.</p>
+          <p class="text-white text-lg">No se encontraron cotizaciones</p>
+          <p class="text-sm text-white">Intenta cambiar el filtro de búsqueda o crea una nueva.</p>
         </div>
       </div>
     </div>
@@ -324,14 +333,22 @@ onMounted( async () => {
         v-for="item in cotizaciones" 
         :key="item.id"
         @click="irADetalle(item)"
-        class="card-container neutro-secondary neutro-font"
+        class="card-container neutro-secondary text-white"
         :class="claseEstadoCard(item.estado).contenedor"
       >
-      <div class="card-header neutro-font flex justify-between pb-4">
-        <span class="label">Cotización #{{ item.id }}</span>
+      <div class="card-header text-white flex justify-between pb-4">
+        <div class="flex items-center gap-2">
+          <span class="label">Cotización #{{ item.id }}</span>
+          <button @click.stop="irAFicha(item.ficha_de_trabajo.id)" class="bg-gray-800/50 hover:bg-gray-700/80 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1 border border-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            Ficha
+          </button>
+        </div>
         <span class="badge">{{ claseEstadoCard(item.estado).texto }}</span>
       </div>
-        <div class="card-body neutro-font">
+        <div class="card-body text-white">
           <div class="info-row">
             <span class="label">Emisión:</span>
             <span class="valor">{{ formatearFecha(item.created_at) }}</span>
@@ -376,12 +393,12 @@ onMounted( async () => {
 
     <!-- Empty state mobile -->
     <div v-if="cotizaciones.length === 0" class="neutro-secondary rounded-xl p-10 text-center shadow-sm dark:border border-gray-700 md:hidden">
-      <div class="neutro-font mb-2">
+      <div class="text-white mb-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <p class="neutro-font text-lg">No se encontraron cotizaciones</p>
-        <p class="text-sm neutro-font">Intenta cambiar el filtro de búsqueda o crea una nueva.</p>
+        <p class="text-white text-lg">No se encontraron cotizaciones</p>
+        <p class="text-sm text-white">Intenta cambiar el filtro de búsqueda o crea una nueva.</p>
       </div>
     </div>
   </div>

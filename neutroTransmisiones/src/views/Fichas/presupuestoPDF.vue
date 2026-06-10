@@ -35,7 +35,7 @@ const cotizaciones = ref({})
 const presupuesto = ref({})
 
 const traerDatosEmpresa = async () => {
-  const {data, error} = await supabase.from('neutro_t').select('*').eq('id', 1).single()
+  const {data, error} = await supabase.from('neutro_t').select('*').eq('id', 1).maybeSingle()
   if (data) {
     datosEmpresa.value = data
   }
@@ -45,7 +45,7 @@ const traerDatosEmpresa = async () => {
 }
 
 const traerEmail = async () => {
-  const {data, error} = await supabase.from('neutro_email').select('*').eq('prioritario',true).single()
+  const {data, error} = await supabase.from('neutro_email').select('*').eq('prioritario',true).maybeSingle()
   if (data) {
     datosEmpresa.value.email = data.email
   }
@@ -95,7 +95,7 @@ const traerCliente = async () => {
 }
 
 const traerCotizaciones = async () => {
-  const {data, error} = await supabase.from('cotizaciones_ficha').select('*,detalle_cotizaciones_ficha(*)').eq('ficha_id', datosFicha.value?.id)
+  const {data, error} = await supabase.from('cotizaciones_ficha').select('*,detalle_cotizaciones_ficha(*)').eq('ficha_id', datosFicha.value?.id).eq('estado', 2)
   if (data) {
     cotizaciones.value = data
   }
@@ -160,9 +160,20 @@ const generarPresupuesto = async () => {
     html2canvas:  { scale: 2, useCORS: true },
     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
+  const original = document.getElementById('elemento-a-imprimir');
   
-  const elemento = document.getElementById('elemento-a-imprimir');
-  const pdfBlob = await html2pdf().set(opciones).from(elemento).output('blob');
+  const clon = original.cloneNode(true);
+  clon.id = 'elemento-exportacion';
+  clon.classList.add('is-exporting');
+  clon.style.width = '210mm';
+  clon.style.minWidth = '210mm';
+  clon.style.position = 'absolute';
+  clon.style.left = '-9999px';
+  clon.style.top = '0';
+  document.body.appendChild(clon);
+
+  const pdfBlob = await html2pdf().set(opciones).from(clon).output('blob');
+  document.body.removeChild(clon);
 
   const { exito, url, error:errorFactura } = await subirFacturas(data.id, pdfBlob)
   if (!exito) {
@@ -231,18 +242,18 @@ onMounted(async () => {
       </button>
     </div>
     </div>
-  <div v-if="datosCargados" class="mx-auto ">
+  <div v-show="datosCargados" class="mx-auto w-full px-2 sm:px-0">
   <div 
     id="elemento-a-imprimir" 
-    class="bg-[#ffffff] text-[#000000] max-w-[21cm] p-2 mx-auto text-xs font-sans leading-normal"
+    class="bg-[#ffffff] text-[#000000] w-full max-w-[21cm] p-4 sm:p-2 mx-auto text-xs font-sans leading-normal shadow-md print:shadow-none print:w-full print:max-w-none"
     style="background-color: #ffffff;"
   >
     <!-- Header -->
-    <div class="flex justify-between border-b-4 border-[#234723] pb-4 mb-2">
+    <div class="flex flex-col sm:flex-row [.is-exporting_&]:flex-row justify-between border-b-4 border-[#234723] pb-4 mb-2 gap-4">
       
-      <div class="flex items-center gap-2">
-        <span class="w-24 h-24 rounded-full overflow-hidden border border-[#e5e7eb]">
-            <img class="w-[85%] h-[85%] object-contain" src="../../img/Logo.jpg" alt="Logo">
+      <div class="flex flex-col sm:flex-row [.is-exporting_&]:flex-row items-center sm:items-start [.is-exporting_&]:items-start gap-2 text-center sm:text-left [.is-exporting_&]:text-left">
+        <span class="w-24 h-24 rounded-full flex justify-center items-center overflow-hidden">
+            <img class="w-[85%] h-[85%] object-fill" src="../../img/Logo.jpg" alt="Logo">
         </span>
         <div>
             <h1 class="text-2xl font-black text-[#234723] tracking-tighter italic">NeutroTransmisiones</h1>
@@ -250,7 +261,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="text-right">
+      <div class="text-center sm:text-right [.is-exporting_&]:text-right">
         <h2 class="text-lg font-bold text-[#234723]">Presupuesto</h2>
         <p class="text-md font-mono text-[#dc2626] font-bold">
            Folio N° {{ presupuesto?.numero_folio || '---' }}
@@ -264,7 +275,7 @@ onMounted(async () => {
       <p class="text-red-500 font-bold">No hay cotizaciones aprobadas para previsualizar.</p>
       <p class="text-gray-500 text-xs mt-2">Asegúrate de que al menos una cotización esté aprobada para ver el presupuesto.</p>
     </div>
-    <div v-else class="grid grid-cols-2 gap-10 mb-8">
+    <div v-else class="grid grid-cols-1 sm:grid-cols-2 [.is-exporting_&]:grid-cols-2 gap-6 sm:gap-10 [.is-exporting_&]:gap-10 mb-8">
       <div>
         <h3 class="font-bold text-[#234723] border-b border-[#cbd5e1] mb-2 pb-1 text-[11px] uppercase">De: NeutroTransmisiones</h3>
         <ul class="text-[#374151] space-y-1">
@@ -294,20 +305,20 @@ onMounted(async () => {
       </div>
     </div>
     <h3 v-if="cotizaciones.length > 0" class="font-bold text-[#234723] border-b border-[#cbd5e1] mb-2 pb-1 text-[11px] uppercase">Resumen</h3>
-    <div v-if="cotizaciones.length > 0" class="mb-4 flex justify-between">
-      <ul class="text-[#374151] flex-row w-full">
-        <li class="w-[53%]">
-          <span class="font-bold text-left align-left text-[#111827] text-start">Motivo Ingreso:</span> 
+    <div v-if="cotizaciones.length > 0" class="mb-4 flex flex-col sm:flex-row [.is-exporting_&]:flex-row justify-between gap-4">
+      <ul class="text-[#374151] flex-col w-full sm:w-[53%] [.is-exporting_&]:w-[53%] space-y-2">
+        <li>
+          <span class="font-bold text-left align-left text-[#111827] text-start block">Motivo Ingreso:</span> 
           <p>{{ datosFicha?.motivo_ingreso || '---' }}</p>
         </li>
         <li>
-          <span class="font-bold text-left align-left text-[#111827] text-start">Fecha Ingreso:</span> 
+          <span class="font-bold text-left align-left text-[#111827] text-start block">Fecha Ingreso:</span> 
           <p>{{ formatoFechaYHora(datosFicha?.fecha_ingreso) }}</p>
         </li>
       </ul>
-      <ul class="text-[#374151] flex-row w-full h-full align-top">
+      <ul class="text-[#374151] flex-col w-full h-full align-top">
         <li>
-          <span class="font-bold text-left align-left text-[#111827] text-start">Lista de vehiculos:</span> 
+          <span class="font-bold text-left align-left text-[#111827] text-start block">Lista de vehiculos:</span> 
           <p class="mt-1 uppercase" v-for="orden in datosFicha?.orden_trabajo" :key="orden.id">
             - {{ orden.vehiculo.marca }} {{ orden.vehiculo.modelo }} 
             <span class="p-1 mt-1 font-bold text-[#234723] rounded-lg"> {{ orden.vehiculo.patente }} </span>
@@ -317,8 +328,8 @@ onMounted(async () => {
     </div>
 
     <!-- Tabla de items: una sección por cotización -->
-    <div v-if="cotizaciones.length > 0" class="mb-8 border border-[#e5e7eb] rounded-lg overflow-hidden">
-      <table class="w-full text-left border-collapse">
+    <div v-if="cotizaciones.length > 0" class="mb-8 border border-[#e5e7eb] rounded-lg w-full overflow-x-auto">
+      <table class="w-full text-left border-collapse min-w-[500px] [.is-exporting_&]:min-w-0">
         <thead>
           <tr class="bg-[#234723] text-[#ffffff] text-[10px] uppercase tracking-wider">
             <th class="p-3 font-semibold">Descripción del Servicio / Repuesto</th>
@@ -353,9 +364,9 @@ onMounted(async () => {
         </tbody>
       </table>
     </div>
-    <div v-if="cotizaciones.length > 0" class="flex justify-between items-start gap-8">
+    <div v-if="cotizaciones.length > 0" class="flex flex-col sm:flex-row [.is-exporting_&]:flex-row justify-between items-start gap-8">
       
-      <div v-if="cuentaSeleccionada" class="w-3/5 bg-[#f8fafc] p-4 rounded-lg border border-[#e2e8f0]">
+      <div v-if="cuentaSeleccionada" class="w-full sm:w-3/5 [.is-exporting_&]:w-3/5 bg-[#f8fafc] p-4 rounded-lg border border-[#e2e8f0]">
         <h4 class="font-bold text-[#234723] uppercase text-[10px] mb-2 flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#234723]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
           Datos de Transferencia
@@ -369,7 +380,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div :class="cuentaSeleccionada ? 'w-2/5' : 'w-2/5 ml-auto'">
+      <div :class="cuentaSeleccionada ? 'w-full sm:w-2/5 [.is-exporting_&]:w-2/5' : 'w-full sm:w-2/5 [.is-exporting_&]:w-2/5 sm:ml-auto [.is-exporting_&]:ml-auto'">
         <div class="flex justify-between items-center py-2 border-b border-[#e5e7eb] text-[#374151]">
           <span class="font-medium">Subtotal</span>
           <span>{{ formatoPesos(subtotalAgregado) }}</span>

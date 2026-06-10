@@ -27,15 +27,18 @@ export const useUserStore = defineStore('user', {
         
         if (session?.user) {
           this.user = session.user
+          if (window.OneSignal) window.OneSignal.login(session.user.id)
         }
 
         const { data: authData } = supabase.auth.onAuthStateChange(async (event, session) => {
           if (session?.user) {
             if (session.user.id !== this.user?.id) {
               this.user = session.user
+              if (window.OneSignal) window.OneSignal.login(session.user.id)
             }
           } else {
             this.user = null
+            if (window.OneSignal) window.OneSignal.logout()
           }
         })
 
@@ -60,6 +63,7 @@ export const useUserStore = defineStore('user', {
         if (error) throw error
         
         this.user = data.user
+        if (window.OneSignal) window.OneSignal.login(data.user.id)
         
         return true
       } catch (error) {
@@ -76,6 +80,7 @@ export const useUserStore = defineStore('user', {
         try {
             await supabase.auth.signOut()
             this.user = null
+            if (window.OneSignal) window.OneSignal.logout()
         } catch(e) {
             console.error(e)
         } finally {

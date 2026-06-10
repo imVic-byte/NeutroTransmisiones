@@ -10,8 +10,6 @@ const route = useRoute()
 const router = useRouter()
 
 const cliente = ref(null)
-const clienteBackup = ref(null)
-const editando = ref(false)
 const vehiculos = ref([])
 const totalOT = ref(0)
 const totalPresupuestos = ref(0)
@@ -73,40 +71,8 @@ const obtenerDatosCliente = async () => {
   }
 }
 
-const iniciarEdicion = () => {
-  clienteBackup.value = JSON.parse(JSON.stringify(cliente.value))
-  editando.value = true
-}
-const cancelarEdicion = () => {
-  cliente.value = JSON.parse(JSON.stringify(clienteBackup.value))
-  editando.value = false
-}
-
-const guardarCliente = async () => {
-  const tel = cliente.value.telefono || '';
-  const telLimpio = tel.replace(/\D/g, '').slice(0, 9);
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (cliente.value.email && !emailRegex.test(cliente.value.email)) {
-    alert("El formato del correo no es válido.");
-    return;
-  }
-
-  cliente.value.telefono = telLimpio;
-  const { error } = await supabase
-    .from('cliente')
-    .update({
-      nombre: cliente.value.nombre,
-      apellido: cliente.value.apellido,
-      email: cliente.value.email,
-      telefono: cliente.value.telefono,
-    })
-    .eq('id', route.params.id)
-  if (error) {
-    console.error('Error al guardar cliente:', error)
-    return
-  }
-  editando.value = false
+const irAEditarCliente = () => {
+  router.push({ name: 'editar-cliente', params: { id: route.params.id } })
 }
 
 onMounted(async () => {
@@ -131,41 +97,23 @@ onMounted(async () => {
             <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
               <div class="neutro-primary p-6 flex flex-col items-center relative">
                 <div
-                  class="w-20 h-20 rounded-full text-white neutro-background flex items-center justify-center text-green-900 text-2xl font-bold mb-3">
+                  class="w-20 h-20 rounded-full neutro-font neutro-background flex items-center justify-center text-green-900 text-2xl font-bold mb-3">
                   {{ iniciales(cliente.nombre, cliente.apellido) }}
                 </div>
                 <h1 class="text-xl font-bold text-white text-center">
                   {{ camelCase(cliente.nombre) }} {{ camelCase(cliente.apellido) }}
                 </h1>
-                <!-- Botón editar / guardar / cancelar -->
+                <!-- Botón editar -->
                 <div class="absolute top-4 right-4 flex gap-2">
-                  <template v-if="!editando">
-                    <button @click="iniciarEdicion"
-                      class="p-2 neutro-secondary/20 hover:neutro-secondary/30 rounded-lg transition cursor-pointer"
-                      title="Editar">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                  </template>
-                  <template v-else>
-                    <button @click="guardarCliente"
-                      class="p-2 text-white rounded-lg transition cursor-pointer hover:translate-y-1" title="Guardar">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </button>
-                    <button @click="cancelarEdicion"
-                      class="p-2 rounded-lg transition cursor-pointer hover:translate-y-1" title="Cancelar">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </template>
+                  <button @click="irAEditarCliente"
+                    class="p-2 neutro-secondary/20 hover:neutro-secondary/30 rounded-lg transition cursor-pointer"
+                    title="Editar">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
                 </div>
               </div>
 
@@ -181,9 +129,7 @@ onMounted(async () => {
                   </div>
                   <div class="flex-1">
                     <p class="text-xs text-white uppercase font-semibold">Nombre</p>
-                    <input v-if="editando" v-model="cliente.nombre" type="text"
-                      class="mt-1 block w-full rounded-lg dark:border border-gray-700 neutro-secondary text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                    <p v-else class="text-sm text-white">{{ camelCase(cliente.nombre) || '—' }}</p>
+                    <p class="text-sm text-white">{{ camelCase(cliente.nombre) || '—' }}</p>
                   </div>
                 </div>
 
@@ -198,9 +144,7 @@ onMounted(async () => {
                   </div>
                   <div class="flex-1">
                     <p class="text-xs text-white uppercase font-semibold">Apellido</p>
-                    <input v-if="editando" v-model="cliente.apellido" type="text"
-                      class="mt-1 block w-full rounded-lg dark:border border-gray-700 neutro-secondary text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                    <p v-else class="text-sm text-white">{{ camelCase(cliente.apellido) || '—' }}</p>
+                    <p class="text-sm text-white">{{ camelCase(cliente.apellido) || '—' }}</p>
                   </div>
                 </div>
 
@@ -215,9 +159,7 @@ onMounted(async () => {
                   </div>
                   <div class="flex-1">
                     <p class="text-xs text-white uppercase font-semibold">Email</p>
-                    <input v-if="editando" v-model="cliente.email" type="email"
-                      class="mt-1 block w-full rounded-lg dark:border border-gray-700 neutro-secondary text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                    <p v-else class="text-sm text-white break-all">{{ cliente.email || '—' }}</p>
+                    <p class="text-sm text-white break-all">{{ cliente.email || '—' }}</p>
                   </div>
                 </div>
 
@@ -232,18 +174,14 @@ onMounted(async () => {
                   </div>
                   <div class="flex-1">
                     <p class="text-xs text-white uppercase font-semibold">Teléfono</p>
-                    <input v-if="editando" :value="cliente.telefono"
-                      @input="e => cliente.telefono = e.target.value.replace(/\D/g, '').slice(0, 9)" type="text"
-                      inputmode="numeric" placeholder="912345678"
-                      class="mt-1 block w-full rounded-lg dark:border border-gray-700 neutro-secondary text-white px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                    <p v-else class="text-sm text-white">{{ cliente.telefono ? '+' + (cliente.codigo_pais || '56')
+                    <p class="text-sm text-white">{{ cliente.telefono ? '+' + (cliente.codigo_pais || '56')
                       + ' ' +
                       cliente.telefono : '—' }}</p>
                   </div>
                 </div>
 
-                <!-- RUT (solo lectura) -->
-                <div v-if="cliente.rut && !editando" class="flex items-start gap-3">
+                <!-- RUT -->
+                <div v-if="cliente.rut" class="flex items-start gap-3">
                   <div class="p-2 bg-purple-50 rounded-lg shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600" fill="none"
                       viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -257,8 +195,8 @@ onMounted(async () => {
                   </div>
                 </div>
 
-                <!-- Dirección (solo lectura) -->
-                <div v-if="cliente.direccion && !editando" class="flex items-start gap-3">
+                <!-- Dirección -->
+                <div v-if="cliente.direccion" class="flex items-start gap-3">
                   <div class="p-2 bg-orange-50 rounded-lg shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-orange-600" fill="none"
                       viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

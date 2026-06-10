@@ -5,7 +5,7 @@ const { isDark, toggleDark } = useDark()
 
 <template>
   <button @click="toggleDark"
-    class="p-2 rounded-lg neutro-background neutro-font hover:opacity-80 transition-colors cursor-pointer">
+    class="p-2 rounded-lg neutro-background text-white hover:opacity-80 transition-colors cursor-pointer">
     <span v-if="isDark">☀️ Claro</span>
     <span v-else>🌙 Oscuro</span>
   </button>

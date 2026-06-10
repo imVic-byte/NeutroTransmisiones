@@ -38,7 +38,31 @@ export const verificarCliente = async (form) => {
 
         // 4. Retorno o Creación
         if (clienteEncontrado) {
-            return { exito: true, cliente: clienteEncontrado, mensaje: 'Cliente existente vinculado' };
+            let updates = {};
+            
+            // Completar datos vacíos si la nueva información los proporciona
+            if (!clienteEncontrado.email && form.email) updates.email = form.email.toLowerCase().trim();
+            if (!clienteEncontrado.rut && form.rut) updates.rut = form.rut;
+            if (!clienteEncontrado.tipo_entidad && form.tipo_entidad) updates.tipo_entidad = form.tipo_entidad;
+            if (!clienteEncontrado.canal_comunicacion && form.canal_comunicacion) updates.canal_comunicacion = form.canal_comunicacion;
+            if (!clienteEncontrado.direccion && form.direccion) updates.direccion = form.direccion;
+            
+            if (Object.keys(updates).length > 0) {
+                const { data: clienteActualizado, error: errorUpdate } = await supabase
+                    .from('cliente')
+                    .update(updates)
+                    .eq('id', clienteEncontrado.id)
+                    .select()
+                    .single();
+                
+                if (!errorUpdate && clienteActualizado) {
+                    clienteEncontrado = clienteActualizado;
+                } else {
+                    console.error('Error actualizando campos faltantes del cliente:', errorUpdate);
+                }
+            }
+
+            return { exito: true, cliente: clienteEncontrado, mensaje: 'Cliente existente vinculado y actualizado' };
         }
 
         // Si no se encontró nada sólido, procedemos a insertar
@@ -49,7 +73,11 @@ export const verificarCliente = async (form) => {
                 apellido: apellidoLimpio,
                 telefono: form.telefono,
                 email: form.email?.toLowerCase().trim(),
-                codigo_pais: form.codigo_pais
+                codigo_pais: form.codigo_pais,
+                rut: form.rut || null,
+                tipo_entidad: form.tipo_entidad || null,
+                canal_comunicacion: form.canal_comunicacion || null,
+                direccion: form.direccion || null
             })
             .select()
             .single();

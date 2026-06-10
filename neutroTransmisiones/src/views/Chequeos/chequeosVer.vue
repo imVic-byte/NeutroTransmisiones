@@ -189,7 +189,7 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div v-if="ot" class="grid grid-cols-1 sm:grid-cols-2 sm:gap-4 gap-2 text-sm neutro-font px-4 py-4">
+          <div v-if="ot" class="grid grid-cols-1 sm:grid-cols-2 sm:gap-4 gap-2 text-sm text-white px-4 py-4">
             <div class="flex flex-col gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
@@ -213,7 +213,7 @@ onMounted(async () => {
           </div>
 
           <div class="px-4 pb-4">
-            <p class="text-xs neutro-font opacity-60">Realizado el {{ formatFecha(chequeo.created_at) }}</p>
+            <p class="text-xs text-white opacity-60">Realizado el {{ formatFecha(chequeo.created_at) }}</p>
           </div>
         </div>
 
@@ -232,12 +232,12 @@ onMounted(async () => {
                 ]">
                 <div class="flex flex-col sm:flex-row sm:items-center gap-3">
                   <div class="flex items-center gap-2 sm:w-48 shrink-0">
-                    <span class="font-medium neutro-font">{{ item.label }}</span>
+                    <span class="font-medium text-white">{{ item.label }}</span>
                   </div>
                   <div class="flex gap-2 flex-1 flex-wrap">
                     <span :class="[
                       'flex-1 min-w-[80px] py-2 px-2 rounded-lg text-xs sm:text-sm font-semibold border-2 text-center',
-                      opciones[chequeo.datos_chequeo[catKey][item.key]?.estado]?.color || 'border-gray-200 neutro-font'
+                      opciones[chequeo.datos_chequeo[catKey][item.key]?.estado]?.color || 'border-gray-200 text-white'
                     ]">
                       {{ opciones[chequeo.datos_chequeo[catKey][item.key]?.estado]?.label || chequeo.datos_chequeo[catKey][item.key]?.estado }}
                     </span>
@@ -253,7 +253,7 @@ onMounted(async () => {
                       </svg>
                       Comentario
                     </label>
-                    <p class="text-sm neutro-font bg-white/50 rounded-lg px-3 py-2 border border-red-100">{{ chequeo.datos_chequeo[catKey][item.key].comentario }}</p>
+                    <p class="text-sm text-white bg-white/50 rounded-lg px-3 py-2 border border-red-100">{{ chequeo.datos_chequeo[catKey][item.key].comentario }}</p>
                   </div>
 
                   <div v-if="chequeo.datos_chequeo[catKey][item.key]?.fotos?.length > 0">
@@ -282,7 +282,7 @@ onMounted(async () => {
             <h3 class="font-bold text-white">Observaciones Generales</h3>
           </div>
           <div class="p-5">
-            <p class="text-sm neutro-font whitespace-pre-wrap">{{ chequeo.observaciones }}</p>
+            <p class="text-sm text-white whitespace-pre-wrap">{{ chequeo.observaciones }}</p>
           </div>
         </div>
 

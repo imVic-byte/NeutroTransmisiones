@@ -4,7 +4,7 @@ import navbar from '../../components/componentes/navbar.vue'
 import { useInterfaz } from '../../stores/interfaz.js'
 import { supabase } from '../../lib/supabaseClient.js'
 import { useRouter } from 'vue-router'
-
+import volver from '@/components/componentes/volverPanel.vue'
 const router = useRouter()
 const interfaz = useInterfaz()
 const clientes = ref([])
@@ -58,6 +58,7 @@ onMounted(async () => {
 
     <div class="neutro-background min-h-screen pb-24">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-4">
+      <volver />
 
       <!-- Header -->
       <div class="mb-6 hidden sm:block">

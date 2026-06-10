@@ -294,9 +294,30 @@ const ejecutarCambioEstado = async (estado) => {
   procesandoEstadoFicha.value = true
   try {
     const updates = { estado: estado }
-    if (estado === 5 || estado === 6) {
+    if (Number(estado) === 1) {
+      const ahora = new Date()
+      const offset = ahora.getTimezoneOffset()
+      const local = new Date(ahora.getTime() - (offset * 60 * 1000))
+      const fechaLocal = local.toISOString().slice(0, 16)
+      updates.fecha_ingreso = fechaLocal
+      ficha.value.fecha_ingreso = fechaLocal
+    }
+    if (Number(estado) === 5 || Number(estado) === 6) {
       bloquearFichaJS(ficha.value.id)
       ficha.value.bloqueada = true
+
+      // Desvincular de la tabla taller
+      await supabase
+        .from('taller')
+        .update({
+          status: 'vacante',
+          id_ficha: null,
+          vehicle_name: null
+        })
+        .eq('id_ficha', Number(fichaId))
+
+      celdaActual.value = null
+      await cargarCeldasTaller()
     }
 
     const { data, error } = await supabase
@@ -324,6 +345,107 @@ const confirmarCambioEstado = () => {
   }
 }
 
+// Integración con Taller
+const celdaActual = ref(null)
+const celdasDisponibles = ref([])
+const celdaSeleccionadaId = ref('')
+
+const obtenerNombreVehiculo = () => {
+  if (ficha.value?.orden_trabajo && ficha.value.orden_trabajo.length > 0) {
+    const firstOt = ficha.value.orden_trabajo[0]
+    if (firstOt?.vehiculo) {
+      return `${firstOt.vehiculo.marca || ''} ${firstOt.vehiculo.modelo || ''} (${firstOt.vehiculo.patente || ''})`.trim()
+    }
+  }
+  return 'Ficha N°' + fichaId
+}
+
+const buscarUbicacionTaller = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('taller')
+      .select('*')
+      .eq('id_ficha', Number(fichaId))
+      .maybeSingle()
+    if (error) throw error
+    celdaActual.value = data || null
+  } catch (err) {
+    console.error('Error al buscar ubicación en taller:', err)
+  }
+}
+
+const cargarCeldasTaller = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('taller')
+      .select('*')
+      .order('row_number', { ascending: true })
+      .order('column_number', { ascending: true })
+    if (error) throw error
+    celdasDisponibles.value = data || []
+  } catch (err) {
+    console.error('Error al cargar celdas de taller:', err)
+  }
+}
+
+const asignarCelda = async () => {
+  if (!celdaSeleccionadaId.value) return
+  interfaz.showLoading()
+  try {
+    // 1. Liberar cualquier celda anterior asociada a esta ficha
+    await supabase
+      .from('taller')
+      .update({
+        status: 'vacante',
+        id_ficha: null,
+        vehicle_name: null
+      })
+      .eq('id_ficha', Number(fichaId))
+
+    // 2. Asignar la nueva celda
+    const nombreVehiculo = obtenerNombreVehiculo()
+    const { error } = await supabase
+      .from('taller')
+      .update({
+        status: 'ocupado',
+        id_ficha: Number(fichaId),
+        vehicle_name: nombreVehiculo
+      })
+      .eq('id', celdaSeleccionadaId.value)
+    if (error) throw error
+
+    celdaSeleccionadaId.value = ''
+    await buscarUbicacionTaller()
+    await cargarCeldasTaller()
+  } catch (err) {
+    console.error('Error al asignar celda:', err)
+  } finally {
+    interfaz.hideLoading()
+  }
+}
+
+const liberarCelda = async () => {
+  if (!celdaActual.value) return
+  interfaz.showLoading()
+  try {
+    const { error } = await supabase
+      .from('taller')
+      .update({
+        status: 'vacante',
+        id_ficha: null,
+        vehicle_name: null
+      })
+      .eq('id', celdaActual.value.id)
+    if (error) throw error
+    celdaActual.value = null
+    await cargarCeldasTaller()
+  } catch (err) {
+    console.error('Error al liberar celda:', err)
+  } finally {
+    interfaz.hideLoading()
+  }
+}
+
 onMounted(async () => {
   interfaz.showLoading()
   if (fichaId) {
@@ -331,6 +453,8 @@ onMounted(async () => {
     await contarVisitasCliente()
     await traerEstados()
     await cargarEstados()
+    await buscarUbicacionTaller()
+    await cargarCeldasTaller()
   } else {
     error.value = "ID de ficha no proporcionado."
     cargando.value = false
@@ -344,7 +468,7 @@ onMounted(async () => {
     <navbar :titulo="'Ficha N°' + (ficha?.id || '...')" subtitulo="Detalle de ficha de trabajo" class="navbar sticky top-0 z-50 shadow-sm" />
     <div class="mx-auto p-4 max-w-7xl pb-28 pt-8">
       <volver />
-      <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 p-4 mb-6 overflow-x-auto">
+      <div class="mb-6 overflow-x-auto">
         <div class="flex flex-nowrap md:flex-wrap items-center justify-start md:justify-center gap-2 min-w-max md:min-w-0" :class="{ 'pointer-events-none grayscale-[0.5]': isFichaBloqueada }">
           <div v-for="estado in estadosFicha" :key="estado.id" class="flex flex-col items-center group">
             <div
@@ -418,27 +542,40 @@ onMounted(async () => {
           <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
             <div class="neutro-primary px-6 py-3  flex justify-between items-center">
               <h2 class="text-white font-bold text-lg">Datos del Cliente</h2>
-              <span v-if="visitasCliente > 0" class="bg-blue-100 text-blue-800 text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 0 0-3.7-3.7 48.678 48.678 0 0 0-7.324 0 4.006 4.006 0 0 0-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 0 0 3.7 3.7 48.656 48.656 0 0 0 7.324 0 4.006 4.006 0 0 0 3.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3-3 3" />
-                </svg>
-                {{ visitasCliente }} {{ visitasCliente === 1 ? 'visita' : 'visitas' }}
-              </span>
+              <div class="flex items-center gap-2">
+                <button v-if="ficha?.cliente" @click="router.push({ name: 'ver-cliente', params: { id: ficha.cliente.id } })" class="text-white neutro-secondary px-2.5 py-1 rounded-lg text-xs uppercase tracking-wider flex items-center gap-1 transition-all hover:bg-gray-800 hover:-translate-y-0.5 duration-300 cursor-pointer">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Ver Perfil
+                </button>
+                <span v-if="visitasCliente > 0" class="bg-blue-100 text-blue-800 text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 0 0-3.7-3.7 48.678 48.678 0 0 0-7.324 0 4.006 4.006 0 0 0-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 0 0 3.7 3.7 48.656 48.656 0 0 0 7.324 0 4.006 4.006 0 0 0 3.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3-3 3" />
+                  </svg>
+                  {{ visitasCliente }} {{ visitasCliente === 1 ? 'visita' : 'visitas' }}
+                </span>
+              </div>
             </div>
             <div class="p-6">
               <div v-if="ficha.cliente" class="space-y-4 text-sm md:text-base">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <span class="block text-xs font-bold neutro-font uppercase tracking-wider mb-1">Nombre Completo</span>
-                    <span class="neutro-font font-medium">{{ ficha.cliente.nombre }} {{ ficha.cliente.apellido }}</span>
+                    <span class="block text-xs font-bold text-white uppercase tracking-wider mb-1">Nombre Completo</span>
+                    <router-link :to="{ name: 'ver-cliente', params: { id: ficha.cliente.id } }" class="text-white font-medium hover:text-blue-400 transition-colors flex items-center gap-1 cursor-pointer">
+                      {{ ficha.cliente.nombre }} {{ ficha.cliente.apellido }}
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </router-link>
                   </div>
                   <div>
-                    <span class="block text-xs font-bold neutro-font uppercase tracking-wider mb-1">Teléfono</span>
-                    <span class="neutro-font font-medium">+{{ ficha.cliente.codigo_pais || '56' }} {{ ficha.cliente.telefono }}</span>
+                    <span class="block text-xs font-bold text-white uppercase tracking-wider mb-1">Teléfono</span>
+                    <span class="text-white font-medium">+{{ ficha.cliente.codigo_pais || '56' }} {{ ficha.cliente.telefono }}</span>
                   </div>
                   <div class="md:col-span-2">
-                    <span class="block text-xs font-bold neutro-font uppercase tracking-wider mb-1">Correo Electrónico</span>
-                    <span class="neutro-font font-medium">{{ ficha.cliente.email || 'No registrado' }}</span>
+                    <span class="block text-xs font-bold text-white uppercase tracking-wider mb-1">Correo Electrónico</span>
+                    <span class="text-white font-medium">{{ ficha.cliente.email || 'No registrado' }}</span>
                   </div>
                 </div>
               </div>
@@ -464,7 +601,7 @@ onMounted(async () => {
             <div class="p-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="w-full">
-                    <label class="block text-xs font-bold neutro-font uppercase tracking-wider mb-1">Origen Ingreso</label>
+                    <label class="block text-xs font-bold text-white uppercase tracking-wider mb-1">Origen Ingreso</label>
                     <select :disabled="isFichaBloqueada" class="text-white neutro-secondary font-medium dark:border border-gray-700 rounded-lg p-2 w-full disabled:cursor-not-allowed" v-model="ficha.origen_ingreso">
                       <option value="cliente">Conducido por Cliente</option>
                       <option value="grua">Grúa / Remolque</option>
@@ -472,16 +609,16 @@ onMounted(async () => {
                     </select>
                   </div>
                 <div class="w-full">
-                  <label class="block text-xs font-bold neutro-font uppercase tracking-wider mb-1">Motivo de Ingreso</label>
-                  <p class="neutro-font font-medium">{{ ficha.motivo_ingreso || 'Sin información registrada.' }}</p>
+                  <label class="block text-xs font-bold text-white uppercase tracking-wider mb-1">Motivo de Ingreso</label>
+                  <p class="text-white font-medium">{{ ficha.motivo_ingreso || 'Sin información registrada.' }}</p>
                 </div>
                 <div class="w-full">
-                  <label class="block text-xs font-bold neutro-font uppercase tracking-wider mb-1">Fecha de Ingreso</label>
-                  <input :disabled="isFichaBloqueada" class="neutro-font font-medium dark:border border-gray-700 rounded-lg p-2 w-full disabled:cursor-not-allowed" type="datetime-local" v-model="ficha.fecha_ingreso">
+                  <label class="block text-xs font-bold text-white uppercase tracking-wider mb-1">Fecha de Ingreso</label>
+                  <input :disabled="isFichaBloqueada" class="text-white font-medium dark:border border-gray-700 rounded-lg p-2 w-full disabled:cursor-not-allowed" type="datetime-local" v-model="ficha.fecha_ingreso">
                 </div>
                 <div class="w-full">
-                  <label class="block text-xs font-bold neutro-font uppercase tracking-wider mb-1">Fecha de Promesa de Entrega</label>
-                  <input :disabled="isFichaBloqueada" class="neutro-font font-medium dark:border border-gray-700 rounded-lg p-2 w-full disabled:cursor-not-allowed" type="date" v-model="ficha.fecha_promesa">
+                  <label class="block text-xs font-bold text-white uppercase tracking-wider mb-1">Fecha de Promesa de Entrega</label>
+                  <input :disabled="isFichaBloqueada" class="text-white font-medium dark:border border-gray-700 rounded-lg p-2 w-full disabled:cursor-not-allowed" type="date" v-model="ficha.fecha_promesa">
                 </div>
             </div>
           </div>
@@ -489,7 +626,7 @@ onMounted(async () => {
           <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
             <div class="neutro-primary px-6 py-3  flex justify-between items-center">
               <h2 class="text-white font-bold text-lg">Vehículos</h2>
-              <button v-if="!isFichaBloqueada" @click="abrirModalOT" class="neutro-font neutro-secondary p-2 rounded-lg text-xs uppercase tracking-wider flex items-center gap-1 transition-colors hover:-translate-y-1 transition-transform duration-300">
+              <button v-if="!isFichaBloqueada" @click="abrirModalOT" class="text-white neutro-secondary p-2 rounded-lg text-xs uppercase tracking-wider flex items-center gap-1 transition-colors hover:-translate-y-1 transition-transform duration-300">
                 Agregar
               </button>
             </div>
@@ -497,7 +634,7 @@ onMounted(async () => {
               <div v-if="ficha.orden_trabajo" class="flex flex-col" :class="{ 'pointer-events-none opacity-80': isFichaBloqueada }">
                 <OTcardFicha v-for="(orden, i) in ficha.orden_trabajo" :key="orden.id" :orden="orden" :index="i" :estado="handleEstados(orden.estado_actual_id)" />
               </div>
-              <p v-else class="text-sm neutro-font italic text-center py-4 neutro-secondary rounded-lg border border-dashed border-gray-200">
+              <p v-else class="text-sm text-white italic text-center py-4 neutro-secondary rounded-lg border border-dashed border-gray-200">
                 No se encontraron vehículos registrados para este cliente.
               </p>
             </div>
@@ -510,12 +647,12 @@ onMounted(async () => {
                 Cotizaciones
                 <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ cotizaciones.length }}</span>
               </h2>
-              <button v-if="!isFichaBloqueada" @click="crearCotizacion" class="neutro-font neutro-secondary p-2 rounded-lg text-xs uppercase tracking-wider flex items-center gap-1 transition-colors hover:-translate-y-1 transition-transform duration-300">Crear</button>
+              <button v-if="!isFichaBloqueada" @click="crearCotizacion" class="text-white neutro-secondary p-2 rounded-lg text-xs uppercase tracking-wider flex items-center gap-1 transition-colors hover:-translate-y-1 transition-transform duration-300">Crear</button>
             </div>
             <div v-if="cotizaciones.length > 0" class="divide-y divide-gray-100 max-h-60 overflow-y-auto custom-scrollbar">
               <div v-for="(cotizacion, i) in cotizaciones" :key="cotizacion.id"
                 @click="irACotizacion(cotizacion.id,i+1)"
-                class="p-4  hover:neutro-font transition-colors cursor-pointer group flex justify-between items-center"
+                class="p-4  hover:text-white transition-colors cursor-pointer group flex justify-between items-center"
                 >
                 <div>
                   <p class="font-bold text-gray-100 text-sm group-hover:text-blue-600 transition-colors">
@@ -530,7 +667,7 @@ onMounted(async () => {
                 </div>
                 <div class="text-right flex items-end gap-1 align-center justify-center">
                   <div class="flex flex-col items-center justify-center align-center">
-                    <p class="font-bold neutro-font text-sm leading-none">{{ formatMoneda(cotizacion.total_final) }}</p>
+                    <p class="font-bold text-white text-sm leading-none">{{ formatMoneda(cotizacion.total_final) }}</p>
                     <span class="text-[10px] font-bold uppercase tracking-wide" :class="obtenerColorEstadoCotizacion(cotizacion.estado)">
                       {{ obtenerTextoEstadoCotizacion(cotizacion.estado) }}
                     </span>
@@ -541,6 +678,80 @@ onMounted(async () => {
             </div>
             <p v-else class="text-sm text-gray-200 italic p-6 text-center">No hay cotizaciones previas.</p>
           </div>
+          <!-- Integración con el Taller -->
+          <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
+            <div class="neutro-primary px-6 py-3 flex justify-between items-center">
+              <h2 class="text-white font-bold text-lg">Ubicación en Taller</h2>
+            </div>
+            <div class="p-6 space-y-4">
+              <!-- Si ya está ubicado -->
+              <div v-if="celdaActual" class="space-y-3">
+                <div class="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 flex flex-col gap-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">Espacio Asignado</span>
+                    <span class="px-2 py-0.5 rounded text-[9px] bg-blue-500/20 text-blue-400 font-bold uppercase tracking-wider">Ocupado</span>
+                  </div>
+                  <p class="text-sm font-bold text-white">
+                    Fila {{ celdaActual.row_number }} - Columna {{ celdaActual.column_number }}
+                  </p>
+                  <p class="text-xs text-white/50">
+                    Vehículo registrado: {{ celdaActual.vehicle_name }}
+                  </p>
+                </div>
+                <button 
+                  v-if="!isFichaBloqueada"
+                  @click="liberarCelda" 
+                  class="w-full py-2 px-4 rounded-lg bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-400 text-xs font-bold transition-all cursor-pointer animate-fade-in"
+                >
+                  Liberar Ubicación
+                </button>
+              </div>
+
+              <!-- Si no está ubicado -->
+              <div v-else class="space-y-3">
+                <p class="text-xs text-white/60">
+                  Esta ficha no está asociada a ninguna celda de la cuadrícula del taller.
+                </p>
+                <div v-if="!isFichaBloqueada" class="space-y-2">
+                  <label class="block text-xs font-bold text-white/40 uppercase tracking-wider">Seleccionar Espacio</label>
+                  <div class="relative">
+                    <select 
+                      v-model="celdaSeleccionadaId" 
+                      class="w-full rounded-lg border border-gray-700 bg-black/20 text-white font-bold px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled selected>Selecciona un espacio del taller...</option>
+                      <option 
+                        v-for="celda in celdasDisponibles" 
+                        :key="celda.id" 
+                        :value="celda.id"
+                        :disabled="celda.status !== 'vacante' && celda.status !== 'ocupado'"
+                        class="bg-gray-900 text-white"
+                      >
+                        Fila {{ celda.row_number }} - Col {{ celda.column_number }}
+                        <span v-if="celda.status === 'vacante'"> (Disponible)</span>
+                        <span v-else-if="celda.status === 'ocupado'"> (Sobreescribir Ocupado: {{ celda.vehicle_name || 'Ficha #' + celda.id_ficha }})</span>
+                        <span v-else> ({{ celda.status }})</span>
+                      </option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white/60">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                  </div>
+                  <button 
+                    @click="asignarCelda" 
+                    :disabled="!celdaSeleccionadaId"
+                    class="w-full py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    Asignar Espacio
+                  </button>
+                </div>
+                <div v-else class="text-xs text-white/40 italic">
+                  Ficha bloqueada. No se pueden asignar ubicaciones.
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
              <div class="neutro-primary px-6 py-4  flex justify-between items-center">
                 <span class="text-sm font-bold text-white uppercase tracking-wider">Acciones</span>
@@ -579,45 +790,45 @@ onMounted(async () => {
                 <span>{{ errorModal }}</span>
             </div>
             <div>
-                <label class="block text-sm font-bold neutro-font mb-1">Patente Vehículo</label>
+                <label class="block text-sm font-bold text-white mb-1">Patente Vehículo</label>
                 <input 
                     v-model="otPatenteIngresada" 
                     type="text" 
-                    class="w-full rounded-lg border-gray-300 border px-4 py-2.5 neutro-font focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase placeholder-gray-400"
+                    class="w-full rounded-lg border-gray-300 border px-4 py-2.5 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase placeholder-gray-400"
                     placeholder="Ej: AB1234"
                 />
-                <p class="text-xs neutro-font mt-1">Debe ser un vehículo registrado del cliente.</p>
+                <p class="text-xs text-white mt-1">Debe ser un vehículo registrado del cliente.</p>
             </div>
             <div>
-                <label class="block text-sm font-bold neutro-font mb-1">Modelo Vehículo</label>
+                <label class="block text-sm font-bold text-white mb-1">Modelo Vehículo</label>
                 <input 
                     v-model="otModeloIngresado" 
                     type="text" 
-                    class="w-full rounded-lg border-gray-300 border px-4 py-2.5 neutro-font focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase placeholder-gray-400"
+                    class="w-full rounded-lg border-gray-300 border px-4 py-2.5 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase placeholder-gray-400"
                     placeholder="Ej: Yaris"
                 />
-                <p class="text-xs neutro-font mt-1">Debe ser un vehículo registrado del cliente.</p>
+                <p class="text-xs text-white mt-1">Debe ser un vehículo registrado del cliente.</p>
             </div>
             <div>
-                <label class="block text-sm font-bold neutro-font mb-1">Marca Vehículo</label>
+                <label class="block text-sm font-bold text-white mb-1">Marca Vehículo</label>
                 <input 
                     v-model="otMarcaIngresada" 
                     type="text" 
-                    class="w-full rounded-lg border-gray-300 border px-4 py-2.5 neutro-font focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase placeholder-gray-400"
+                    class="w-full rounded-lg border-gray-300 border px-4 py-2.5 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase placeholder-gray-400"
                     placeholder="Ej: Toyota"
                 />
-                <p class="text-xs neutro-font mt-1">Debe ser un vehículo registrado del cliente.</p>
+                <p class="text-xs text-white mt-1">Debe ser un vehículo registrado del cliente.</p>
             </div>
             <div>
-                <label class="block text-sm font-bold neutro-font mb-1">Trabajador Asignado</label>
+                <label class="block text-sm font-bold text-white mb-1">Trabajador Asignado</label>
                 <div class="relative">
-                    <select v-model="otTrabajadorSeleccionado" class="w-full rounded-lg border-gray-300 border px-4 py-2.5 neutro-font focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all appearance-none">
+                    <select v-model="otTrabajadorSeleccionado" class="w-full rounded-lg border-gray-300 border px-4 py-2.5 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all appearance-none">
                         <option class="neutro-background" value="" disabled selected>Seleccionar un trabajador...</option>
                         <option class="neutro-background" v-for="t in listaTrabajadores" :key="t.id" :value="t.id">
                             {{ t.nombre }} {{ t.apellido }}
                         </option>
                     </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 neutro-font">
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                 </div>
@@ -659,10 +870,10 @@ onMounted(async () => {
         </div>
 
         <div class="p-6 space-y-4">
-            <p class="neutro-font font-medium">
+            <p class="text-white font-medium">
               Al cambiar el estado a <span class="font-bold underline">{{ estadoTemporal === 5 ? 'Entregado' : 'Cancelado' }}</span>, la ficha se bloqueará PERMANENTEMENTE y no se podrán realizar más cambios.
             </p>
-            <p class="text-sm neutro-font">
+            <p class="text-sm text-white">
               ¿Estás seguro de que deseas continuar con esta acción?
             </p>
         </div>
@@ -712,7 +923,7 @@ onMounted(async () => {
                 </p>
               </div>
             </div>
-            <p class="text-sm neutro-font">
+            <p class="text-sm text-white">
               Se generará el presupuesto final basado en la cotización aprobada y los datos de la ficha.
             </p>
         </div>
@@ -753,7 +964,7 @@ onMounted(async () => {
               </p>
             </div>
           </div>
-          <p class="text-sm neutro-font">
+          <p class="text-sm text-white">
             ¿Deseas proceder con la generación del presupuesto final?
           </p>
         </div>

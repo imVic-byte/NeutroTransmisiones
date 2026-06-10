@@ -200,7 +200,7 @@ onMounted(async () => {
     <!-- Transmisión: Autocomplete + Formulario -->
     <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
       <div class="neutro-primary px-6 py-4 flex justify-between items-center">
-        <h2 class="neutro-font font-bold text-lg tracking-wide uppercase">Datos de Transmisión</h2>
+        <h2 class="text-white font-bold text-lg tracking-wide uppercase">Datos de Transmisión</h2>
         <button v-if="transmisionSeleccionada" @click="limpiarTransmision" type="button"
           class="text-xs font-bold text-red-400 hover:text-red-300 transition-colors">
           Limpiar
@@ -210,12 +210,12 @@ onMounted(async () => {
       <div class="p-6 space-y-4">
         <!-- Buscador con autocomplete -->
         <div class="space-y-1 relative">
-          <label class="text-xs font-bold neutro-font uppercase tracking-wider">Modelo de Caja</label>
+          <label class="text-xs font-bold text-white uppercase tracking-wider">Modelo de Caja</label>
           <input
             v-model="transmisionQuery"
             type="text"
             placeholder="Buscar modelo de caja... (ej: 4T65E, 6T70)"
-            class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+            class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
             @focus="mostrarSugerencias = sugerenciasTransmision.length > 0"
             @input="datosNuevaTransmision.modelo_caja = transmisionQuery"
           />
@@ -226,7 +226,7 @@ onMounted(async () => {
               v-for="s in sugerenciasTransmision" :key="s.id"
               @click="seleccionarTransmision(s)"
               type="button"
-              class="w-full text-left px-4 py-3 neutro-font hover:bg-blue-900/40 transition-colors border-b border-gray-100/30 last:border-0 cursor-pointer"
+              class="w-full text-left px-4 py-3 text-white hover:bg-blue-900/40 transition-colors border-b border-gray-100/30 last:border-0 cursor-pointer"
             >
               <p class="font-bold text-sm">{{ s.modelo_caja }}</p>
               <p class="text-xs opacity-70">{{ s.fabricante || 'Sin fabricante' }} · {{ s.tipo_fluido || 'Sin tipo fluido' }}</p>
@@ -244,71 +244,71 @@ onMounted(async () => {
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div class="space-y-0.5">
-              <span class="text-xs font-bold neutro-font uppercase tracking-wider opacity-70">Fabricante</span>
-              <p class="neutro-font text-sm">{{ transmisionSeleccionada.fabricante || '—' }}</p>
+              <span class="text-xs font-bold text-white uppercase tracking-wider opacity-70">Fabricante</span>
+              <p class="text-white text-sm">{{ transmisionSeleccionada.fabricante || '—' }}</p>
             </div>
             <div class="space-y-0.5">
-              <span class="text-xs font-bold neutro-font uppercase tracking-wider opacity-70">Tipo Fluido</span>
-              <p class="neutro-font text-sm">{{ transmisionSeleccionada.tipo_fluido || '—' }}</p>
+              <span class="text-xs font-bold text-white uppercase tracking-wider opacity-70">Tipo Fluido</span>
+              <p class="text-white text-sm">{{ transmisionSeleccionada.tipo_fluido || '—' }}</p>
             </div>
             <div class="space-y-0.5">
-              <span class="text-xs font-bold neutro-font uppercase tracking-wider opacity-70">Capacidad</span>
-              <p class="neutro-font text-sm">{{ transmisionSeleccionada.capacidad_litros ? transmisionSeleccionada.capacidad_litros + ' L' : '—' }}</p>
+              <span class="text-xs font-bold text-white uppercase tracking-wider opacity-70">Capacidad</span>
+              <p class="text-white text-sm">{{ transmisionSeleccionada.capacidad_litros ? transmisionSeleccionada.capacidad_litros + ' L' : '—' }}</p>
             </div>
             <div class="space-y-0.5">
-              <span class="text-xs font-bold neutro-font uppercase tracking-wider opacity-70">Torque C. Válvulas</span>
-              <p class="neutro-font text-sm">{{ transmisionSeleccionada.torque_cuerpo_valvulas_nm ? transmisionSeleccionada.torque_cuerpo_valvulas_nm + ' Nm' : '—' }}</p>
+              <span class="text-xs font-bold text-white uppercase tracking-wider opacity-70">Torque C. Válvulas</span>
+              <p class="text-white text-sm">{{ transmisionSeleccionada.torque_cuerpo_valvulas_nm ? transmisionSeleccionada.torque_cuerpo_valvulas_nm + ' Nm' : '—' }}</p>
             </div>
             <div class="space-y-0.5">
-              <span class="text-xs font-bold neutro-font uppercase tracking-wider opacity-70">Torque Cárter</span>
-              <p class="neutro-font text-sm">{{ transmisionSeleccionada.torque_carter_nm ? transmisionSeleccionada.torque_carter_nm + ' Nm' : '—' }}</p>
+              <span class="text-xs font-bold text-white uppercase tracking-wider opacity-70">Torque Cárter</span>
+              <p class="text-white text-sm">{{ transmisionSeleccionada.torque_carter_nm ? transmisionSeleccionada.torque_carter_nm + ' Nm' : '—' }}</p>
             </div>
             <div v-if="transmisionSeleccionada.notas_tecnicas" class="space-y-0.5 md:col-span-2">
-              <span class="text-xs font-bold neutro-font uppercase tracking-wider opacity-70">Notas Técnicas</span>
-              <p class="neutro-font text-sm">{{ transmisionSeleccionada.notas_tecnicas }}</p>
+              <span class="text-xs font-bold text-white uppercase tracking-wider opacity-70">Notas Técnicas</span>
+              <p class="text-white text-sm">{{ transmisionSeleccionada.notas_tecnicas }}</p>
             </div>
           </div>
         </div>
 
         <!-- Formulario para nueva transmisión -->
         <div v-else class="space-y-4">
-          <p class="text-xs neutro-font opacity-60">Si no se encontró, complete los datos para registrar una nueva transmisión.</p>
+          <p class="text-xs text-white opacity-60">Si no se encontró, complete los datos para registrar una nueva transmisión.</p>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-1">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Fabricante</label>
+              <label class="text-xs font-bold text-white uppercase tracking-wider">Fabricante</label>
               <input v-model="datosNuevaTransmision.fabricante" type="text" placeholder="Ej: GM, ZF, Aisin..."
-                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
+                class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
             </div>
             <div class="space-y-1">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Tipo de Fluido</label>
+              <label class="text-xs font-bold text-white uppercase tracking-wider">Tipo de Fluido</label>
               <input v-model="datosNuevaTransmision.tipo_fluido" type="text" placeholder="Ej: Dexron VI, ATF+4..."
-                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
+                class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
             </div>
             <div class="space-y-1">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Capacidad (Litros)</label>
+              <label class="text-xs font-bold text-white uppercase tracking-wider">Capacidad (Litros)</label>
               <input v-model="datosNuevaTransmision.capacidad_litros" type="number" placeholder="Ej: 7"
-                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
+                class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
             </div>
             <div class="space-y-1">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Torque Cuerpo Válvulas (Nm)</label>
+              <label class="text-xs font-bold text-white uppercase tracking-wider">Torque Cuerpo Válvulas (Nm)</label>
               <input v-model="datosNuevaTransmision.torque_cuerpo_valvulas_nm" type="number" placeholder="Ej: 10"
-                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
+                class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
             </div>
             <div class="space-y-1">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Torque Cárter (Nm)</label>
+              <label class="text-xs font-bold text-white uppercase tracking-wider">Torque Cárter (Nm)</label>
               <input v-model="datosNuevaTransmision.torque_carter_nm" type="number" placeholder="Ej: 15"
-                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
+                class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium" />
             </div>
           </div>
           <div class="space-y-1">
-            <label class="text-xs font-bold neutro-font uppercase tracking-wider">Notas Técnicas</label>
+            <label class="text-xs font-bold text-white uppercase tracking-wider">Notas Técnicas</label>
             <textarea v-model="datosNuevaTransmision.notas_tecnicas" placeholder="Observaciones adicionales sobre esta transmisión..."
               rows="2"
-              class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium resize-none"></textarea>
+              class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium resize-none"></textarea>
           </div>
           <div class="flex justify-end">
             <button @click="guardarTransmision" type="button" :disabled="cargando || !datosNuevaTransmision.modelo_caja"
-              class="neutro-font neutro-primary py-2.5 px-5 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer disabled:opacity-50">
+              class="text-white neutro-primary py-2.5 px-5 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer disabled:opacity-50">
               <svg v-if="cargando" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -323,7 +323,7 @@ onMounted(async () => {
     <!-- Diagnóstico de Transmisión -->
     <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
       <div class="neutro-primary px-6 py-4 flex justify-between items-center">
-        <h2 class="neutro-font font-bold text-lg tracking-wide uppercase">Diagnóstico de Transmisión</h2>
+        <h2 class="text-white font-bold text-lg tracking-wide uppercase">Diagnóstico de Transmisión</h2>
       </div>
 
       <div class="px-6 pt-4">
@@ -364,19 +364,19 @@ onMounted(async () => {
       <form @submit.prevent="guardarDatosTransmision" class="p-6">
         <div v-show="faseActual === 1" class="space-y-4">
           <div class="space-y-1">
-            <label class="text-xs font-bold neutro-font uppercase tracking-wider">Códigos de Falla TCM (DTC)</label>
+            <label class="text-xs font-bold text-white uppercase tracking-wider">Códigos de Falla TCM (DTC)</label>
             <input
               v-model="datosTransmision.codigos_falla_tcm"
               type="text"
               placeholder="Ej: P0700, P0731..."
-              class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+              class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
             />
           </div>
           <div class="space-y-1">
-            <label class="text-xs font-bold neutro-font uppercase tracking-wider">Estado del Fluido al Recibir</label>
+            <label class="text-xs font-bold text-white uppercase tracking-wider">Estado del Fluido al Recibir</label>
             <select
               v-model="datosTransmision.estado_fluido"
-              class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+              class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
             >
               <option value="">Seleccione estado...</option>
               <option value="limpio">Limpio</option>
@@ -386,49 +386,49 @@ onMounted(async () => {
             </select>
           </div>
           <div class="space-y-1">
-            <label class="text-xs font-bold neutro-font uppercase tracking-wider">Prueba de Calado (RPM)</label>
+            <label class="text-xs font-bold text-white uppercase tracking-wider">Prueba de Calado (RPM)</label>
             <input
               v-model="datosTransmision.prueba_calado_rpm"
               type="text"
               placeholder="RPM bajas, RPM altas, etc..."
-              class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+              class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
             />
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-1">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Presión de Línea - Ralentí (PSI)</label>
+              <label class="text-xs font-bold text-white uppercase tracking-wider">Presión de Línea - Ralentí (PSI)</label>
               <input
                 v-model="datosTransmision.presion_linea_ralenti"
                 type="number"
                 placeholder="Ej: 60"
-                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               />
             </div>
             <div class="space-y-1">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Presión de Línea - Carga (PSI)</label>
+              <label class="text-xs font-bold text-white uppercase tracking-wider">Presión de Línea - Carga (PSI)</label>
               <input
                 v-model="datosTransmision.presion_linea_carga"
                 type="number"
                 placeholder="Ej: 120"
-                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               />
             </div>
           </div>
           <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg dark:border border-gray-700 hover:border-blue-400 transition-colors">
             <input type="checkbox" v-model="datosTransmision.inspeccion_fugas_externas" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-            <span class="text-sm font-medium neutro-font">Inspección de fugas externas realizada</span>
+            <span class="text-sm font-medium text-white">Inspección de fugas externas realizada</span>
           </label>
         </div>
 
         <div v-show="faseActual === 2" class="space-y-4">
-          <p class="text-sm neutro-font opacity-70 mb-2">Checklist de desarme de componentes clave</p>
+          <p class="text-sm text-white opacity-70 mb-2">Checklist de desarme de componentes clave</p>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-1">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Cuerpo de Válvulas</label>
+              <label class="text-xs font-bold text-white uppercase tracking-wider">Cuerpo de Válvulas</label>
               <select
                 v-model="datosTransmision.checklist_cuerpo_valvulas"
-                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               >
                 <option value="pendiente">Pendiente de revisión</option>
                 <option value="bueno">Buen estado</option>
@@ -439,10 +439,10 @@ onMounted(async () => {
               </select>
             </div>
             <div class="space-y-1">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Convertidor de Par</label>
+              <label class="text-xs font-bold text-white uppercase tracking-wider">Convertidor de Par</label>
               <select
                 v-model="datosTransmision.checklist_convertidor"
-                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               >
                 <option value="pendiente">Pendiente de revisión</option>
                 <option value="bueno">Buen estado</option>
@@ -451,28 +451,28 @@ onMounted(async () => {
               </select>
             </div>
             <div class="space-y-1">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Tipo de embrague</label>
+              <label class="text-xs font-bold text-white uppercase tracking-wider">Tipo de embrague</label>
               <input
                 v-model="datosTransmision.tipo_embrague"
                 type="text"
                 placeholder="Ej: Monodisco,Multidisco, etc..."
-                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               />
             </div>
             <div class="space-y-1">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Estado de embragues</label>
+              <label class="text-xs font-bold text-white uppercase tracking-wider">Estado de embragues</label>
               <input
                 v-model="datosTransmision.estado_embrague"
                 type="text"
                 placeholder="Ej: Embragues desgastados"
-                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               />
             </div>
             <div class="space-y-1">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Estado de Bomba</label>
+              <label class="text-xs font-bold text-white uppercase tracking-wider">Estado de Bomba</label>
               <select
                 v-model="datosTransmision.estado_bomba"
-                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               >
                 <option value="pendiente">Pendiente de revisión</option>
                 <option value="bueno">Buen estado</option>
@@ -481,19 +481,19 @@ onMounted(async () => {
               </select>
             </div>
             <div class="space-y-1">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Estado de Sellos, gomas y pistones</label>
+              <label class="text-xs font-bold text-white uppercase tracking-wider">Estado de Sellos, gomas y pistones</label>
               <input
                 v-model="datosTransmision.estado_sellos_gomas_pistones"
                 type="text"
                 placeholder="Ej: Sellos desgastados, Gomas desgastadas, etc"
-                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               />
             </div>
             <div class="space-y-1 md:col-span-2">
-              <label class="text-xs font-bold neutro-font uppercase tracking-wider">Estado de Partes duras</label>
+              <label class="text-xs font-bold text-white uppercase tracking-wider">Estado de Partes duras</label>
               <select
                 v-model="datosTransmision.estado_partes_duras"
-                class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
               >
                 <option value="pendiente">Pendiente de revisión</option>
                 <option value="bueno">Buen estado</option>
@@ -508,29 +508,29 @@ onMounted(async () => {
         <div v-show="faseActual === 3" class="space-y-4">
           <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg dark:border border-gray-700 hover:border-blue-400 transition-colors">
             <input type="checkbox" v-model="datosTransmision.lavado_enfriador" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-            <span class="text-sm font-medium neutro-font">Lavado de enfriador (cooler) realizado</span>
+            <span class="text-sm font-medium text-white">Lavado de enfriador (cooler) realizado</span>
           </label>
           <div class="space-y-1">
-            <label class="text-xs font-bold neutro-font uppercase tracking-wider">Temperatura de Nivelación (°C)</label>
+            <label class="text-xs font-bold text-white uppercase tracking-wider">Temperatura de Nivelación (°C)</label>
             <input
               v-model="datosTransmision.temperatura_nivelacion"
               type="number"
               step="0.1"
               placeholder="Ej: 40"
-              class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+              class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
             />
           </div>
           <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg dark:border border-gray-700 hover:border-blue-400 transition-colors">
             <input type="checkbox" v-model="datosTransmision.adaptacion_realizada" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-            <span class="text-sm font-medium neutro-font">Adaptación y reaprendizaje TCM completado</span>
+            <span class="text-sm font-medium text-white">Adaptación y reaprendizaje TCM completado</span>
           </label>
           <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg dark:border border-gray-700 hover:border-blue-400 transition-colors">
             <input type="checkbox" v-model="datosTransmision.presion_final_ok" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-            <span class="text-sm font-medium neutro-font">Presión final verificada y correcta</span>
+            <span class="text-sm font-medium text-white">Presión final verificada y correcta</span>
           </label>
           <label class="flex items-center space-x-3 cursor-pointer p-3 neutro-secondary rounded-lg dark:border border-gray-700 hover:border-blue-400 transition-colors">
             <input type="checkbox" v-model="datosTransmision.prueba_ruta_ok" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-            <span class="text-sm font-medium neutro-font">Prueba de ruta satisfactoria</span>
+            <span class="text-sm font-medium text-white">Prueba de ruta satisfactoria</span>
           </label>
         </div>
 
@@ -538,7 +538,7 @@ onMounted(async () => {
           <button
             type="submit"
             :disabled="cargando"
-            class="neutro-font neutro-primary py-3 px-6 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            class="text-white neutro-primary py-3 px-6 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <svg v-if="cargando" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

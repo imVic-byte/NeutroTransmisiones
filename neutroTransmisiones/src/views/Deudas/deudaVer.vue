@@ -308,7 +308,7 @@ onMounted(() => {
 
           <button
             @click="showModalCrear = true"
-            class="mt-2 inline-flex items-center gap-2 text-white text-white px-4 py-2 rounded-lg font-bold shadow-sm hover:opacity-90"
+            class="mt-2 inline-flex items-center gap-2 neutro-primary text-white text-white px-4 py-2 rounded-lg font-bold shadow-sm hover:opacity-90"
           >
             <span class="text-xl leading-none">+</span>
             Crear la primera

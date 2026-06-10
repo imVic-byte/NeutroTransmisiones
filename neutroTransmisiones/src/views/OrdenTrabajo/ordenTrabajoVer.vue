@@ -597,38 +597,38 @@ onMounted(async () => {
 
           <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
             <div class="neutro-primary px-6 py-4 flex justify-between items-center">
-              <h1 class="neutro-font font-bold text-lg tracking-wide">INFORMACIÓN GENERAL</h1>
+              <h1 class="text-white font-bold text-lg tracking-wide">INFORMACIÓN GENERAL</h1>
             </div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-1"><label
-                  class="text-xs font-bold neutro-font uppercase tracking-wider">Patente</label>
-                <p class="neutro-font">{{ orden.vehiculo?.patente }}</p>
+                  class="text-xs font-bold text-white uppercase tracking-wider">Patente</label>
+                <p class="text-white">{{ orden.vehiculo?.patente }}</p>
               </div>
               <div class="space-y-1"><label
-                  class="text-xs font-bold neutro-font uppercase tracking-wider">Modelo</label>
-                <p class="neutro-font">{{ orden.vehiculo?.marca }} {{ orden.vehiculo?.modelo }}</p>
+                  class="text-xs font-bold text-white uppercase tracking-wider">Modelo</label>
+                <p class="text-white">{{ orden.vehiculo?.marca }} {{ orden.vehiculo?.modelo }}</p>
               </div>
               <div class="space-y-1"><label
-                  class="text-xs font-bold neutro-font uppercase tracking-wider">Cliente</label>
-                <p class="neutro-font">{{ orden.ficha_de_trabajo?.cliente?.nombre + ' ' +
+                  class="text-xs font-bold text-white uppercase tracking-wider">Cliente</label>
+                <p class="text-white">{{ orden.ficha_de_trabajo?.cliente?.nombre + ' ' +
                   orden.ficha_de_trabajo?.cliente?.apellido }}</p>
               </div>
               <div class="space-y-1"><label
-                  class="text-xs font-bold neutro-font uppercase tracking-wider">Teléfono</label>
-                <p class="neutro-font">+{{ orden.ficha_de_trabajo?.cliente?.codigo_pais }} {{
+                  class="text-xs font-bold text-white uppercase tracking-wider">Teléfono</label>
+                <p class="text-white">+{{ orden.ficha_de_trabajo?.cliente?.codigo_pais }} {{
                   orden.ficha_de_trabajo?.cliente?.telefono }}</p>
               </div>
-              <div class="space-y-1"><label class="text-xs font-bold neutro-font uppercase tracking-wider">Email</label>
-                <p class="neutro-font">{{ orden.ficha_de_trabajo?.cliente?.email || 'No registrado' }}</p>
+              <div class="space-y-1"><label class="text-xs font-bold text-white uppercase tracking-wider">Email</label>
+                <p class="text-white">{{ orden.ficha_de_trabajo?.cliente?.email || 'No registrado' }}</p>
               </div>
-              <div class="space-y-1"><label class="text-xs font-bold neutro-font uppercase tracking-wider">Motivo de
+              <div class="space-y-1"><label class="text-xs font-bold text-white uppercase tracking-wider">Motivo de
                   Ingreso</label>
-                <p class="neutro-font">{{ orden.ficha_de_trabajo?.motivo_ingreso }}</p>
+                <p class="text-white">{{ orden.ficha_de_trabajo?.motivo_ingreso }}</p>
               </div>
               <div class="space-y-1"><label
-                  class="text-xs font-bold neutro-font uppercase tracking-wider">Responsable</label>
+                  class="text-xs font-bold text-white uppercase tracking-wider">Responsable</label>
                 <div class="flex items-center gap-2">
-                  <p class="neutro-font">{{ orden.trabajadores?.nombre ? orden.trabajadores?.nombre + ' ' +
+                  <p class="text-white">{{ orden.trabajadores?.nombre ? orden.trabajadores?.nombre + ' ' +
                     orden.trabajadores?.apellido : 'No asignado' }}</p><button v-if="userStore.havePrivileges"
                     @click="showCambiarTrabajador = true"
                     class="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-lg transition-colors border border-blue-200 cursor-pointer"
@@ -639,16 +639,16 @@ onMounted(async () => {
                     </svg> Cambiar</button>
                 </div>
               </div>
-              <div class="space-y-1"><label class="text-xs font-bold neutro-font uppercase tracking-wider">Fecha de
+              <div class="space-y-1"><label class="text-xs font-bold text-white uppercase tracking-wider">Fecha de
                   Ingreso</label>
-                <p class="neutro-font">{{ formatearFecha(orden.ficha_de_trabajo?.fecha_ingreso) || 'No registrado' }}</p>
+                <p class="text-white">{{ formatearFecha(orden.ficha_de_trabajo?.fecha_ingreso) || 'No registrado' }}</p>
               </div>
             </div>
           </div>
 
           <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
             <div class="neutro-primary px-6 py-4 flex justify-between items-center">
-              <h1 class="neutro-font font-bold text-lg tracking-wide">DATOS DE RECEPCIÓN</h1>
+              <h1 class="text-white font-bold text-lg tracking-wide">DATOS DE RECEPCIÓN</h1>
               <div class="flex items-center gap-2 min-h-[32px]">
                 <transition name="fade">
                   <span v-if="autoGuardando" class="text-white text-xs flex items-center gap-1 animate-pulse">
@@ -676,9 +676,9 @@ onMounted(async () => {
               <div class="flex flex-col gap-5">
                 <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
                   <div class="space-y-1">
-                    <label class="text-xs font-bold neutro-font uppercase tracking-wider">Prioridad</label>
+                    <label class="text-xs font-bold text-white uppercase tracking-wider">Prioridad</label>
                     <select
-                      class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                      class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
                       v-model="orden.prioridad" :disabled="soloLectura || isCerrado">
                       <option value="1">Alta (Urgencia)</option>
                       <option value="2">Media (Normal)</option>
@@ -688,26 +688,26 @@ onMounted(async () => {
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-1 gap-4">
                   <div class="space-y-1">
-                    <label class="text-xs font-bold neutro-font uppercase tracking-wider">Tipo de Trabajo</label>
+                    <label class="text-xs font-bold text-white uppercase tracking-wider">Tipo de Trabajo</label>
                     <input
-                      class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                      class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium"
                       type="text" placeholder="Ej: Mantención 10.000km" v-model="orden.tipo_trabajo"
                       :disabled="soloLectura || isCerrado" />
                   </div>
                 </div>
                 <div class="space-y-1">
-                  <label class="text-xs font-bold neutro-font uppercase tracking-wider">Kilometraje Actual</label>
+                  <label class="text-xs font-bold text-white uppercase tracking-wider">Kilometraje Actual</label>
                   <div class="relative">
                     <input
-                      class="w-full neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium pl-4"
+                      class="w-full neutro-secondary dark:border border-gray-700 text-white rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500 font-medium pl-4"
                       type="number" v-model="orden.kilometraje_inicial" :disabled="soloLectura || isCerrado" />
-                    <span class="absolute right-4 top-2.5 neutro-font text-sm font-bold">KM</span>
+                    <span class="absolute right-4 top-2.5 text-white text-sm font-bold">KM</span>
                   </div>
                 </div>
                 <div class="space-y-1 flex-row">
-                  <label class="text-xs font-bold neutro-font uppercase tracking-wider">Diagnóstico</label>
+                  <label class="text-xs font-bold text-white uppercase tracking-wider">Diagnóstico</label>
                   <textarea
-                    class="w-full h-32 neutro-secondary dark:border border-gray-700 neutro-font rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500 font-medium resize-none"
+                    class="w-full h-32 neutro-secondary dark:border border-gray-700 text-white rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500 font-medium resize-none"
                     placeholder="Describa el problema encontrado" v-model="orden.diagnostico"
                     :disabled="soloLectura || isCerrado"></textarea>
                 </div>
@@ -715,53 +715,53 @@ onMounted(async () => {
 
               <div class="flex flex-col gap-6">
                 <div class="space-y-2 neutro-secondary p-4 rounded-xl dark:border border-gray-700">
-                  <label class="text-xs font-bold neutro-font uppercase tracking-wider flex justify-between">
+                  <label class="text-xs font-bold text-white uppercase tracking-wider flex justify-between">
                     <span>Nivel de Combustible</span>
                   </label>
                   <medidorCombustible v-model="nivelCombustible" />
                 </div>
                 <div class="neutro-secondary p-4 rounded-xl dark:border border-gray-700">
-                  <label class="text-xs font-bold neutro-font uppercase tracking-wider mb-3 block">Inventario
+                  <label class="text-xs font-bold text-white uppercase tracking-wider mb-3 block">Inventario
                     Rápido</label>
                   <div class="grid grid-cols-2 gap-3">
                     <label
                       class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
                       <input type="checkbox" v-model="orden.trae_documentos"
                         class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" :disabled="soloLectura || isCerrado">
-                      <span class="text-sm font-medium neutro-font">Documentos</span>
+                      <span class="text-sm font-medium text-white">Documentos</span>
                     </label>
                     <label
                       class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
                       <input type="checkbox" v-model="orden.trae_llaves"
                         class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" :disabled="soloLectura || isCerrado">
-                      <span class="text-sm font-medium neutro-font">Llaves</span>
+                      <span class="text-sm font-medium text-white">Llaves</span>
                     </label>
                     <label
                       class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
                       <input type="checkbox" v-model="orden.trae_candado_seguridad"
                         class="w-4 h-4 text-blue-600 rounded-full focus:ring-blue-500"
                         :disabled="soloLectura || isCerrado">
-                      <span class="text-xs font-medium neutro-font">Tuerca Seguridad</span>
+                      <span class="text-xs font-medium text-white">Tuerca Seguridad</span>
                     </label>
                     <label
                       class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
                       <input type="checkbox" v-model="orden.trae_panel_radio"
                         class="w-4 h-4 text-blue-600 rounded-full focus:ring-blue-500"
                         :disabled="soloLectura || isCerrado">
-                      <span class="text-sm font-medium neutro-font">Panel Radio</span>
+                      <span class="text-sm font-medium text-white">Panel Radio</span>
                     </label>
                     <label
                       class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
                       <input type="checkbox" v-model="orden.trae_rueda_repuesto"
                         class="w-4 h-4 text-blue-600 rounded-full focus:ring-blue-500"
                         :disabled="soloLectura || isCerrado">
-                      <span class="text-sm font-medium neutro-font">Rueda Repuesto</span>
+                      <span class="text-sm font-medium text-white">Rueda Repuesto</span>
                     </label>
                     <label
                       class="flex items-center space-x-2 cursor-pointer p-2 neutro-secondary rounded-lg border hover:border-blue-400 transition-colors">
                       <input type="checkbox" v-model="orden.trae_encendedor"
                         class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" :disabled="soloLectura || isCerrado">
-                      <span class="text-sm font-medium neutro-font">Encendedor</span>
+                      <span class="text-sm font-medium text-white">Encendedor</span>
                     </label>
                   </div>
                 </div>
@@ -772,7 +772,7 @@ onMounted(async () => {
           <!-- FOTOS DE RECEPCIÓN -->
           <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
             <div class="neutro-primary px-6 py-4 flex justify-between items-center">
-              <h3 class="neutro-font font-bold text-lg tracking-wide uppercase">Fotos de Recepción</h3>
+              <h3 class="text-white font-bold text-lg tracking-wide uppercase">Fotos de Recepción</h3>
             </div>
 
             <div class="p-6">
@@ -797,7 +797,7 @@ onMounted(async () => {
                 </button>
 
                 <button @click="activarInputRecepcion('galeria')"
-                  class="flex items-center gap-2 text-sm font-bold neutro-font neutro-secondary hover:opacity-80 px-4 py-2.5 rounded-lg transition-colors dark:border border-gray-700 cursor-pointer"
+                  class="flex items-center gap-2 text-sm font-bold text-white neutro-secondary hover:opacity-80 px-4 py-2.5 rounded-lg transition-colors dark:border border-gray-700 cursor-pointer"
                   title="Seleccionar de galería">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
@@ -829,7 +829,7 @@ onMounted(async () => {
 
               <!-- Empty state -->
               <div v-else
-                class="flex flex-col items-center justify-center py-10 neutro-font neutro-secondary rounded-xl border border-dashed border-gray-100">
+                class="flex flex-col items-center justify-center py-10 text-white neutro-secondary rounded-xl border border-dashed border-gray-100">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2 opacity-50" fill="none"
                   viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -843,9 +843,9 @@ onMounted(async () => {
 
           <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 overflow-hidden">
             <div class="neutro-primary px-6 py-4 flex justify-between items-center">
-              <h3 class="neutro-font font-bold text-lg tracking-wide uppercase">Bitácora de hallazgos</h3>
+              <h3 class="text-white font-bold text-lg tracking-wide uppercase">Bitácora de hallazgos</h3>
               <button v-if="!soloLectura && !isCerrado" @click="agregarObservacion"
-                class="neutro-font text-blue-900 font-bold p-2 rounded-full shadow-md transition-all transform hover:scale-105"
+                class="text-white text-blue-900 font-bold p-2 rounded-full shadow-md transition-all transform hover:scale-105"
                 title="Agregar Observación">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
@@ -856,7 +856,7 @@ onMounted(async () => {
 
             <div class="p-6 neutro-secondary min-h-[200px] max-h-[500px] overflow-y-auto">
               <div v-if="observaciones.length === 0"
-                class="flex flex-col items-center justify-center py-10 neutro-font">
+                class="flex flex-col items-center justify-center py-10 text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2 opacity-50" fill="none"
                   viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -877,7 +877,7 @@ onMounted(async () => {
                     <div
                       class="relative neutro-secondary dark:border border-gray-700 p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm hover:shadow-md transition-shadow">
                       <div class="flex justify-between items-start mb-2">
-                        <span class="text-xs neutro-font font-semibold">{{ new
+                        <span class="text-xs text-white font-semibold">{{ new
                           Date(observacion.fecha).toLocaleDateString() }}</span>
                         <button v-if="observacion.isNew" @click="eliminarObservacion(index)"
                           class="text-red-400 hover:text-red-600">
@@ -889,7 +889,7 @@ onMounted(async () => {
                         </button>
                       </div>
                       <textarea v-model="observacion.texto" placeholder="Escriba los detalles aquí..."
-                        class="w-full neutro-font bg-transparent border-0 p-0 focus:ring-0 resize-none text-sm leading-relaxed mb-3"
+                        class="w-full text-white bg-transparent border-0 p-0 focus:ring-0 resize-none text-sm leading-relaxed mb-3"
                         rows="2"></textarea>
 
                       <div class="flex flex-col gap-3 mt-2 border-t pt-2 border-gray-100">
@@ -933,7 +933,7 @@ onMounted(async () => {
                           </button>
 
                           <button @click="activarInput(index, 'galeria')"
-                            class="flex items-center gap-2 text-xs font-bold neutro-font neutro-secondary hover:opacity-80 px-3 py-2 rounded-lg transition-colors dark:border border-gray-700"
+                            class="flex items-center gap-2 text-xs font-bold text-white neutro-secondary hover:opacity-80 px-3 py-2 rounded-lg transition-colors dark:border border-gray-700"
                             title="Seleccionar de galería">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                               stroke="currentColor">
@@ -955,10 +955,10 @@ onMounted(async () => {
 
         <div class="space-y-6">
           <div class="neutro-secondary rounded-xl shadow-sm dark:border border-gray-700 p-4">
-            <h3 class="text-xs font-bold neutro-font uppercase tracking-wider mb-4 border-b pb-2">Acciones</h3>
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4 border-b pb-2">Acciones</h3>
             <div class="flex flex-col gap-3">
               <button v-if="!soloLectura && !isCerrado && !chequeo" @click="irACrearChequeo"
-                class="w-full neutro-font neutro-primary py-3 px-4 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer">
+                class="w-full text-white neutro-primary py-3 px-4 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -967,7 +967,7 @@ onMounted(async () => {
                 Realizar Chequeo Completo
               </button>
               <button v-if="!soloLectura && !isCerrado && chequeo" @click="irAVerChequeo()"
-                class="w-full neutro-font neutro-primary py-3 px-4 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer">
+                class="w-full text-white neutro-primary py-3 px-4 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -976,7 +976,7 @@ onMounted(async () => {
                 Ver Chequeo
               </button>
               <button v-if="!soloLectura && !isCerrado" @click="guardarCambios()"
-                class="w-full neutro-font neutro-primary py-3 px-4 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer">
+                class="w-full text-white neutro-primary py-3 px-4 rounded-lg font-bold shadow-sm hover:opacity-90 transition-opacity flex justify-center items-center gap-2 cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -984,10 +984,10 @@ onMounted(async () => {
                 </svg>
                 Guardar Observaciones y Fotos
               </button>
-              <p v-if="!soloLectura && !isCerrado" class="text-xs neutro-font text-center mt-1 opacity-70">Los demás
+              <p v-if="!soloLectura && !isCerrado" class="text-xs text-white text-center mt-1 opacity-70">Los demás
                 campos se guardan automáticamente</p>
 
-              <div v-if="soloLectura" class="text-center py-3 text-sm neutro-font font-medium">
+              <div v-if="soloLectura" class="text-center py-3 text-sm text-white font-medium">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto mb-1" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1011,8 +1011,8 @@ onMounted(async () => {
 
     <div v-if="showCambiarTrabajador"
       class="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/60 backdrop-blur-sm">
-      <div class="neutro-background neutro-font rounded-lg p-6 max-w-sm w-full shadow-2xl">
-        <h3 class="text-xl font-bold neutro-font mb-4">Cambiar Responsable</h3>
+      <div class="neutro-background text-white rounded-lg p-6 max-w-sm w-full shadow-2xl">
+        <h3 class="text-xl font-bold text-white mb-4">Cambiar Responsable</h3>
         <div class="max-h-64 overflow-y-auto space-y-2">
           <button v-for="t in trabajadores" :key="t.id" @click="cambiarTrabajador(t.id)"
             class="w-full text-left px-4 py-3 rounded-lg dark:border border-gray-700 hover:bg-blue-900 hover:border-blue-300 hover:text-white transition-colors flex items-center gap-3 cursor-pointer"
@@ -1032,7 +1032,7 @@ onMounted(async () => {
         </div>
         <div class="flex justify-end mt-4">
           <button @click="showCambiarTrabajador = false"
-            class="px-4 py-2 neutro-font hover:opacity-80 rounded-md font-medium cursor-pointer">Cancelar</button>
+            class="px-4 py-2 text-white hover:opacity-80 rounded-md font-medium cursor-pointer">Cancelar</button>
         </div>
       </div>
     </div>
@@ -1061,8 +1061,8 @@ onMounted(async () => {
           </button>
         </div>
         <div class="p-6 space-y-3">
-          <p class="neutro-font font-medium">Tienes observaciones o fotos nuevas que aún no se han guardado.</p>
-          <p class="text-sm neutro-font">Si sales ahora, se perderán estos datos. ¿Deseas continuar?</p>
+          <p class="text-white font-medium">Tienes observaciones o fotos nuevas que aún no se han guardado.</p>
+          <p class="text-sm text-white">Si sales ahora, se perderán estos datos. ¿Deseas continuar?</p>
         </div>
         <div class="neutro-primary px-6 py-4 flex justify-end gap-3 border-t border-gray-100">
           <button @click="cancelarSalir"

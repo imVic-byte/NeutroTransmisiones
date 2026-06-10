@@ -21,6 +21,10 @@ const apellido = ref("");
 const telefono = ref("");
 const correo = ref("");
 const codigoPais = ref("56") 
+const rut = ref("");
+const tipoEntidad = ref("persona natural");
+const canalComunicacion = ref("llamada");
+const direccion = ref("");
 
 const clienteSeleccionado = ref(null)
 const motivoIngreso = ref('')
@@ -46,7 +50,7 @@ const buscarClientes = (e) => {
   clienteTimeout = setTimeout(async () => {
     const { data } = await supabase
       .from('cliente')
-      .select('id, nombre, apellido, telefono, email')
+      .select('id, nombre, apellido, telefono, email, rut, tipo_entidad, canal_comunicacion, codigo_pais, direccion')
       .ilike('nombre', `%${texto}%`)
       .limit(8)
     if (data) clientesSugeridos.value = data
@@ -64,9 +68,63 @@ const seleccionarCliente = (cliente) => {
   apellido.value = cliente.apellido
   telefono.value = cliente.telefono || ""
   correo.value = cliente.email || ""
+  rut.value = cliente.rut || ""
+  tipoEntidad.value = cliente.tipo_entidad || "persona natural"
+  canalComunicacion.value = cliente.canal_comunicacion || "llamada"
+  direccion.value = cliente.direccion || ""
+  codigoPais.value = cliente.codigo_pais || "56"
   clienteSeleccionado.value = cliente.id
   clienteAutocompletado.value = false
   clientesSugeridos.value = []
+}
+
+const formatearTelefono = (e) => {
+  let val = e.target.value.replace(/\D/g, '');
+  if (val.length > 9) val = val.slice(0, 9);
+  
+  if (val.length > 5) {
+    telefono.value = `${val.slice(0,1)} ${val.slice(1,5)} ${val.slice(5)}`;
+  } else if (val.length > 1) {
+    telefono.value = `${val.slice(0,1)} ${val.slice(1)}`;
+  } else {
+    telefono.value = val;
+  }
+}
+
+const autoExpand = (e) => {
+  e.target.style.height = 'inherit';
+  e.target.style.height = `${e.target.scrollHeight}px`;
+}
+
+const formatearRut = (e) => {
+  let val = e.target.value.replace(/[^0-9kK]/g, '').toUpperCase();
+  if (val.length > 1) {
+    val = val.slice(0, -1) + '-' + val.slice(-1);
+  }
+  rut.value = val;
+}
+
+const validarRut = (rutCompleto) => {
+  if (!rutCompleto) return false;
+  const limpio = rutCompleto.replace(/[^0-9kK]/g, '').toUpperCase();
+  if (limpio.length < 2) return false;
+  
+  const cuerpo = limpio.slice(0, -1);
+  const dv = limpio.slice(-1);
+  
+  let suma = 0;
+  let multiplo = 2;
+  
+  for (let i = 1; i <= cuerpo.length; i++) {
+    const index = multiplo * parseInt(cuerpo.charAt(cuerpo.length - i));
+    suma += index;
+    if (multiplo < 7) { multiplo += 1; } else { multiplo = 2; }
+  }
+  
+  const dvEsperado = 11 - (suma % 11);
+  let dvCalculado = dvEsperado === 11 ? '0' : dvEsperado === 10 ? 'K' : dvEsperado.toString();
+  
+  return dvCalculado === dv;
 }
 
 const redirigir = () => {
@@ -88,6 +146,13 @@ const guardarNuevaFicha = async () => {
   if (!apellido.value || apellido.value.trim().length < 2) {
     modalState.value = { visible: true, titulo: "Apellido inválido", mensaje: "El apellido del cliente debe tener al menos 2 caracteres.", exito: false };
     return
+  }
+  // Validar RUT
+  if (rut.value && rut.value.trim()) {
+    if (!validarRut(rut.value)) {
+      modalState.value = { visible: true, titulo: "RUT inválido", mensaje: "Por favor ingresa un RUT válido (Ej: 12345678-9).", exito: false };
+      return
+    }
   }
   // Validar teléfono (opcional, pero si se ingresa debe ser válido)
   if (telefono.value && telefono.value.trim()) {
@@ -132,7 +197,11 @@ const guardarNuevaFicha = async () => {
         apellido: apellido.value.trim(),
         telefono: telefono.value.trim(),
         email: correo.value.trim(),
-        codigo_pais: codigoPais.value
+        codigo_pais: codigoPais.value,
+        rut: rut.value.trim(),
+        tipo_entidad: tipoEntidad.value,
+        canal_comunicacion: canalComunicacion.value,
+        direccion: direccion.value.trim()
       })
       if (!resultado.exito) throw new Error(resultado.mensaje)
       idDelClienteFinal = resultado.cliente.id
@@ -176,9 +245,10 @@ const guardarNuevaFicha = async () => {
 
         <div class="lg:col-span-7 space-y-12 neutro-secondary rounded-xl">
 
-          <section>
+          <!-- Información del Cliente -->
+          <section class="mb-10">
             <h2 class="text-2xl w-full neutro-primary neutro-font border-b-2 border-yellow-400 rounded-t-lg p-2 inline-block pb-1 mb-6">
-              Cliente
+              Información del Cliente
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 px-3">
               
@@ -213,6 +283,36 @@ const guardarNuevaFicha = async () => {
               </div>
 
               <div class="group">
+                <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">RUT (Opcional)</label>
+                <input :value="rut" @input="formatearRut" type="text"
+                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
+                  placeholder="12345678-9" />
+              </div>
+
+              <div class="group">
+                <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Tipo de Entidad</label>
+                <div class="relative">
+                  <select v-model="tipoEntidad" class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors appearance-none cursor-pointer">
+                    <option value="persona natural">Persona Natural</option>
+                    <option value="empresa">Empresa</option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-400">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- Datos de Contacto -->
+          <section class="mb-10">
+            <h2 class="text-2xl w-full neutro-primary neutro-font border-b-2 border-yellow-400 rounded-t-lg p-2 inline-block pb-1 mb-6">
+              Datos de Contacto
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 px-3">
+              
+              <div class="group">
                 <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Teléfono</label>
                 <div class="flex items-center gap-4">
                   <div class="relative w-[110px]">
@@ -227,9 +327,9 @@ const guardarNuevaFicha = async () => {
                       </svg>
                     </div>
                   </div>
-                  <input v-model="telefono" type="text" inputmode="numeric" maxlength="12"
+                  <input :value="telefono" @input="formatearTelefono" type="text" inputmode="numeric" maxlength="11"
                     class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
-                    placeholder="912345678" />
+                    placeholder="9 1234 5678" />
                 </div>
               </div>
 
@@ -239,22 +339,32 @@ const guardarNuevaFicha = async () => {
                   class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
                   placeholder="ejemplo@correo.com" />
               </div>
+
+              <div class="group md:col-span-2">
+                <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Dirección</label>
+                <input v-model="direccion" type="text"
+                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors"
+                  placeholder="Calle Falsa 123, Comuna" />
+              </div>
+
+              <div class="group md:col-span-2">
+                <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Canal de Comunicación Preferido</label>
+                <div class="relative">
+                  <select v-model="canalComunicacion" class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-lg transition-colors appearance-none cursor-pointer">
+                    <option value="llamada">Llamada</option>
+                    <option value="mensaje">Mensaje / WhatsApp</option>
+                    <option value="email">Correo Electrónico</option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-400">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </section>
 
-          <section>
-            <h2 class="text-2xl w-full font-light neutro-primary neutro-font border-b-2 border-yellow-400 rounded-t-lg p-2 inline-block pb-1 mb-6">
-              Motivo de Ingreso
-            </h2>
-            <div class="px-3 pb-8">
-              <div class="group">
-                <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Diagnóstico / Descripción detallada *</label>
-                <textarea v-model="motivoIngreso" rows="4"
-                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none resize-none transition-colors"
-                  placeholder="Describe el problema o motivo por el que ingresa el vehículo..."></textarea>
-              </div>
-            </div>
-          </section>
+
 
         </div>
 
@@ -267,7 +377,16 @@ const guardarNuevaFicha = async () => {
             <div class="space-y-6 mb-8 px-6">
 
               <div class="group">
-                <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1">Origen Ingreso</label>
+                <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Diagnóstico / Descripción detallada *</label>
+                <textarea v-model="motivoIngreso" rows="3"
+                  @input="autoExpand"
+                  style="overflow: hidden; min-height: 80px;"
+                  class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none resize-none transition-colors"
+                  placeholder="Describe el problema o motivo por el que ingresa el vehículo..."></textarea>
+              </div>
+
+              <div class="group">
+                <label class="block text-xs font-bold neutro-font uppercase tracking-wide mb-1 transition-colors group-focus-within:text-blue-800">Origen Ingreso</label>
                 <div class="relative">
                   <select v-model="origenIngreso" class="w-full py-2 neutro-secondary neutro-font border-b border-gray-100 focus:border-blue-900 focus:outline-none text-base transition-colors appearance-none cursor-pointer">
                     <option value="cliente" >Conducido por Cliente</option>

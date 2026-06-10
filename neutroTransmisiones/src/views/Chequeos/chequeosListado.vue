@@ -109,20 +109,20 @@ onMounted(async () => {
           <tbody class="divide-y divide-gray-200">
             <tr v-for="chequeo in chequeos" :key="chequeo.id" @click="verChequeo(chequeo.id)"
               class="hover:opacity-80 transition-colors cursor-pointer">
-              <td class="px-5 py-3.5 font-bold neutro-font">#{{ chequeo.id }}</td>
-              <td class="px-5 py-3.5 neutro-font">{{ formatFecha(chequeo.created_at) }}</td>
-              <td class="px-5 py-3.5 neutro-font">#{{ chequeo.orden_trabajo?.id || '—' }}</td>
+              <td class="px-5 py-3.5 font-bold text-white">#{{ chequeo.id }}</td>
+              <td class="px-5 py-3.5 text-white">{{ formatFecha(chequeo.created_at) }}</td>
+              <td class="px-5 py-3.5 text-white">#{{ chequeo.orden_trabajo?.id || '—' }}</td>
               <td class="px-5 py-3.5">
                 <span class="px-2 py-1 bg-yellow-100 text-yellow-800 font-bold rounded text-xs">
                   {{ chequeo.orden_trabajo?.vehiculo?.patente || 'S/P' }}
                 </span>
               </td>
-              <td class="px-5 py-3.5 neutro-font">
+              <td class="px-5 py-3.5 text-white">
                 {{ chequeo.orden_trabajo?.vehiculo?.marca }} {{ chequeo.orden_trabajo?.vehiculo?.modelo }}
               </td>
             </tr>
             <tr v-if="chequeos.length === 0">
-              <td colspan="5" class="px-5 py-8 text-center neutro-font">
+              <td colspan="5" class="px-5 py-8 text-center text-white">
                 No hay chequeos registrados
               </td>
             </tr>
@@ -135,22 +135,22 @@ onMounted(async () => {
         <div v-for="chequeo in chequeos" :key="chequeo.id" @click="verChequeo(chequeo.id)"
           class="neutro-secondary rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:opacity-80 transition-all active:scale-[0.98]">
           <div class="flex items-center justify-between mb-2">
-            <span class="font-bold neutro-font">#{{ chequeo.id }}</span>
-            <span class="text-xs neutro-font">{{ formatFecha(chequeo.created_at) }}</span>
+            <span class="font-bold text-white">#{{ chequeo.id }}</span>
+            <span class="text-xs text-white">{{ formatFecha(chequeo.created_at) }}</span>
           </div>
           <div class="flex items-center justify-between">
             <span class="px-2 py-1 bg-yellow-100 text-yellow-800 font-bold rounded text-xs">
               {{ chequeo.orden_trabajo?.vehiculo?.patente || 'S/P' }}
             </span>
-            <span class="text-sm neutro-font">
+            <span class="text-sm text-white">
               {{ chequeo.orden_trabajo?.vehiculo?.marca }} {{ chequeo.orden_trabajo?.vehiculo?.modelo }}
             </span>
           </div>
-          <p class="text-xs neutro-font mt-2">OT #{{ chequeo.orden_trabajo?.id || '—' }}</p>
+          <p class="text-xs text-white mt-2">OT #{{ chequeo.orden_trabajo?.id || '—' }}</p>
         </div>
         <div v-if="chequeos.length === 0" class="neutro-secondary rounded-xl p-10 text-center shadow-sm border border-gray-100">
-          <p class="neutro-font text-lg">No hay chequeos registrados</p>
-          <p class="text-sm neutro-font">Realiza un chequeo completo para comenzar.</p>
+          <p class="text-white text-lg">No hay chequeos registrados</p>
+          <p class="text-sm text-white">Realiza un chequeo completo para comenzar.</p>
         </div>
       </div>
     </div>
@@ -159,9 +159,9 @@ onMounted(async () => {
     <div v-if="mostrarModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div class="neutro-background rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-300 max-h-[80vh] flex flex-col">
         <!-- Header -->
-        <div class="p-5 neutro-primary border-b border-gray-100 flex justify-between items-center shrink-0">
-          <h3 class="text-lg font-bold text-white">Seleccionar Orden de Trabajo</h3>
-          <button @click="mostrarModal = false" class="text-white hover:opacity-70 cursor-pointer transition-all">
+        <div class="p-5 border-b border-gray-100 flex justify-between items-center shrink-0">
+          <h3 class="text-lg font-bold neutro-font">Seleccionar Orden de Trabajo</h3>
+          <button @click="mostrarModal = false" class="neutro-font hover:opacity-70 cursor-pointer transition-all">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>

@@ -1,13 +1,15 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import navbar from '../../components/componentes/navbar.vue'
 import { useInterfaz } from '../../stores/interfaz.js'
 import { supabase } from '../../lib/supabaseClient.js'
-
+import TallerConfig from './taller.vue'
+import volver from '@/components/componentes/volver.vue'
 const interfaz = useInterfaz()
 const tabActiva = ref('empresa')
 const tabs = [
   { id: 'empresa', label: 'Empresa', icon: 'building' },
+  { id: 'taller', label: 'Taller', icon: 'box' },
   { id: 'servicios', label: 'Servicios', icon: 'cog' },
   { id: 'cuentas', label: 'Cuentas Bancarias', icon: 'bank' },
 ]
@@ -52,6 +54,8 @@ const servicios = ref([])
 const mostrarModalServicio = ref(false)
 const servicioEditando = ref(null)
 const nuevoServicio = ref({ nombre: '', precio: 0, activo: true })
+const guardandoServicio = ref(false)
+const guardandoCuenta = ref(false)
 
 const obtenerServicios = async () => {
   const { data, error } = await supabase
@@ -89,33 +93,47 @@ const cerrarModalServicio = () => {
 }
 
 const guardarServicio = async () => {
-  if (servicioEditando.value) {
-    const index = servicios.value.findIndex(s => s.id === servicioEditando.value)
-    if (index !== -1) servicios.value[index] = { ...nuevoServicio.value }
-  } else {
-    servicios.value.push({ ...nuevoServicio.value, id: Date.now() })
+  if (guardandoServicio.value) return
+  guardandoServicio.value = true
+  try {
+    let errorResponse;
+    if (servicioEditando.value) {
+      const { id, ...payload } = nuevoServicio.value;
+      const { error } = await supabase
+        .from('servicios')
+        .update(payload)
+        .eq('id', servicioEditando.value);
+      errorResponse = error;
+    } else {
+      const { error } = await supabase
+        .from('servicios')
+        .insert(nuevoServicio.value);
+      errorResponse = error;
+    }
+
+    if (errorResponse) {
+      console.error('Error al guardar el servicio:', errorResponse)
+      return
+    }
+    await obtenerServicios()
+    cerrarModalServicio()
+  } finally {
+    guardandoServicio.value = false
   }
-  const { error } = await supabase
-    .from('servicios')
-    .upsert(nuevoServicio.value)
-  if (error) {
-    console.error('Error al guardar el servicio:', error)
-    return
-  }
-  cerrarModalServicio()
 }
 
-const eliminarServicio = async (id) => {
-  if (!confirm('¿Eliminar este servicio?')) return
-  const { error } = await supabase
-    .from('servicios')
-    .delete()
-    .eq('id', id)
-  if (error) {
-    console.error('Error al eliminar el servicio:', error)
-    return
-  }
-  servicios.value = servicios.value.filter(s => s.id !== id)
+const eliminarServicio = (id) => {
+  abrirConfirmacion('¿Estás seguro de que deseas eliminar este servicio?', async () => {
+    const { error } = await supabase
+      .from('servicios')
+      .delete()
+      .eq('id', id)
+    if (error) {
+      console.error('Error al eliminar el servicio:', error)
+      return
+    }
+    servicios.value = servicios.value.filter(s => s.id !== id)
+  })
 }
 
 // ── Cuentas Bancarias ──
@@ -173,29 +191,49 @@ const cerrarModalCuenta = () => {
   cuentaEditando.value = null
 }
 const guardarCuenta = async () => {
-  const payload = {
-    banco: nuevaCuenta.value.banco,
-    tipo_cuenta: nuevaCuenta.value.tipo_cuenta,
-    numero_cuenta: nuevaCuenta.value.numero_cuenta,
-    titular: nuevaCuenta.value.titular,
-    rut_titular: nuevaCuenta.value.rut_titular,
+  if (guardandoCuenta.value) return
+  guardandoCuenta.value = true
+  try {
+    const payload = {
+      banco: nuevaCuenta.value.banco,
+      tipo_cuenta: nuevaCuenta.value.tipo_cuenta,
+      numero_cuenta: nuevaCuenta.value.numero_cuenta,
+      titular: nuevaCuenta.value.titular,
+      rut_titular: nuevaCuenta.value.rut_titular,
+    }
+    let errorResponse, responseData;
+
+    if (cuentaEditando.value) {
+      const { error, data } = await supabase
+        .from('neutro_cuentas')
+        .update(payload)
+        .eq('id', cuentaEditando.value)
+        .select()
+        .single()
+      errorResponse = error;
+      responseData = data;
+    } else {
+      const { error, data } = await supabase
+        .from('neutro_cuentas')
+        .insert(payload)
+        .select()
+        .single()
+      errorResponse = error;
+      responseData = data;
+    }
+
+    if (errorResponse) {
+      console.error('Error al guardar cuenta bancaria:', errorResponse)
+      return
+    }
+    await obtenerCuentas()
+    if (cuentas.value.length === 1 && responseData) {
+      await setFavoritoCuenta(responseData.id)
+    }
+    cerrarModalCuenta()
+  } finally {
+    guardandoCuenta.value = false
   }
-  if (cuentaEditando.value) payload.id = cuentaEditando.value
-  const { error, data } = await supabase
-    .from('neutro_cuentas')
-    .upsert(payload)
-    .select()
-    .single()
-  if (error) {
-    console.error('Error al guardar cuenta bancaria:', error)
-    return
-  }
-  await obtenerCuentas()
-  // Si es la primera cuenta, marcarla como favorita automáticamente
-  if (cuentas.value.length === 1 && data) {
-    await setFavoritoCuenta(data.id)
-  }
-  cerrarModalCuenta()
 }
 
 const setFavoritoCuenta = async (id) => {
@@ -221,22 +259,51 @@ const setFavoritoCuenta = async (id) => {
   cuentas.value.forEach(c => c.favorito = c.id === id)
 }
 
-const eliminarCuenta = async (id) => {
-  if (!confirm('¿Eliminar esta cuenta bancaria?')) return
-  const eraFavorita = cuentas.value.find(c => c.id === id)?.favorito
-  const { error } = await supabase
-    .from('neutro_cuentas')
-    .delete()
-    .eq('id', id)
-  if (error) {
-    console.error('Error al eliminar cuenta bancaria:', error)
-    return
-  }
-  cuentas.value = cuentas.value.filter(c => c.id !== id)
-  // Si se eliminó la favorita, asignar la primera como favorita
-  if (eraFavorita && cuentas.value.length > 0) {
-    await setFavoritoCuenta(cuentas.value[0].id)
-  }
+const eliminarCuenta = (id) => {
+  abrirConfirmacion('¿Estás seguro de que deseas eliminar esta cuenta bancaria?', async () => {
+    const eraFavorita = cuentas.value.find(c => c.id === id)?.favorito
+    const { error } = await supabase
+      .from('neutro_cuentas')
+      .delete()
+      .eq('id', id)
+    if (error) {
+      console.error('Error al eliminar cuenta bancaria:', error)
+      return
+    }
+    cuentas.value = cuentas.value.filter(c => c.id !== id)
+    if (eraFavorita && cuentas.value.length > 0) {
+      await setFavoritoCuenta(cuentas.value[0].id)
+    }
+  })
+}
+
+// ── Computed: validación formulario cuenta ──
+const cuentaFormValido = computed(() => {
+  return (
+    nuevaCuenta.value.banco.trim() !== '' &&
+    nuevaCuenta.value.numero_cuenta.trim() !== '' &&
+    nuevaCuenta.value.titular.trim() !== '' &&
+    nuevaCuenta.value.rut_titular.trim() !== ''
+  )
+})
+
+// ── Modal de confirmación ──
+const mostrarConfirmacion = ref(false)
+const confirmacionMensaje = ref('')
+let confirmacionCallback = null
+
+const abrirConfirmacion = (mensaje, callback) => {
+  confirmacionMensaje.value = mensaje
+  confirmacionCallback = callback
+  mostrarConfirmacion.value = true
+}
+const cerrarConfirmacion = () => {
+  mostrarConfirmacion.value = false
+  confirmacionCallback = null
+}
+const ejecutarConfirmacion = async () => {
+  if (confirmacionCallback) await confirmacionCallback()
+  cerrarConfirmacion()
 }
 
 const formatoMoneda = (valor) => {
@@ -252,23 +319,29 @@ const obtenerDatosEmpresa = async () => {
   const { data, error } = await supabase
     .from('neutro_t')
     .select('*')
+    .maybeSingle()
   if (error) {
     console.error('Error al obtener los datos de la empresa:', error)
     return
   }
-  if (data && data[0]) {
-    const d = data[0]
-    empresa.value.nombre_fantasia = d.nombre_fantasia || ''
-    empresa.value.razon_social = d.razon_social || ''
-    empresa.value.rut = d.rut || ''
-    empresa.value.giro = d.giro || ''
-    empresa.value.direccion = d.direccion || ''
-    empresa.value.ciudad = d.ciudad || ''
-    empresa.value.region = d.region || ''
-    empresa.value.web = d.web || ''
+  if (data) {
+    empresa.value.nombre_fantasia = data.nombre_fantasia || ''
+    empresa.value.razon_social = data.razon_social || ''
+    empresa.value.rut = data.rut || ''
+    empresa.value.giro = data.giro || ''
+    empresa.value.direccion = data.direccion || ''
+    empresa.value.ciudad = data.ciudad || ''
+    empresa.value.region = data.region || ''
+    empresa.value.web = data.web || ''
   }
-
-  // Emails
+  else {
+    const { error: insertError } = await supabase
+      .from('neutro_t')
+      .insert({ nombre_fantasia: '', razon_social: '', rut: '', giro: '', direccion: '', ciudad: '', region: '', web: '' })
+    if (insertError) {
+      console.error('Error al crear registro inicial de empresa:', insertError)
+    }
+  }
   const { data: emails } = await supabase
     .from('neutro_email')
     .select('*')
@@ -281,8 +354,6 @@ const obtenerDatosEmpresa = async () => {
     const prioIndex = empresa.value.emails.findIndex(e => e.prioritario)
     empresa.value.emails.forEach((e, i) => e.prioritario = i === (prioIndex >= 0 ? prioIndex : 0))
   }
-
-  // Teléfonos
   const { data: tels } = await supabase
     .from('neutro_telefono')
     .select('*')
@@ -416,6 +487,7 @@ onMounted(async () => {
 
       <!-- Header -->
       <div class="mb-6 hidden sm:block">
+        <volver />
         <h1 class="text-2xl font-bold neutro-font">Gestión NeutroTransmisiones</h1>
         <p class="text-sm neutro-font mt-1">Administra la configuración general de los datos de la App.</p>
       </div>
@@ -602,6 +674,11 @@ onMounted(async () => {
         </div>
       </div>
 
+      <!-- ═══════════════════ TAB: TALLER ═══════════════════ -->
+      <div v-if="tabActiva === 'taller'">
+        <TallerConfig />
+      </div>
+
       <!-- ═══════════════════ TAB: SERVICIOS ═══════════════════ -->
       <div v-if="tabActiva === 'servicios'">
         <div class="flex justify-between items-center mb-4">
@@ -617,64 +694,117 @@ onMounted(async () => {
           </button>
         </div>
 
-        <div class="neutro-primary text-white rounded-xl shadow-sm border border-gray-700 overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-800">
-              <thead class="neutro-primary text-white">
-                <tr>
-                  <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Servicio</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Precio</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Estado</th>
-                  <th class="px-6 py-3 text-right text-sm font-medium uppercase tracking-wider">Acciones</th>
-                </tr>
-              </thead>
-              <tbody class="neutro-secondary divide-y divide-gray-800">
-                <tr v-for="servicio in servicios" :key="servicio.id" class="hover:opacity-80 transition-colors">
-                  <td class="px-6 py-4 max-w-[200px]">
-                    <div class="flex items-center gap-3">
-                      <div class="p-2 bg-blue-100 text-blue-600 rounded-full shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      </div>
-                      <span class="text-sm font-medium text-white truncate">{{ servicio.nombre }}</span>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-white">
-                    {{ formatoMoneda(servicio.precio) }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                      :class="servicio.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                    >
-                      <span class="w-1.5 h-1.5 mr-1.5 rounded-full" :class="servicio.activo ? 'bg-green-400' : 'bg-red-400'"></span>
-                      {{ servicio.activo ? 'Activo' : 'Inactivo' }}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right">
-                    <div class="flex justify-end gap-1">
-                      <button @click="abrirModalServicio(servicio)" class="p-2 text-white hover:text-blue-900 hover:bg-blue-400 rounded-lg transition cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                      <button @click="eliminarServicio(servicio.id)" class="p-2 text-white hover:text-red-600 hover:bg-red-500 rounded-lg transition cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div v-if="servicios.length === 0" class="p-10 text-center">
-            <p class="text-white font-medium">No hay servicios registrados</p>
-          </div>
+        <!-- Empty state -->
+        <div v-if="servicios.length === 0" class="neutro-secondary rounded-xl p-10 text-center border border-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-white/30 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <p class="text-white/60 font-semibold">No hay servicios registrados</p>
+          <p class="text-white/40 text-sm mt-1">Agrega el primer servicio para comenzar.</p>
         </div>
+
+        <template v-else>
+          <!-- Mobile: Cards -->
+          <div class="md:hidden space-y-3">
+            <div
+              v-for="servicio in servicios"
+              :key="'card-srv-' + servicio.id"
+              class="neutro-secondary rounded-xl shadow-sm p-4 space-y-3 border border-gray-700"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="p-2 bg-blue-100 text-blue-600 rounded-full shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <span class="text-sm font-semibold text-white truncate">{{ servicio.nombre }}</span>
+                </div>
+                <span
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0"
+                  :class="servicio.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                >
+                  <span class="w-1.5 h-1.5 mr-1 rounded-full" :class="servicio.activo ? 'bg-green-400' : 'bg-red-400'"></span>
+                  {{ servicio.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </div>
+              <div class="border-t border-gray-700 pt-2 flex items-center justify-between">
+                <span class="text-sm font-bold text-white">{{ formatoMoneda(servicio.precio) }}</span>
+                <div class="flex gap-1">
+                  <button @click="abrirModalServicio(servicio)" class="p-2 text-white hover:text-blue-400 rounded-lg transition cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button @click="eliminarServicio(servicio.id)" class="p-2 text-white hover:text-red-400 rounded-lg transition cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Desktop: Table -->
+          <div class="hidden md:block neutro-primary text-white rounded-xl shadow-sm border border-gray-700 overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-800">
+                <thead class="neutro-primary text-white">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Servicio</th>
+                    <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Precio</th>
+                    <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Estado</th>
+                    <th class="px-6 py-3 text-right text-sm font-medium uppercase tracking-wider">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody class="neutro-secondary divide-y divide-gray-800">
+                  <tr v-for="servicio in servicios" :key="servicio.id" class="hover:opacity-80 transition-colors">
+                    <td class="px-6 py-4 max-w-[200px]">
+                      <div class="flex items-center gap-3">
+                        <div class="p-2 bg-blue-100 text-blue-600 rounded-full shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        </div>
+                        <span class="text-sm font-medium text-white truncate">{{ servicio.nombre }}</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-white">
+                      {{ formatoMoneda(servicio.precio) }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        :class="servicio.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                      >
+                        <span class="w-1.5 h-1.5 mr-1.5 rounded-full" :class="servicio.activo ? 'bg-green-400' : 'bg-red-400'"></span>
+                        {{ servicio.activo ? 'Activo' : 'Inactivo' }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                      <div class="flex justify-end gap-1">
+                        <button @click="abrirModalServicio(servicio)" class="p-2 text-white hover:text-blue-900 hover:bg-blue-400 rounded-lg transition cursor-pointer">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                        <button @click="eliminarServicio(servicio.id)" class="p-2 text-white hover:text-red-600 hover:bg-red-500 rounded-lg transition cursor-pointer">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </template>
       </div>
 
       <!-- ═══════════════════ TAB: CUENTAS BANCARIAS ═══════════════════ -->
@@ -692,68 +822,135 @@ onMounted(async () => {
           </button>
         </div>
 
-        <div class="neutro-primary text-white rounded-xl shadow-sm border border-gray-700 overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-800 text-sm">
-              <thead class="neutro-primary text-white">
-                <tr>
-                  <th class="px-6 py-3 text-center text-sm font-medium uppercase tracking-wider w-12">★</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Banco</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Tipo</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">N° Cuenta</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Titular</th>
-                  <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">RUT</th>
-                  <th class="px-6 py-3 text-right text-sm font-medium uppercase tracking-wider">Acciones</th>
-                </tr>
-              </thead>
-              <tbody class="neutro-secondary divide-y divide-gray-800">
-                <tr v-for="cuenta in cuentas" :key="cuenta.id" class="hover:opacity-80 transition-colors">
-                  <td class="px-6 py-4 whitespace-nowrap text-center">
-                    <button
-                      @click="setFavoritoCuenta(cuenta.id)"
-                      class="cursor-pointer transition-all duration-200 text-xl"
-                      :class="cuenta.favorito ? 'text-yellow-400 scale-110' : 'text-gray-500 hover:text-yellow-300'"
-                      :title="cuenta.favorito ? 'Cuenta principal' : 'Marcar como principal'"
-                    >
-                      {{ cuenta.favorito ? '★' : '☆' }}
-                    </button>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center gap-3">
-                      <div class="p-2 bg-green-100 text-green-600 rounded-full shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4" />
-                        </svg>
-                      </div>
-                      <span class="font-medium text-white">{{ cuenta.banco }}</span>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-white">{{ cuenta.tipo_cuenta }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap font-mono text-white">{{ cuenta.numero_cuenta }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-white max-w-[150px] truncate">{{ cuenta.titular }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-white">{{ cuenta.rut_titular }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right">
-                    <div class="flex justify-end gap-1">
-                      <button @click="abrirModalCuenta(cuenta)" class="p-2 text-white hover:text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                      <button @click="eliminarCuenta(cuenta.id)" class="p-2 text-white hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div v-if="cuentas.length === 0" class="p-10 text-center">
-            <p class="text-white font-medium">No hay cuentas bancarias registradas</p>
-          </div>
+        <!-- Empty state -->
+        <div v-if="cuentas.length === 0" class="neutro-secondary rounded-xl p-10 text-center border border-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-white/30 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4" />
+          </svg>
+          <p class="text-white/60 font-semibold">No hay cuentas bancarias registradas</p>
+          <p class="text-white/40 text-sm mt-1">Agrega la primera cuenta bancaria de la empresa.</p>
         </div>
+
+        <template v-else>
+          <!-- Mobile: Cards -->
+          <div class="md:hidden space-y-3">
+            <div
+              v-for="cuenta in cuentas"
+              :key="'card-cta-' + cuenta.id"
+              class="neutro-secondary rounded-xl shadow-sm p-4 space-y-3 border border-gray-700"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="p-2 bg-green-100 text-green-600 rounded-full shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4" />
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="text-sm font-semibold text-white truncate">{{ cuenta.banco }}</div>
+                    <div class="text-xs text-white/70">{{ cuenta.tipo_cuenta }}</div>
+                  </div>
+                </div>
+                <button
+                  @click="setFavoritoCuenta(cuenta.id)"
+                  class="cursor-pointer transition-all duration-200 text-xl shrink-0"
+                  :class="cuenta.favorito ? 'text-yellow-400 scale-110' : 'text-gray-500 hover:text-yellow-300'"
+                >
+                  {{ cuenta.favorito ? '★' : '☆' }}
+                </button>
+              </div>
+
+              <div class="border-t border-gray-700 pt-2 space-y-1">
+                <div class="flex justify-between text-xs">
+                  <span class="text-white/50">N° Cuenta</span>
+                  <span class="text-white font-mono">{{ cuenta.numero_cuenta }}</span>
+                </div>
+                <div class="flex justify-between text-xs">
+                  <span class="text-white/50">Titular</span>
+                  <span class="text-white truncate ml-4 text-right">{{ cuenta.titular }}</span>
+                </div>
+                <div class="flex justify-between text-xs">
+                  <span class="text-white/50">RUT</span>
+                  <span class="text-white">{{ cuenta.rut_titular }}</span>
+                </div>
+              </div>
+
+              <div class="flex justify-end gap-1 pt-1 border-t border-gray-700">
+                <button @click="abrirModalCuenta(cuenta)" class="p-2 text-white hover:text-blue-400 rounded-lg transition cursor-pointer">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button @click="eliminarCuenta(cuenta.id)" class="p-2 text-white hover:text-red-400 rounded-lg transition cursor-pointer">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Desktop: Table -->
+          <div class="hidden md:block neutro-primary text-white rounded-xl shadow-sm border border-gray-700 overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-800 text-sm">
+                <thead class="neutro-primary text-white">
+                  <tr>
+                    <th class="px-6 py-3 text-center text-sm font-medium uppercase tracking-wider w-12">★</th>
+                    <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Banco</th>
+                    <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Tipo</th>
+                    <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">N° Cuenta</th>
+                    <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">Titular</th>
+                    <th class="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">RUT</th>
+                    <th class="px-6 py-3 text-right text-sm font-medium uppercase tracking-wider">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody class="neutro-secondary divide-y divide-gray-800">
+                  <tr v-for="cuenta in cuentas" :key="cuenta.id" class="hover:opacity-80 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                      <button
+                        @click="setFavoritoCuenta(cuenta.id)"
+                        class="cursor-pointer transition-all duration-200 text-xl"
+                        :class="cuenta.favorito ? 'text-yellow-400 scale-110' : 'text-gray-500 hover:text-yellow-300'"
+                        :title="cuenta.favorito ? 'Cuenta principal' : 'Marcar como principal'"
+                      >
+                        {{ cuenta.favorito ? '★' : '☆' }}
+                      </button>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center gap-3">
+                        <div class="p-2 bg-green-100 text-green-600 rounded-full shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4" />
+                          </svg>
+                        </div>
+                        <span class="font-medium text-white">{{ cuenta.banco }}</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-white">{{ cuenta.tipo_cuenta }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap font-mono text-white">{{ cuenta.numero_cuenta }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-white max-w-[150px] truncate">{{ cuenta.titular }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-white">{{ cuenta.rut_titular }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                      <div class="flex justify-end gap-1">
+                        <button @click="abrirModalCuenta(cuenta)" class="p-2 text-white hover:text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                        <button @click="eliminarCuenta(cuenta.id)" class="p-2 text-white hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </template>
       </div>
 
     </div>
@@ -782,8 +979,11 @@ onMounted(async () => {
           </div>
         </div>
         <div class="px-6 pb-6 flex justify-end gap-3">
-          <button @click="cerrarModalServicio" class="px-4 py-2.5 neutro-secondary text-white rounded-lg text-sm font-semibold hover:opacity-80 transition cursor-pointer">Cancelar</button>
-          <button @click="guardarServicio" class="px-4 py-2.5 neutro-secondary text-white rounded-lg text-sm font-semibold hover:opacity-90 transition cursor-pointer">Guardar</button>
+          <button @click="cerrarModalServicio" :disabled="guardandoServicio" class="px-4 py-2.5 neutro-secondary text-white rounded-lg text-sm font-semibold hover:opacity-80 transition cursor-pointer">Cancelar</button>
+          <button @click="guardarServicio" :disabled="guardandoServicio" class="px-4 py-2.5 neutro-secondary text-white rounded-lg text-sm font-semibold transition flex items-center gap-2" :class="guardandoServicio ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-90 cursor-pointer'">
+            <svg v-if="guardandoServicio" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            {{ guardandoServicio ? 'Guardando...' : 'Guardar' }}
+          </button>
         </div>
       </div>
     </div>
@@ -829,8 +1029,33 @@ onMounted(async () => {
           </div>
         </div>
         <div class="px-6 pb-6 flex justify-end gap-3">
-          <button @click="cerrarModalCuenta" class="px-4 py-2.5 neutro-secondary text-white rounded-lg text-sm font-semibold hover:opacity-80 transition cursor-pointer">Cancelar</button>
-          <button @click="guardarCuenta" class="px-4 py-2.5 neutro-secondary text-white rounded-lg text-sm font-semibold hover:opacity-90 transition cursor-pointer">Guardar</button>
+          <button @click="cerrarModalCuenta" :disabled="guardandoCuenta" class="px-4 py-2.5 neutro-secondary text-white rounded-lg text-sm font-semibold hover:opacity-80 transition cursor-pointer">Cancelar</button>
+          <button @click="guardarCuenta" :disabled="!cuentaFormValido || guardandoCuenta" class="px-4 py-2.5 neutro-secondary text-white rounded-lg text-sm font-semibold transition flex items-center gap-2" :class="(cuentaFormValido && !guardandoCuenta) ? 'hover:opacity-90 cursor-pointer' : 'opacity-40 cursor-not-allowed'">
+            <svg v-if="guardandoCuenta" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            {{ guardandoCuenta ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
+  <!-- ═══════════════════ MODAL CONFIRMACIÓN ═══════════════════ -->
+  <Teleport to="body">
+    <div v-if="mostrarConfirmacion" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="cerrarConfirmacion"></div>
+      <div class="relative neutro-secondary rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
+        <div class="p-6 text-center">
+          <div class="mx-auto w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Confirmar eliminación</h3>
+          <p class="text-sm text-white/80 leading-relaxed">{{ confirmacionMensaje }}</p>
+        </div>
+        <div class="p-4 flex gap-3 border-t border-gray-700">
+          <button @click="cerrarConfirmacion" class="flex-1 py-2.5 rounded-xl font-semibold text-sm neutro-primary text-white hover:opacity-80 transition cursor-pointer">Cancelar</button>
+          <button @click="ejecutarConfirmacion" class="flex-1 py-2.5 rounded-xl font-semibold text-sm bg-red-600 text-white hover:bg-red-700 transition cursor-pointer">Eliminar</button>
         </div>
       </div>
     </div>

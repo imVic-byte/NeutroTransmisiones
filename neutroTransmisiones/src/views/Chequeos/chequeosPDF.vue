@@ -41,10 +41,10 @@ const formatoFechaYHora = (fecha) => {
 }
 
 const traerDatosEmpresa = async () => {
-  const { data } = await supabase.from('neutro_t').select('*').eq('id', 1).single()
+  const { data } = await supabase.from('neutro_t').select('*').eq('id', 1).maybeSingle()
   if (data) datosEmpresa.value = data
 
-  const { data: emailData } = await supabase.from('neutro_email').select('*').eq('prioritario', true).single()
+  const { data: emailData } = await supabase.from('neutro_email').select('*').eq('prioritario', true).maybeSingle()
   if (emailData) datosEmpresa.value.email = emailData.email
 
   const { data: telData } = await supabase.from('neutro_telefono').select('*').eq('prioritario', true).maybeSingle()
@@ -146,10 +146,10 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div class="mx-auto">
+    <div class="mx-auto w-full px-2 lg:px-0 pb-4">
     <div 
       id="elemento-a-imprimir" 
-      class="mx-auto overflow-hidden max-w-[21cm] bg-white print:w-full print:max-w-none print:m-0 print:border-none print:shadow-none"
+      class="mx-auto overflow-hidden w-full max-w-[21cm] bg-white shadow-md print:w-full print:max-w-none print:m-0 print:border-none print:shadow-none"
     >
       <div class="px-4 py-2 mx-auto text-xs font-sans leading-normal" v-if="chequeo">
 
@@ -180,7 +180,7 @@ onMounted(async () => {
           <div class="w-24 h-1 bg-[#234723] rounded mx-auto mb-8"></div>
 
           <!-- Info empresa y cliente lado a lado -->
-          <div class="grid grid-cols-2 gap-10 text-left w-full max-w-lg mx-auto mb-8">
+          <div class="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-6 sm:gap-10 print:gap-10 text-left w-full max-w-lg mx-auto mb-8">
             <div>
               <h3 class="font-bold border-b-2 border-[#234723] mb-2 pb-1 text-[11px] uppercase text-[#234723]">De: NeutroTransmisiones</h3>
               <ul class="space-y-1 text-[#374151] text-xs">
@@ -225,7 +225,7 @@ onMounted(async () => {
           </div>
 
           <!-- Firmas -->
-          <div class="flex gap-16 justify-center mt-4">
+          <div class="flex flex-col sm:flex-row print:flex-row gap-8 sm:gap-16 print:gap-16 justify-center items-center mt-4">
             <div class="text-center w-36">
               <div class="h-12 border-b-2 border-[#d1d5db] mb-1"></div>
               <p class="text-[9px] font-bold text-[#9ca3af] uppercase">Firma Taller</p>
@@ -247,12 +247,12 @@ onMounted(async () => {
           <div class="w-full h-2 bg-[#234723]"></div>
           
           <div class="p-5">
-            <div class="flex justify-between items-end border-b border-[#e5e7eb] pb-2 mb-4">
-              <div>
+            <div class="flex flex-col sm:flex-row print:flex-row justify-between items-center sm:items-end print:items-end border-b border-[#e5e7eb] pb-2 mb-4 gap-2">
+              <div class="text-center sm:text-left print:text-left">
                 <h2 class="text-xl font-bold uppercase tracking-tight text-[#234723]">Detalle de Inspección</h2>
                 <p class="text-xs text-[#6b7280]">Resultado completo del chequeo vehicular</p>
               </div>
-              <div class="text-right">
+              <div class="text-center sm:text-right print:text-right">
                 <p class="text-[10px] font-mono text-[#9ca3af]">
                   Chequeo #{{ chequeo.id }}
                   <template v-if="ot"> / {{ ot.vehiculo?.marca }} {{ ot.vehiculo?.modelo }}</template>
@@ -308,12 +308,12 @@ onMounted(async () => {
           <div class="w-full h-2 bg-[#234723]"></div>
           
           <div class="p-5">
-            <div class="flex justify-between items-end border-b border-[#e5e7eb] pb-2 mb-4">
-              <div>
+            <div class="flex flex-col sm:flex-row print:flex-row justify-between items-center sm:items-end print:items-end border-b border-[#e5e7eb] pb-2 mb-4 gap-2">
+              <div class="text-center sm:text-left print:text-left">
                 <h2 class="text-xl font-bold uppercase tracking-tight text-[#234723]">Hallazgos y Observaciones</h2>
                 <p class="text-xs text-[#6b7280]">Detalle de items con estado deficiente y registro fotográfico</p>
               </div>
-              <div class="text-right">
+              <div class="text-center sm:text-right print:text-right">
                 <p class="text-[10px] font-mono text-[#9ca3af]">{{ itemsMalos(chequeo.datos_chequeo).length }} hallazgo(s)</p>
               </div>
             </div>

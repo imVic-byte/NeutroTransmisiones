@@ -7,7 +7,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'dashboard',
-      component: () => import('../views/dashboard.vue'),
+      component: () => import('../views/dashboard/main.vue'),
       meta: { 
         requiresAuth: true
        }
@@ -22,6 +22,12 @@ const router = createRouter({
       path:'/configuracion',
       name:'configuracion',
       component: () => import('../views/Panel/config.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path:'/panel/config/perfil',
+      name:'mi-perfil',
+      component: () => import('../views/Panel/perfil.vue'),
       meta: { requiresAuth: true }
     },
     {
@@ -144,6 +150,29 @@ const router = createRouter({
       }
     },
     {
+      path: '/editar-usuario/:id',
+      name: 'editar-usuario',
+      component: () => import('../views/Gestion/editarUsuarios.vue'),
+    },
+    {
+      path: '/usuarios',
+      name: 'listado-usuarios',
+      component: () => import('../views/Usuarios/usuariosListado.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Administrador', 'Gerente', 'Soporte'] }
+    },
+    {
+      path: '/usuarios/crear',
+      name: 'crear-usuario',
+      component: () => import('../views/Usuarios/usuariosForm.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Administrador', 'Gerente', 'Soporte'] }
+    },
+    {
+      path: '/usuarios/editar/:id',
+      name: 'editar-usuarios',
+      component: () => import('../views/Usuarios/usuariosForm.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Administrador', 'Gerente', 'Soporte'] }
+    },
+    {
       path: '/unauthorized',
       name: 'unauthorized',
       component: () => import('../views/unauthorized.vue'),
@@ -162,46 +191,17 @@ const router = createRouter({
       meta: { requiresAuth: true, allowedRoles: ['Administrador', 'Gerente', 'Soporte'] }
     },
     {
+      path: '/cliente/editar/:id',
+      name: 'editar-cliente',
+      component: () => import('../views/Gestion/clienteEditar.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Administrador', 'Gerente', 'Soporte'] }
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: () => import('../views/notFound.vue')
     },
-    {
-      path:'/cotizacion/crear',
-      name: 'crear-cotizacion',
-      component: () => import('../views/Cotizaciones/cotizacionesForm.vue'),
-      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
-    },
-    {
-      path:'/cotizacion/editar/:id',
-      name: 'editar-cotizacion',
-      component: () => import('../views/Cotizaciones/cotizacionesEditar.vue'),
-      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
-    },
-    {
-      path:'/cotizacion/ver/:id',
-      name: 'ver-cotizacion',
-      component: () => import('../views/Cotizaciones/cotizacionesVer.vue'),
-      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
-    },
-    {
-      path:'/cotizacion/pdf/:id',
-      name: 'pdf-cotizacion',
-      component: () => import('../views/Cotizaciones/cotizacionesPDF.vue'),
-      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
-    },
-    {
-      path:'/cotizacion/listado',
-      name: 'listado-cotizaciones',
-      component: () => import('../views/Cotizaciones/cotizacionesListado.vue'),
-      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
-    },
-    {
-      path:'/cotizacion/crear-presupuesto/:id',
-      name: 'crear-presupuesto-cotizacion',
-      component: () => import('../views/Cotizaciones/crearPresupuesto.vue'),
-      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
-    },
+
     {
       path:'/ficha-de-trabajo/:id',
       name: 'ficha-de-trabajo',
@@ -212,6 +212,12 @@ const router = createRouter({
       path:'/ficha-de-trabajo',
       name: 'listado-fichas-de-trabajo',
       component: () => import('../views/Fichas/fichaDeTrabajoListado.vue'),
+      meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
+    },
+    {
+      path: '/cotizaciones',
+      name: 'listado-cotizaciones',
+      component: () => import('../views/Fichas/cotizacionesFichaListado.vue'),
       meta: { requiresAuth: true, allowedRoles: ['Gerente', 'Soporte','Administrador'] }
     },
     {
