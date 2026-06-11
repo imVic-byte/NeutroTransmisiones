@@ -96,14 +96,16 @@ const validarFormulario = () => {
     return false;
   }
 
-  if (items.value.length === 0) {
-    modalState.value = { visible: true, titulo: "Sin servicios", mensaje: "Agrega al menos un servicio o repuesto.", exito: false };
+  const validItems = items.value.filter(i => i.descripcion && i.descripcion.trim() !== "");
+
+  if (validItems.length === 0) {
+    modalState.value = { visible: true, titulo: "Sin servicios", mensaje: "Agrega al menos un servicio o repuesto con descripción.", exito: false };
     return false;
   }
 
-  for (const item of items.value) {
-    if (!item.descripcion || !item.monto) {
-      modalState.value = { visible: true, titulo: "Item incompleto", mensaje: "Todos los items deben tener descripción y monto.", exito: false };
+  for (const item of validItems) {
+    if (!item.monto) {
+      modalState.value = { visible: true, titulo: "Item incompleto", mensaje: "Todos los items con descripción deben tener monto.", exito: false };
       return false;
     }
   }
@@ -118,7 +120,8 @@ const filtrarTelefono = (event) => {
 
 
 const totales = computed(() => {
-  const subtotal = items.value.reduce((acc, item) => acc + ((Number(item.monto) || 0) * (Number(item.cantidad) || 1)), 0);
+  const validItems = items.value.filter(i => i.descripcion && i.descripcion.trim() !== "");
+  const subtotal = validItems.reduce((acc, item) => acc + ((Number(item.monto) || 0) * (Number(item.cantidad) || 1)), 0);
   const dsc = descuentoPorcentaje.value || 0;
   const total_neto = subtotal - (subtotal * (dsc / 100));
   const pctIva = ivaBoolean.value ? 19 : 0;
@@ -169,7 +172,7 @@ const enviarFormulario = async () => {
         vencimiento: dosSemanasDespues(),
         diagnostico: diagnostico.value.toUpperCase(),
         ...totales.value,
-        detalles: items.value.map((item) => ({
+        detalles: items.value.filter(i => i.descripcion && i.descripcion.trim() !== "").map((item) => ({
           descripcion: item.descripcion.toUpperCase(),
           monto: item.monto,
           cantidad: item.cantidad || 1,

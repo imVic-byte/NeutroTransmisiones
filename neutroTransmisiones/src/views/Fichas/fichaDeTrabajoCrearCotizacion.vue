@@ -128,16 +128,14 @@ const toCamelCase = (texto) => {
 }
 
 const validarFormulario = () => {
-  const allItems = [...servicios.value, ...insumos.value];
+  const validServicios = servicios.value.filter(s => s.descripcion && s.descripcion.trim() !== "");
+  const validInsumos = insumos.value.filter(i => i.descripcion && i.descripcion.trim() !== "");
+  const allItems = [...validServicios, ...validInsumos];
   if (allItems.length === 0) {
-    modalState.value = { visible: true, titulo: "Sin ítems", mensaje: "Debe agregar al menos un servicio o insumo.", exito: false };
+    modalState.value = { visible: true, titulo: "Sin ítems", mensaje: "Debe agregar al menos un servicio o insumo con descripción.", exito: false };
     return false;
   }
   for (const item of allItems) {
-    if (!item.descripcion || item.descripcion.trim() === "") {
-      modalState.value = { visible: true, titulo: "Descripción vacía", mensaje: "Todos los ítems deben tener una descripción.", exito: false };
-      return false;
-    }
     if (item.monto === "" || isNaN(Number(item.monto)) || Number(item.monto) < 0) {
       modalState.value = { visible: true, titulo: "Monto inválido", mensaje: `El ítem "${item.descripcion}" tiene un monto inválido.`, exito: false };
       return false;
@@ -169,7 +167,9 @@ const validarFormulario = () => {
 
 
 const totales = computed(() => {
-  const allItems = [...servicios.value, ...insumos.value];
+  const validServicios = servicios.value.filter(s => s.descripcion && s.descripcion.trim() !== "");
+  const validInsumos = insumos.value.filter(i => i.descripcion && i.descripcion.trim() !== "");
+  const allItems = [...validServicios, ...validInsumos];
   const subtotal = allItems.reduce((acc, item) => acc + ((Number(item.monto) || 0) * (Number(item.cantidad) || 1)), 0);
   const dsc = descuentoPorcentaje.value || 0;
   const subtotal_con_descuento = subtotal - (subtotal * (dsc / 100));
@@ -190,7 +190,10 @@ const enviarFormulario = async () => {
   loading.value = true;
   try {    
     // Validación segura en el backend para insumos
-    for (const item of insumos.value) {
+    const validServicios = servicios.value.filter(s => s.descripcion && s.descripcion.trim() !== "");
+    const validInsumos = insumos.value.filter(i => i.descripcion && i.descripcion.trim() !== "");
+
+    for (const item of validInsumos) {
       if (item.inventario_id) {
         const { data: inventarioData, error: inventarioError } = await supabase
           .from('inventario')
@@ -215,7 +218,7 @@ const enviarFormulario = async () => {
     }
 
     // Verificar y actualizar catálogo de servicios (solo para los que son tipo 'servicio')
-    await Promise.all(servicios.value.map(async (item) => {
+    await Promise.all(validServicios.map(async (item) => {
       await verificarServicio({ nombre: item.descripcion, precio: item.monto });
     }));
 
@@ -233,7 +236,7 @@ const enviarFormulario = async () => {
     .single();
     if (error) throw error;
     
-    let itemsAGuardar = [...servicios.value, ...insumos.value];
+    let itemsAGuardar = [...validServicios, ...validInsumos];
     if (desgasteBoolean.value && totales.value.montoDesgaste > 0) {
       itemsAGuardar.push({
         descripcion: 'Desgaste Insumos (3%)',
