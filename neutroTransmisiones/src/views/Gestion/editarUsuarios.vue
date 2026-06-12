@@ -17,7 +17,7 @@ const formulario = reactive({
   rut: '',
   email: '',
   telefono: '',
-  rol: 'Trabajador'
+  rol: 'Mecánico General'
 });
 
 const errores = reactive({
@@ -247,9 +247,6 @@ onMounted(async () => {
               <select v-model="formulario.rol"
                 class="w-full border-2 border-green-900 rounded-xl p-3.5 neutro-secondary text-white focus:border-[#D8B462] focus:ring-0 focus:outline-none transition-all cursor-pointer appearance-none text-base font-medium">
                 <option value="Administrador" class="neutro-secondary">Administrador</option>
-                <option value="Gerente" class="neutro-secondary">Gerente</option>
-                <option value="Soporte" class="neutro-secondary">Soporte</option>
-                <option value="Trabajador" class="neutro-secondary">Trabajador</option>
                 <option value="Mecánico General" class="neutro-secondary">Mecánico General</option>
                 <option value="Ayudante" class="neutro-secondary">Ayudante</option>
               </select>

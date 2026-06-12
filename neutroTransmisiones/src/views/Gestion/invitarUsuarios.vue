@@ -16,7 +16,7 @@ const formulario = reactive({
   rut: '',
   email: '',
   telefono: '',
-  rol: 'Trabajador'
+  rol: 'Mecánico General'
 });
 
 const estado = reactive({
@@ -60,23 +60,42 @@ const validarFormulario = () => {
   let valido = true;
   Object.keys(errores).forEach(k => errores[k] = '');
 
-  if (!formulario.nombre.trim()) {
+  const nombre = String(formulario.nombre || '').trim();
+  if (!nombre) {
     errores.nombre = 'El nombre es obligatorio.';
     valido = false;
-  }
-  if (!formulario.apellido.trim()) {
-    errores.apellido = 'El apellido es obligatorio.';
+  } else if (nombre.length < 2) {
+    errores.nombre = 'El nombre debe tener al menos 2 caracteres.';
     valido = false;
   }
-  const rutLimpio = formulario.rut.replace(/[.\-]/g, '');
+
+  const apellido = String(formulario.apellido || '').trim();
+  if (!apellido) {
+    errores.apellido = 'El apellido es obligatorio.';
+    valido = false;
+  } else if (apellido.length < 2) {
+    errores.apellido = 'El apellido debe tener al menos 2 caracteres.';
+    valido = false;
+  }
+
+  const rutLimpio = String(formulario.rut || '').replace(/[.\-]/g, '');
   if (!rutLimpio) {
     errores.rut = 'El RUT es obligatorio.';
     valido = false;
-  } 
-  if (!formulario.telefono.trim()) {
-    errores.telefono = 'El teléfono es obligatorio.';
+  } else if (rutLimpio.length < 8) {
+    errores.rut = 'El RUT debe tener al menos 8 caracteres.';
     valido = false;
   }
+
+  const telefono = String(formulario.telefono || '').trim();
+  if (!telefono) {
+    errores.telefono = 'El teléfono es obligatorio.';
+    valido = false;
+  } else if (telefono.length < 7) {
+    errores.telefono = 'El teléfono debe tener al menos 7 dígitos.';
+    valido = false;
+  }
+
   return valido;
 };
 
@@ -162,7 +181,9 @@ onMounted(async () => {
         <form @submit.prevent="gestionarRegistro" class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 sm:p-10">
 
           <div class="space-y-2 group">
-            <label class="block text-sm font-bold text-white transition-colors group-focus-within:text-[#D8B462]">Nombre</label>
+            <label class="block text-sm font-bold text-white transition-colors group-focus-within:text-[#D8B462]">
+              Nombre <span class="text-red-400">*</span>
+            </label>
             <input v-model="formulario.nombre" type="text"
               class="w-full border-2 rounded-xl p-3.5 neutro-secondary text-white focus:border-[#D8B462] focus:ring-0 focus:outline-none transition-all text-base font-medium placeholder-gray-400"
               :class="errores.nombre ? 'border-red-400' : 'border-green-900'" />
@@ -170,7 +191,9 @@ onMounted(async () => {
           </div>
 
           <div class="space-y-2 group">
-            <label class="block text-sm font-bold text-white transition-colors group-focus-within:text-[#D8B462]">Apellido</label>
+            <label class="block text-sm font-bold text-white transition-colors group-focus-within:text-[#D8B462]">
+              Apellido <span class="text-red-400">*</span>
+            </label>
             <input v-model="formulario.apellido" type="text"
               class="w-full border-2 rounded-xl p-3.5 neutro-secondary text-white focus:border-[#D8B462] focus:ring-0 focus:outline-none transition-all text-base font-medium placeholder-gray-400"
               :class="errores.apellido ? 'border-red-400' : 'border-green-900'" />
@@ -178,7 +201,9 @@ onMounted(async () => {
           </div>
 
           <div class="space-y-2 group">
-            <label class="block text-sm font-bold text-white transition-colors group-focus-within:text-[#D8B462]">RUT</label>
+            <label class="block text-sm font-bold text-white transition-colors group-focus-within:text-[#D8B462]">
+              RUT <span class="text-red-400">*</span>
+            </label>
             <input v-model="formulario.rut" @input="onRutInput" type="text" placeholder="12.345.678-9" maxlength="12"
               class="w-full border-2 rounded-xl p-3.5 neutro-secondary text-white focus:border-[#D8B462] focus:ring-0 focus:outline-none transition-all text-base font-medium placeholder-gray-400"
               :class="errores.rut ? 'border-red-400' : 'border-green-900'" />
@@ -186,11 +211,21 @@ onMounted(async () => {
           </div>
 
           <div class="space-y-2 group">
-            <label class="block text-sm font-bold text-white transition-colors group-focus-within:text-[#D8B462]">Teléfono</label>
+            <label class="block text-sm font-bold text-white transition-colors group-focus-within:text-[#D8B462]">
+              Teléfono <span class="text-red-400">*</span>
+            </label>
             <input :value="formulario.telefono" @input="filtrarTelefono" type="text" inputmode="numeric" placeholder="912345678"
               class="w-full border-2 rounded-xl p-3.5 neutro-secondary text-white focus:border-[#D8B462] focus:ring-0 focus:outline-none transition-all text-base font-medium placeholder-gray-400"
               :class="errores.telefono ? 'border-red-400' : 'border-green-900'" />
             <p v-if="errores.telefono" class="text-red-500 text-xs font-medium">{{ errores.telefono }}</p>
+          </div>
+
+          <div class="space-y-2 group md:col-span-2">
+            <label class="block text-sm font-bold text-white transition-colors group-focus-within:text-[#D8B462]">
+              Correo electrónico <span class="text-gray-400 text-xs font-normal">(opcional)</span>
+            </label>
+            <input v-model="formulario.email" type="email" placeholder="trabajador@ejemplo.com"
+              class="w-full border-2 border-green-900 rounded-xl p-3.5 neutro-secondary text-white focus:border-[#D8B462] focus:ring-0 focus:outline-none transition-all text-base font-medium placeholder-gray-400" />
           </div>
 
           <div class="md:col-span-2 space-y-2 group">
@@ -198,6 +233,7 @@ onMounted(async () => {
             <div class="relative">
               <select v-model="formulario.rol"
                 class="w-full border-2 border-green-900 rounded-xl p-3.5 neutro-secondary text-white focus:border-[#D8B462] focus:ring-0 focus:outline-none transition-all cursor-pointer appearance-none text-base font-medium">
+                <option value="Administrador" class="neutro-secondary">Administrador</option>
                 <option value="Mecánico General" class="neutro-secondary">Mecánico General</option>
                 <option value="Ayudante" class="neutro-secondary">Ayudante</option>
               </select>

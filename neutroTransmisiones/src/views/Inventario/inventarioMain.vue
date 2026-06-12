@@ -282,7 +282,7 @@ onMounted(() => {
     </div>
 
     <!-- Stats Cards -->
-    <div class="stats-grid px-5 mt-2">
+    <div class="stats-grid w px-5 mt-2">
       <div class="stat-card stat-total neutro-primary text-white">
         <div class="stat-icon-wrap bg-blue-100 dark:bg-blue-900/40">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="stat-icon text-blue-600 dark:text-blue-400">
@@ -366,8 +366,8 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Lista de Productos -->
-    <div class="product-list px-5 mt-4">
+    <!-- Lista de Productos (Móvil) -->
+    <div class="product-list grid px-5 mt-4 md:hidden">
       <!-- Estado vacío -->
       <div v-if="productosFiltrados.length === 0" class="empty-state">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="empty-icon">
@@ -436,6 +436,85 @@ onMounted(() => {
             <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
           </svg>
         </button>
+      </div>
+    </div>
+
+    <!-- Tabla de Productos (Desktop) -->
+    <div class="px-5 mt-4 w-[80%] mx-auto hidden lg:block">
+      <div v-if="productosFiltrados.length === 0" class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="empty-icon">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m8.25 3v6.75m0 0-3-3m3 3 3-3M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+        </svg>
+        <p class="empty-title">Sin resultados</p>
+        <p class="empty-subtitle">No se encontraron productos con los filtros actuales</p>
+      </div>
+
+      <div v-else class="neutro-secondary rounded-2xl shadow-xl overflow-hidden border border-black/5 dark:border-white/5">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="neutro-primary text-white border-b border-black/10 dark:border-white/10">
+                <th class="p-4 font-bold text-xs uppercase tracking-wider">Producto</th>
+                <th class="p-4 font-bold text-xs uppercase tracking-wider">Categoría</th>
+                <th class="p-4 font-bold text-xs uppercase tracking-wider">SKU / Cód. Fab.</th>
+                <th class="p-4 font-bold text-xs uppercase tracking-wider text-right">Precio Venta</th>
+                <th class="p-4 font-bold text-xs uppercase tracking-wider text-center w-32">Stock</th>
+                <th class="p-4 font-bold text-xs uppercase tracking-wider text-center">Estado</th>
+                <th class="p-4 font-bold text-xs uppercase tracking-wider text-center w-20">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr 
+                v-for="producto in productosFiltrados" 
+                :key="producto.id"
+                class="border-b border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer text-gray-800 dark:text-white"
+                @click="abrirModalEdicion(producto)"
+              >
+                <td class="p-4">
+                  <div class="font-bold text-sm">{{ producto.nombre }}</div>
+                </td>
+                <td class="p-4 text-sm">
+                  <span v-if="producto.categoria" class="bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-100 px-2.5 py-1 rounded-md text-[0.7rem] font-bold uppercase tracking-wide">
+                    {{ producto.categoria }}
+                  </span>
+                </td>
+                <td class="p-4 text-xs font-medium opacity-80">
+                  <div v-if="producto.sku_interno">SKU: {{ producto.sku_interno }}</div>
+                  <div v-if="producto.codigo_fabricante">Cód: {{ producto.codigo_fabricante }}</div>
+                </td>
+                <td class="p-4 text-right font-bold text-sm">
+                  {{ formatearPrecio(producto.precio_venta) }}
+                </td>
+                <td class="p-4 text-center">
+                  <div class="flex flex-col items-center gap-1.5">
+                    <span class="text-sm font-bold">{{ producto.stock }}</span>
+                    <div class="w-full h-1.5 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
+                      <div class="h-full stock-bar" :class="getNivelStock(producto)" :style="{ width: Math.min((producto.stock / Math.max(producto.stock_minimo * 3, 1)) * 100, 100) + '%' }"></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-4 text-center">
+                  <span :class="['px-2.5 py-1 rounded-full text-[0.7rem] font-bold uppercase tracking-wider', getNivelStock(producto) === 'stock-ok' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : getNivelStock(producto) === 'stock-bajo' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300']">
+                    {{ getEtiquetaStock(producto) }}
+                  </span>
+                </td>
+                <td class="p-4 text-center">
+                  <div class="flex justify-center">
+                    <button
+                      class="p-2 rounded-lg text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
+                      @click.stop="confirmarEliminar(producto)"
+                      title="Eliminar producto"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -810,7 +889,6 @@ onMounted(() => {
    PRODUCT LIST
    ═══════════════════════════════════════ */
 .product-list {
-  display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
 }
@@ -1304,11 +1382,6 @@ onMounted(() => {
   }
 }
 
-@media (min-width: 1024px) {
-  .product-list {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
 
 @media (max-width: 380px) {
   .btn-agregar-text {

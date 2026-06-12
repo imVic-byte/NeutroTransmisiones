@@ -527,7 +527,7 @@ onMounted(async () => {
       <div v-if="tabActiva === 'empresa'">
         <div class="neutro-primary text-white rounded-xl shadow-sm border border-gray-700 overflow-hidden">
           <!-- Header de la tarjeta -->
-          <div class="neutro-primary p-5 flex justify-between items-center">
+          <div class="bg-black/20 p-5 flex justify-between items-center">
             <div class="flex items-center gap-3">
               <div class="p-2.5 neutro-secondary/10 rounded-full text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -547,116 +547,161 @@ onMounted(async () => {
               Editar
             </button>
           </div>
-          <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div v-for="(campo, key) in {
-                nombre_fantasia: 'Nombre de Fantasía',
-                razon_social: 'Razón Social',
-                rut: 'RUT Empresa',
-                giro: 'Giro',
-                direccion: 'Dirección',
-                ciudad: 'Ciudad',
-                region: 'Región',
-                web: 'Sitio Web'
-              }" :key="key">
+          <div class="p-6 space-y-8">
+            <!-- 1. Identidad Legal y Comercial -->
+            <div>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-gray-700 pb-2 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                Identidad Legal y Comercial
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <label class="block">
-                  <span class="text-xs text-white uppercase font-bold tracking-wide">{{ campo }}</span>
-                  <input
-                    v-if="editandoEmpresa"
-                    v-model="empresa[key]"
-                    type="text"
-                    class="mt-1 block w-full rounded-lg border border-gray-100 px-3 py-2.5 text-sm neutro-primary text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    :placeholder="campo"
-                  />
-                  <p v-else class="mt-1 text-white font-medium text-sm neutro-primary rounded-lg px-3 py-2.5">
-                    {{ empresa[key] || '—' }}
-                  </p>
+                  <span class="text-xs text-white uppercase font-bold tracking-wide">RUT Empresa</span>
+                  <input v-if="editandoEmpresa" v-model="empresa.rut" type="text" class="mt-1 block w-full rounded-lg border border-gray-600 px-3 py-2.5 text-sm bg-black/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="RUT Empresa" />
+                  <p v-else class="mt-1 text-white font-medium text-sm bg-black/20 rounded-lg px-3 py-2.5 border border-gray-700">{{ empresa.rut || '—' }}</p>
+                </label>
+                <label class="block">
+                  <span class="text-xs text-white uppercase font-bold tracking-wide">Razón Social</span>
+                  <input v-if="editandoEmpresa" v-model="empresa.razon_social" type="text" class="mt-1 block w-full rounded-lg border border-gray-600 px-3 py-2.5 text-sm bg-black/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Razón Social" />
+                  <p v-else class="mt-1 text-white font-medium text-sm bg-black/20 rounded-lg px-3 py-2.5 border border-gray-700">{{ empresa.razon_social || '—' }}</p>
+                </label>
+                <label class="block">
+                  <span class="text-xs text-white uppercase font-bold tracking-wide">Giro</span>
+                  <input v-if="editandoEmpresa" v-model="empresa.giro" type="text" class="mt-1 block w-full rounded-lg border border-gray-600 px-3 py-2.5 text-sm bg-black/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Giro" />
+                  <p v-else class="mt-1 text-white font-medium text-sm bg-black/20 rounded-lg px-3 py-2.5 border border-gray-700">{{ empresa.giro || '—' }}</p>
+                </label>
+                <label class="block">
+                  <span class="text-xs text-white uppercase font-bold tracking-wide">Nombre de Fantasía</span>
+                  <input v-if="editandoEmpresa" v-model="empresa.nombre_fantasia" type="text" class="mt-1 block w-full rounded-lg border border-gray-600 px-3 py-2.5 text-sm bg-black/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Nombre de Fantasía" />
+                  <p v-else class="mt-1 text-white font-medium text-sm bg-black/20 rounded-lg px-3 py-2.5 border border-gray-700">{{ empresa.nombre_fantasia || '—' }}</p>
                 </label>
               </div>
             </div>
 
-            <!-- Teléfonos -->
-            <div class="mt-6 pt-5 border-t border-gray-100">
-              <div class="flex justify-between items-center mb-3">
-                <span class="text-xs text-white uppercase font-bold tracking-wide">Teléfonos de Contacto</span>
-                <button v-if="editandoEmpresa" @click="agregarTelefono" class="text-xs text-white font-semibold hover:underline cursor-pointer flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
-                  Agregar
-                </button>
-              </div>
-              <div class="space-y-2">
-                <div v-for="(tel, index) in empresa.telefonos" :key="'tel-'+index" class="flex items-center gap-2">
-                  <button
-                    @click="editandoEmpresa && setPrioritarioTelefono(index)"
-                    class="flex-shrink-0 p-1 rounded-full transition"
-                    :class="editandoEmpresa ? 'cursor-pointer hover:bg-yellow-50' : 'cursor-default'"
-                    :title="tel.prioritario ? 'Prioritario' : 'Marcar como prioritario'"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="tel.prioritario ? 'text-yellow-500' : 'text-white'" :fill="tel.prioritario ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                    </svg>
-                  </button>
-                  <div class="flex-1">
-                    <div v-if="editandoEmpresa" class="flex items-center rounded-lg border border-gray-100 neutro-primary overflow-hidden">
-                      <span class="px-3 py-2.5 text-sm text-gray-300 font-semibold select-none border-r border-gray-600">+569 </span>
-                      <input
-                        v-model="tel.valor"
-                        type="tel"
-                        maxlength="8"
-                        class="block w-full px-3 py-2.5 text-sm neutro-primary text-white focus:outline-none transition bg-transparent"
-                        placeholder="12345678"
-                        @input="tel.valor = tel.valor.replace(/\D/g, '').slice(0, 8)"
-                      />
-                    </div>
-                    <p v-else class="text-white font-medium text-sm neutro-primary rounded-lg px-3 py-2.5">
-                      {{ tel.valor ? '+569 ' + tel.valor : '—' }}
-                    </p>
-                  </div>
-                  <span v-if="!editandoEmpresa && tel.prioritario" class="text-xs font-semibold text-white text-white px-2 py-0.5 rounded-full whitespace-nowrap">Principal</span>
-                  <button v-if="editandoEmpresa && empresa.telefonos.length > 1" @click="eliminarTelefono(index)" class="flex-shrink-0 p-1.5 text-white hover:text-red-500 hover:bg-red-50 rounded-lg transition cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                  </button> 
-                </div>
+            <!-- 2. Ubicación -->
+            <div>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-gray-700 pb-2 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                Ubicación
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <label class="block md:col-span-2">
+                  <span class="text-xs text-white uppercase font-bold tracking-wide">Dirección</span>
+                  <input v-if="editandoEmpresa" v-model="empresa.direccion" type="text" class="mt-1 block w-full rounded-lg border border-gray-600 px-3 py-2.5 text-sm bg-black/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Dirección" />
+                  <p v-else class="mt-1 text-white font-medium text-sm bg-black/20 rounded-lg px-3 py-2.5 border border-gray-700">{{ empresa.direccion || '—' }}</p>
+                </label>
+                <label class="block">
+                  <span class="text-xs text-white uppercase font-bold tracking-wide">Ciudad</span>
+                  <input v-if="editandoEmpresa" v-model="empresa.ciudad" type="text" class="mt-1 block w-full rounded-lg border border-gray-600 px-3 py-2.5 text-sm bg-black/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Ciudad" />
+                  <p v-else class="mt-1 text-white font-medium text-sm bg-black/20 rounded-lg px-3 py-2.5 border border-gray-700">{{ empresa.ciudad || '—' }}</p>
+                </label>
+                <label class="block">
+                  <span class="text-xs text-white uppercase font-bold tracking-wide">Región</span>
+                  <input v-if="editandoEmpresa" v-model="empresa.region" type="text" class="mt-1 block w-full rounded-lg border border-gray-600 px-3 py-2.5 text-sm bg-black/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Región" />
+                  <p v-else class="mt-1 bg-black/20 text-white font-medium text-sm rounded-lg px-3 py-2.5 border border-gray-700">{{ empresa.region || '—' }}</p>
+                </label>
               </div>
             </div>
 
-            <!-- Emails -->
-            <div class="mt-6 pt-5 border-t border-gray-100">
-              <div class="flex justify-between items-center mb-3">
-                <span class="text-xs text-white uppercase font-bold tracking-wide">Emails de Contacto</span>
-                <button v-if="editandoEmpresa" @click="agregarEmail" class="text-xs text-white font-semibold hover:underline cursor-pointer flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
-                  Agregar
-                </button>
+            <!-- 3. Contacto y Presencia Digital -->
+            <div>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-gray-700 pb-2 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                Contacto y Presencia Digital
+              </h3>
+              <div class="mb-5">
+                <label class="block">
+                  <span class="text-xs text-white uppercase font-bold tracking-wide">Sitio Web</span>
+                  <input v-if="editandoEmpresa" v-model="empresa.web" type="url" class="mt-1 block w-full rounded-lg border border-gray-600 px-3 py-2.5 text-sm bg-black/20 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="https://www.ejemplo.cl" />
+                  <p v-else class="mt-1 text-blue-400 font-medium text-sm bg-black/20 rounded-lg px-3 py-2.5 border border-gray-700">{{ empresa.web || '—' }}</p>
+                </label>
               </div>
-              <div class="space-y-2">
-                <div v-for="(em, index) in empresa.emails" :key="'em-'+index" class="flex items-center gap-2">
-                  <button
-                    @click="editandoEmpresa && setPrioritarioEmail(index)"
-                    class="flex-shrink-0 p-1 rounded-full transition"
-                    :class="editandoEmpresa ? 'cursor-pointer hover:bg-yellow-50' : 'cursor-default'"
-                    :title="em.prioritario ? 'Prioritario' : 'Marcar como prioritario'"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="em.prioritario ? 'text-yellow-500' : 'text-white'" :fill="em.prioritario ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                    </svg>
-                  </button>
-                  <div class="flex-1">
-                    <input
-                      v-if="editandoEmpresa"
-                      v-model="em.valor"
-                      type="email"
-                      class="block w-full rounded-lg border border-gray-100 px-3 py-2.5 text-sm neutro-primary text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                      placeholder="contacto@NeutroTransmisiones.cl"
-                    />
-                    <p v-else class="text-white font-medium text-sm neutro-primary rounded-lg px-3 py-2.5">
-                      {{ em.valor || '—' }}
-                    </p>
+
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <!-- Teléfonos -->
+                <div class="neutro-primary p-5 rounded-xl border border-gray-700">
+                  <div class="flex justify-between items-center mb-4">
+                    <span class="text-xs text-white uppercase font-bold tracking-wide flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg> Teléfonos</span>
+                    <button v-if="editandoEmpresa" @click="agregarTelefono" class="text-xs text-blue-400 font-bold hover:underline cursor-pointer flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+                      Agregar
+                    </button>
                   </div>
-                  <span v-if="!editandoEmpresa && em.prioritario" class="text-xs font-semibold text-white text-white px-2 py-0.5 rounded-full whitespace-nowrap">Principal</span>
-                  <button v-if="editandoEmpresa && empresa.emails.length > 1" @click="eliminarEmail(index)" class="flex-shrink-0 p-1.5 neutro-font hover:text-red-500 hover:bg-red-50 rounded-lg transition cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                  </button>
+                  <div class="space-y-3">
+                    <div v-for="(tel, index) in empresa.telefonos" :key="'tel-'+index" class="flex items-center gap-2">
+                      <button
+                        @click="editandoEmpresa && setPrioritarioTelefono(index)"
+                        class="flex-shrink-0 p-1 rounded-full transition"
+                        :class="editandoEmpresa ? 'cursor-pointer hover:bg-gray-800' : 'cursor-default'"
+                        :title="tel.prioritario ? 'Prioritario' : 'Marcar como prioritario'"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="tel.prioritario ? 'text-yellow-500' : 'text-gray-500'" :fill="tel.prioritario ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        </svg>
+                      </button>
+                      <div class="flex-1">
+                        <div v-if="editandoEmpresa" class="flex items-center rounded-lg border border-gray-600 bg-black/20 overflow-hidden">
+                          <span class="px-3 py-2 text-sm text-gray-400 font-semibold select-none border-r border-gray-600 bg-gray-900/50">+569 </span>
+                          <input
+                            v-model="tel.valor"
+                            type="tel"
+                            maxlength="8"
+                            class="block w-full px-3 py-2 text-sm text-white focus:outline-none transition bg-transparent"
+                            placeholder="12345678"
+                            @input="tel.valor = tel.valor.replace(/\D/g, '').slice(0, 8)"
+                          />
+                        </div>
+                        <p v-else class="text-white font-medium text-sm bg-black/20 border border-gray-700 rounded-lg px-3 py-2">
+                          {{ tel.valor ? '+569 ' + tel.valor : '—' }}
+                        </p>
+                      </div>
+                      <span v-if="!editandoEmpresa && tel.prioritario" class="text-[10px] font-bold text-yellow-500 uppercase px-2 py-0.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 whitespace-nowrap">Principal</span>
+                      <button v-if="editandoEmpresa && empresa.telefonos.length > 1" @click="eliminarTelefono(index)" class="flex-shrink-0 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                      </button> 
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Emails -->
+                <div class="neutro-primary p-5 rounded-xl border border-gray-700">
+                  <div class="flex justify-between items-center mb-4">
+                    <span class="text-xs text-white uppercase font-bold tracking-wide flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg> Emails</span>
+                    <button v-if="editandoEmpresa" @click="agregarEmail" class="text-xs text-blue-400 font-bold hover:underline cursor-pointer flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+                      Agregar
+                    </button>
+                  </div>
+                  <div class="space-y-3">
+                    <div v-for="(em, index) in empresa.emails" :key="'em-'+index" class="flex items-center gap-2">
+                      <button
+                        @click="editandoEmpresa && setPrioritarioEmail(index)"
+                        class="flex-shrink-0 p-1 rounded-full transition"
+                        :class="editandoEmpresa ? 'cursor-pointer hover:bg-gray-800' : 'cursor-default'"
+                        :title="em.prioritario ? 'Prioritario' : 'Marcar como prioritario'"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="em.prioritario ? 'text-yellow-500' : 'text-gray-500'" :fill="em.prioritario ? 'currentColor' : 'none'" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        </svg>
+                      </button>
+                      <div class="flex-1">
+                        <input
+                          v-if="editandoEmpresa"
+                          v-model="em.valor"
+                          type="email"
+                          class="block w-full rounded-lg border border-gray-600 bg-black/20 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                          placeholder="contacto@NeutroTransmisiones.cl"
+                        />
+                        <p v-else class="text-white font-medium text-sm bg-black/20 border border-gray-700 rounded-lg px-3 py-2">
+                          {{ em.valor || '—' }}
+                        </p>
+                      </div>
+                      <span v-if="!editandoEmpresa && em.prioritario" class="text-[10px] font-bold text-yellow-500 uppercase px-2 py-0.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 whitespace-nowrap">Principal</span>
+                      <button v-if="editandoEmpresa && empresa.emails.length > 1" @click="eliminarEmail(index)" class="flex-shrink-0 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

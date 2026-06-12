@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabaseClient'
 
-const WORKER_URL = 'https://upload-pdf.soporte-NeutroTransmisiones.workers.dev/' 
+const WORKER_URL = 'https://upload.neutrotransmisiones.workers.dev/' 
 
 export const subirFacturas = async (id_presupuesto, pdf) => {
     if (!pdf || !id_presupuesto) {

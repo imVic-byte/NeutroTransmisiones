@@ -255,8 +255,6 @@ onMounted(async () => {
                         Marca</th>
                       <th class="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">
                         Modelo</th>
-                      <th class="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">
-                        Estado</th>
                     </tr>
                   </thead>
                   <tbody class="neutro-secondary divide-y divide-gray-800">
@@ -268,13 +266,7 @@ onMounted(async () => {
                       </td>
                       <td class="px-6 py-4 whitespace-nowrap text-white font-medium">{{ v.marca || '—' }}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-white">{{ v.modelo || '—' }}</td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                        <span v-if="v.en_taller"
-                          class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">En
-                          taller</span>
-                        <span v-else
-                          class="px-2 py-1 neutro-secondary text-white rounded-full text-xs font-semibold">Fuera</span>
-                      </td>
+                      
                     </tr>
                   </tbody>
                 </table>
@@ -288,11 +280,6 @@ onMounted(async () => {
                     <span class="px-2 py-1 bg-yellow-100 text-yellow-800 font-bold rounded text-xs">{{ v.patente ||
                       'S/P'
                       }}</span>
-                    <span v-if="v.en_taller"
-                      class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">En
-                      taller</span>
-                    <span v-else
-                      class="px-2 py-1 neutro-secondary text-white rounded-full text-xs font-semibold">Fuera</span>
                   </div>
                   <p class="font-semibold text-white text-sm">{{ v.marca || '—' }} {{ v.modelo || '—' }}</p>
                 </div>

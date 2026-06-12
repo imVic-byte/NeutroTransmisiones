@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabaseClient'
 
-const WORKER_URL = 'https://finanzas.soporte-NeutroTransmisiones.workers.dev/' 
+const WORKER_URL = 'https://upload.neutrotransmisiones.workers.dev/' 
 
 export const subirFinanzas = async (transaccion, pdf) => {
     if (!pdf || !transaccion) {
